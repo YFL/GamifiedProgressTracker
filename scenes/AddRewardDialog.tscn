@@ -1,0 +1,87 @@
+[gd_scene load_steps=2 format=3 uid="uid://ciimvioy7polm"]
+
+[ext_resource type="Script" path="res://scripts/add_reward_dialog.gd" id="1_pdnj5"]
+
+[node name="AddRewardDialog" type="Control"]
+layout_mode = 3
+anchor_right = 0.425
+anchor_bottom = 0.364
+offset_right = 0.399994
+offset_bottom = 0.127991
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pdnj5")
+
+[node name="RewardNameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 10.0
+offset_right = 111.0
+offset_bottom = 33.0
+text = "Reward Name"
+
+[node name="RewardName" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 165.0
+offset_right = 470.0
+offset_bottom = 35.0
+placeholder_text = "Reward name..."
+
+[node name="DifficultyCategoryLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 59.0
+offset_right = 145.0
+offset_bottom = 82.0
+text = "Difficulty Category"
+
+[node name="DifficultyCategory" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 52.0
+offset_right = 261.0
+offset_bottom = 83.0
+selected = 0
+item_count = 4
+popup/item_0/text = "Easy"
+popup/item_0/id = 1
+popup/item_1/text = "Medium"
+popup/item_1/id = 10
+popup/item_2/text = "Hard"
+popup/item_2/id = 20
+popup/item_3/text = "Gigantic"
+popup/item_3/id = 60
+
+[node name="TierLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 109.0
+offset_right = 86.0
+offset_bottom = 132.0
+text = "Probability"
+
+[node name="Tier" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 97.0
+offset_right = 259.0
+offset_bottom = 134.0
+selected = 0
+item_count = 4
+popup/item_0/text = "Common"
+popup/item_1/text = "Rare"
+popup/item_1/id = 1
+popup/item_2/text = "Epic"
+popup/item_2/id = 2
+popup/item_3/text = "Legendary"
+popup/item_3/id = 3
+
+[node name="AddReward" type="Button" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 150.0
+offset_right = 105.0
+offset_bottom = 181.0
+text = "Add Reward"
+
+[connection signal="pressed" from="AddReward" to="." method="_on_add_reward_pressed"]

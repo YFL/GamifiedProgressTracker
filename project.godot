@@ -11,13 +11,21 @@ config_version=5
 [application]
 
 config/name="GamifiedProgressTracker"
-run/main_scene="res://MainGameScene.tscn"
+run/main_scene="res://scenes/MainGameScene.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
 [display]
 
 window/stretch/mode="viewport"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
+[gdunit4]
+
+settings/test/test_discovery=true
 
 [rendering]
 

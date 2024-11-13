@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://ocn7ukiasv8a"]
+
+[ext_resource type="Script" path="res://scripts/tasks.gd" id="1_8uk6y"]
+
+[node name="Tasks" type="ScrollContainer"]
+offset_right = 191.0
+offset_bottom = 228.0
+script = ExtResource("1_8uk6y")
+
+[node name="TasksVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
