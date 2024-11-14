@@ -1,13 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://cr08wdj13xxrb"]
+[gd_scene load_steps=10 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://dr0cr5c5yedgg" path="res://textures/AddTaskButtonPressed.png" id="3_w0mbl"]
-[ext_resource type="PackedScene" uid="uid://ocn7ukiasv8a" path="res://scenes/tasks.tscn" id="4_rrqj7"]
+[ext_resource type="PackedScene" uid="uid://ocn7ukiasv8a" path="res://scenes/Tasks.tscn" id="4_rrqj7"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
 [ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
+[ext_resource type="PackedScene" uid="uid://dp86n8gp81qx7" path="res://scenes/GameWorld.tscn" id="9_tpx84"]
 
 [node name="MainGameScene" type="Node2D"]
 script = ExtResource("1_ta6kl")
@@ -44,6 +45,9 @@ offset_left = 681.0
 offset_top = 281.0
 offset_right = 681.4
 offset_bottom = 281.128
+
+[node name="GameWorld" parent="." instance=ExtResource("9_tpx84")]
+position = Vector2(7, 293)
 
 [connection signal="pressed" from="AddTask" to="AddTaskDialog" method="_on_texture_button_pressed"]
 [connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
