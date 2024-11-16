@@ -19,7 +19,7 @@ func test_reward_create_and_get() -> void:
     assert_bool(reward != null).is_true()
     assert_str(reward.name).is_equal(reward_names[i])
     assert_int(reward.difficulty).is_equal(difficulties[i])
-    assert_float(reward.tier).is_equal(i)
+    assert_int(reward.tier).is_equal(i)
 
 func test_remove_and_remove_reward() -> void:
   reward_bank.remove(reward_names[0])

@@ -47,12 +47,12 @@ func test_task_create() -> void:
   utils.create_task("TaskName", "", false, Task.TaskDifficulty.Easy)
   var task: Task = Task.new("TaskName", null, false, Task.TaskDifficulty.Easy)
   var control_tasks := [task]
-  var control_string := str(task)
+  var control_string := task.name
   var control_strings := [control_string]
   var scene_tasks = runner.scene().tasks.get_tasks()
   var tasks: Array[String]
-  for label: Label in self.tasks.get_children():
-    tasks.append(label.text)
+  for task_list_item: TaskListItem in self.tasks.get_children():
+    tasks.append(task_list_item.task_name.text)
   assert_array(scene_tasks)\
     .has_size(1)\
     .contains(control_tasks)
