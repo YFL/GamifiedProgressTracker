@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cr08wdj13xxrb"]
+[gd_scene load_steps=10 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
@@ -8,16 +8,20 @@
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
 [ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
+[ext_resource type="PackedScene" uid="uid://dp86n8gp81qx7" path="res://scenes/GameWorld.tscn" id="9_tpx84"]
 
 [node name="MainGameScene" type="Node2D"]
 script = ExtResource("1_ta6kl")
 
 [node name="AddTask" type="TextureButton" parent="."]
+offset_left = 9.0
 offset_top = 2.0
-offset_right = 254.0
-offset_bottom = 256.0
+offset_right = 67.0
+offset_bottom = 60.0
 texture_normal = ExtResource("2_ul44v")
 texture_pressed = ExtResource("3_w0mbl")
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
 offset_left = 773.0
@@ -32,18 +36,23 @@ offset_right = 573.0
 offset_bottom = 559.0
 
 [node name="AddReward" type="TextureButton" parent="."]
-offset_left = 262.0
-offset_top = 3.0
-offset_right = 516.0
-offset_bottom = 257.0
+offset_left = 74.0
+offset_top = 2.0
+offset_right = 134.0
+offset_bottom = 62.0
 texture_normal = ExtResource("6_xpefo")
 texture_pressed = ExtResource("7_loacn")
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
 offset_left = 681.0
 offset_top = 281.0
 offset_right = 681.4
 offset_bottom = 281.128
+
+[node name="GameWorld" parent="." instance=ExtResource("9_tpx84")]
+z_index = -1
 
 [connection signal="pressed" from="AddTask" to="AddTaskDialog" method="_on_texture_button_pressed"]
 [connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
