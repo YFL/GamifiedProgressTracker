@@ -1,10 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://cr08wdj13xxrb"]
+[gd_scene load_steps=9 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://dr0cr5c5yedgg" path="res://textures/AddTaskButtonPressed.png" id="3_w0mbl"]
-[ext_resource type="PackedScene" uid="uid://ocn7ukiasv8a" path="res://scenes/tasks.tscn" id="4_rrqj7"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
 [ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
@@ -28,12 +27,6 @@ offset_left = 773.0
 offset_top = 6.0
 offset_right = 773.0
 offset_bottom = 6.24
-
-[node name="Tasks" parent="." instance=ExtResource("4_rrqj7")]
-offset_left = 4.0
-offset_top = 314.0
-offset_right = 573.0
-offset_bottom = 559.0
 
 [node name="AddReward" type="TextureButton" parent="."]
 offset_left = 74.0

@@ -38,4 +38,4 @@ func test_remove_task() -> void:
     .is_empty()
   assert_array(game_world.free_tiles)\
     .has_size(game_world.size.x * game_world.size.y)\
-    .contains(enemies.map(func (enemy: GameWorld.Enemy): return enemy.position))
+    .contains(enemies.keys())

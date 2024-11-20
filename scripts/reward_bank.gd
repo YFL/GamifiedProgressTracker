@@ -10,6 +10,7 @@ func create(name: String, difficulty: Task.TaskDifficulty, tier: Reward.RewardTi
     return null
   var reward := Reward.new(name, difficulty, tier)
   rewards[name] = reward
+  print("Reward \"" + str(reward) + "\" added")
   reward_added.emit(reward)
   return reward
 

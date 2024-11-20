@@ -61,7 +61,9 @@ func test_task_create() -> void:
     .contains(control_strings)
   
 func delete_everything_before_the_last_occurence_of_test_in_this_name_to_make_it_a_test_learning() -> void:
-  var option_button = auto_free(OptionButton.new())
-  option_button.add_item("a")
-  option_button.add_item("a")
-  assert_int(option_button.get_item_count()).is_equal(1)
+  var check := false
+  param(check)
+  assert_bool(check).is_true()
+
+func param(check: bool) -> void:
+  check = not check

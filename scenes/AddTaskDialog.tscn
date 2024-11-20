@@ -59,7 +59,7 @@ popup/item_1/id = 10
 popup/item_2/text = "Hard"
 popup/item_2/id = 20
 popup/item_3/text = "Gigantic"
-popup/item_3/id = 21
+popup/item_3/id = 60
 
 [node name="OptionalLabel" type="Label" parent="."]
 layout_mode = 0

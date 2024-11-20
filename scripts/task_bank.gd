@@ -10,6 +10,7 @@ func create(name: String, parent: Task, optional: bool, difficulty: Task.TaskDif
     return null
   var task := Task.new(name, parent, optional, difficulty)
   tasks[name] = task
+  print("Task \"" + str(task) + "\" added")
   task_added.emit(task)
   return task
 
