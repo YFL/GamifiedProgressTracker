@@ -54,8 +54,6 @@ func _process(delta: float) -> void:
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
     character.move_to_target(Vector2(tile_position.x * tile_size.x, tile_position.y * tile_size.y), notify)
-  # If clicked on monster move character to monster if not already there
-  # If clicked on monster move character to monster if not already there and complete task
 
 func add_monster(task: Task) -> bool:
   if free_tiles.is_empty():
