@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=3 uid="uid://dy0rbh8i4tvt4"]
+
+[ext_resource type="Script" path="res://scripts/add_project_dialog.gd" id="1_j0bde"]
+[ext_resource type="Script" path="res://scripts/difficulty_option_button.gd" id="2_h2o8k"]
+[ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="2_vmwn0"]
+
+[node name="AddProjectDialog" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 320.0
+offset_bottom = 240.0
+script = ExtResource("1_j0bde")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="ProjectNameLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Project Name"
+
+[node name="ProjectName" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter the project name"
+wrap_mode = 1
+indent_wrapped_lines = true
+
+[node name="DurationLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Duration"
+
+[node name="Duration" type="OptionButton" parent="GridContainer"]
+layout_mode = 2
+script = ExtResource("2_h2o8k")
+
+[node name="ParentLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Parent"
+
+[node name="Parent" type="OptionButton" parent="GridContainer"]
+layout_mode = 2
+script = ExtResource("2_vmwn0")
+
+[node name="AddProject" type="Button" parent="GridContainer"]
+layout_mode = 2
+text = "Add Project"
+
+[connection signal="text_changed" from="GridContainer/ProjectName" to="." method="_on_project_name_text_changed"]
+[connection signal="pressed" from="GridContainer/AddProject" to="." method="_on_add_project_pressed"]

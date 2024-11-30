@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dunysvqlly0om"]
+[gd_scene load_steps=4 format=3 uid="uid://dunysvqlly0om"]
 
 [ext_resource type="Script" path="res://scripts/add_task_dialog.gd" id="1_jxusg"]
+[ext_resource type="Script" path="res://scripts/difficulty_option_button.gd" id="2_2ckp8"]
+[ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="2_8spyc"]
 
 [node name="AddTaskDialog" type="Control"]
 layout_mode = 3
@@ -50,16 +52,7 @@ offset_left = 88.0
 offset_top = 39.0
 offset_right = 184.0
 offset_bottom = 70.0
-selected = 0
-item_count = 4
-popup/item_0/text = "Easy"
-popup/item_0/id = 1
-popup/item_1/text = "Medium"
-popup/item_1/id = 10
-popup/item_2/text = "Hard"
-popup/item_2/id = 20
-popup/item_3/text = "Gigantic"
-popup/item_3/id = 60
+script = ExtResource("2_2ckp8")
 
 [node name="OptionalLabel" type="Label" parent="."]
 layout_mode = 0
@@ -90,5 +83,6 @@ offset_left = 89.0
 offset_top = 114.0
 offset_right = 121.0
 offset_bottom = 134.0
+script = ExtResource("2_8spyc")
 
 [connection signal="pressed" from="AddTask" to="." method="_on_add_task_pressed"]

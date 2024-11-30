@@ -1,62 +1,85 @@
-[gd_scene load_steps=9 format=3 uid="uid://cr08wdj13xxrb"]
+[gd_scene load_steps=12 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
+[ext_resource type="Texture2D" uid="uid://2u7gnl5kcppm" path="res://textures/AddProjectButtonReleased.png" id="3_4mnda"]
 [ext_resource type="Texture2D" uid="uid://dr0cr5c5yedgg" path="res://textures/AddTaskButtonPressed.png" id="3_w0mbl"]
+[ext_resource type="Texture2D" uid="uid://be12uyeb8wd84" path="res://textures/AddProjectButtonPressed.png" id="4_2fnwq"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
 [ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
 [ext_resource type="PackedScene" uid="uid://dp86n8gp81qx7" path="res://scenes/GameWorld.tscn" id="9_tpx84"]
+[ext_resource type="PackedScene" uid="uid://dy0rbh8i4tvt4" path="res://scenes/AddProjectDialog.tscn" id="9_ugrgd"]
 
 [node name="MainGameScene" type="Node2D"]
 script = ExtResource("1_ta6kl")
+
+[node name="GameWorld" parent="." instance=ExtResource("9_tpx84")]
 
 [node name="RewardScreenContainer" type="CenterContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="AddTask" type="TextureButton" parent="."]
-offset_left = 9.0
-offset_top = 2.0
-offset_right = 67.0
-offset_bottom = 60.0
+[node name="AddButtons" type="HBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 74.0
+
+[node name="AddProject" type="TextureButton" parent="AddButtons"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture_normal = ExtResource("3_4mnda")
+texture_pressed = ExtResource("4_2fnwq")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="AddTask" type="TextureButton" parent="AddButtons"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
 texture_normal = ExtResource("2_ul44v")
 texture_pressed = ExtResource("3_w0mbl")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
-offset_left = 773.0
-offset_top = 6.0
-offset_right = 773.0
-offset_bottom = 6.24
-
-[node name="AddReward" type="TextureButton" parent="."]
-offset_left = 74.0
-offset_top = 2.0
-offset_right = 134.0
-offset_bottom = 62.0
+[node name="AddReward" type="TextureButton" parent="AddButtons"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
 texture_normal = ExtResource("6_xpefo")
 texture_pressed = ExtResource("7_loacn")
 ignore_texture_size = true
 stretch_mode = 0
 
+[node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
+visible = false
+offset_left = 773.0
+offset_top = 6.0
+offset_right = 773.0
+offset_bottom = 6.24
+
+[node name="AddProjectDialog" parent="." instance=ExtResource("9_ugrgd")]
+visible = false
+offset_left = 778.0
+offset_top = 11.0
+offset_right = 1098.0
+offset_bottom = 251.0
+
 [node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
+visible = false
 offset_left = 681.0
 offset_top = 281.0
 offset_right = 681.4
 offset_bottom = 281.128
 
-[node name="GameWorld" parent="." instance=ExtResource("9_tpx84")]
-z_index = -1
-
-[connection signal="pressed" from="AddTask" to="AddTaskDialog" method="_on_texture_button_pressed"]
+[connection signal="pressed" from="AddButtons/AddProject" to="." method="_on_add_project_pressed"]
+[connection signal="pressed" from="AddButtons/AddTask" to="." method="_on_add_task_pressed"]
+[connection signal="pressed" from="AddButtons/AddReward" to="." method="_on_add_reward_pressed"]
 [connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
-[connection signal="pressed" from="AddReward" to="." method="_on_add_reward_pressed"]
+[connection signal="add_project" from="AddProjectDialog" to="." method="_on_add_project"]
 [connection signal="add_reward" from="AddRewardDialog" to="." method="_on_add_reward"]
-
-[editable path="AddTaskDialog"]

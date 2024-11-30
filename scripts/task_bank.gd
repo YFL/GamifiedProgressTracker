@@ -5,7 +5,7 @@ signal task_removed(task: Task)
 
 var tasks: Dictionary
 
-func create(name: String, parent: Task, optional: bool, difficulty: Task.TaskDifficulty) -> Task:
+func create(name: String, parent: Project, optional: bool, difficulty: int) -> Task:
   if tasks.has(name):
     return null
   var task := Task.new(name, parent, optional, difficulty)

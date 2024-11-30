@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 
 var task_bank: TaskBank = TaskBank.new()
 var task_names: Array[String] = ["a", "b", "c", "d"]
-const easy := Task.TaskDifficulty.Easy
+const easy := Difficulty.Easy
 
 func before_test() -> void:
   for task_name: String in task_names:
@@ -16,7 +16,7 @@ func test_task_create_and_get() -> void:
     assert_str(task.name).is_equal(task_name)
     assert_object(task.parent).is_null()
     assert_bool(task.optional).is_false()
-    assert_int(task.own_difficulty).is_equal(easy)
+    assert_int(task.difficulty).is_equal(easy)
 
 func test_remove_and_remove_task() -> void:
   task_bank.remove(task_names[0])

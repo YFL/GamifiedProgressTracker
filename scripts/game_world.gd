@@ -11,10 +11,10 @@ const enemy_source_id := 1
 const size := Vector2i(20, 11)
 const tile_size = Vector2i(64, 64)
 const difficulty_to_enemy_index := {
-  Task.TaskDifficulty.Easy: 0,
-  Task.TaskDifficulty.Medium: 1,
-  Task.TaskDifficulty.Hard: 2,
-  Task.TaskDifficulty.Gigantic: 3,
+  Difficulty.Easy: 0,
+  Difficulty.Medium: 1,
+  Difficulty.Hard: 2,
+  Difficulty.Gigantic: 3,
 }
 
 class Enemy extends RefCounted:
@@ -58,7 +58,7 @@ func _process(delta: float) -> void:
 func add_monster(task: Task) -> bool:
   if free_tiles.is_empty():
     return false
-  var enemy_index: int = difficulty_to_enemy_index[task.combined_difficulty]
+  var enemy_index: int = difficulty_to_enemy_index[task.difficulty]
   var free_tile: Vector2i = free_tiles.pick_random()
   free_tiles.erase(free_tile)
   tilemap.set_cell(free_tile, enemy_source_id, enemy_tiles[enemy_index])

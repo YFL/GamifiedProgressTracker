@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2hptndeeh8a2"]
+
+[ext_resource type="Script" path="res://scripts/difficulty_option_button.gd" id="1_tgngj"]
+
+[node name="DifficultyOptionButton" type="OptionButton"]
+script = ExtResource("1_tgngj")

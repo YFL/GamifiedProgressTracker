@@ -28,9 +28,9 @@ func _process(delta: float) -> void:
     has_target = false
     if animation.is_playing():
       animation.stop()
-      if notify and not already_notified:
-        arrived.emit(target)
-        already_notified = true
+    if notify and not already_notified:
+      arrived.emit(target)
+      already_notified = true
     return
   if not animation.is_playing():
     animation.play("walk")

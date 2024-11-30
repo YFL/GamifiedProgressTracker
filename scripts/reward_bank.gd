@@ -5,7 +5,7 @@ signal reward_removed(reward: Reward)
 
 var rewards: Dictionary
 
-func create(name: String, difficulty: Task.TaskDifficulty, tier: Reward.RewardTier) -> Reward:
+func create(name: String, difficulty: int, tier: Reward.RewardTier) -> Reward:
   if rewards.has(name):
     return null
   var reward := Reward.new(name, difficulty, tier)
@@ -39,7 +39,7 @@ func remove(name: String) -> void:
 func remove_reward(reward: Reward) -> void:
   remove(reward.name)
 
-func reward_for(difficulty: Task.TaskDifficulty) -> Reward:
+func reward_for(difficulty: int) -> Reward:
   var possible_rewards: Array[Reward]
   for key: String in rewards:
     var reward: Reward = rewards[key]
@@ -49,5 +49,4 @@ func reward_for(difficulty: Task.TaskDifficulty) -> Reward:
   var filtered := possible_rewards.filter(func (reward: Reward): return reward.tier >= tier)
   if filtered.is_empty():
     filtered = possible_rewards
-  
-  return filtered.pick_random()
+  return filtered.pick_random() if not filtered.is_empty() else null

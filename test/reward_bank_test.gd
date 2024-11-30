@@ -2,11 +2,11 @@ extends GdUnitTestSuite
 
 var reward_bank := RewardBank.new()
 var reward_names: Array[String] = ["a", "b", "c", "d"]
-const easy := Task.TaskDifficulty.Easy
-const medium := Task.TaskDifficulty.Medium
-const hard := Task.TaskDifficulty.Hard
-const gigantic := Task.TaskDifficulty.Gigantic
-const difficulties: Array[Task.TaskDifficulty] = [easy, medium, hard, gigantic]
+const easy := Difficulty.Easy
+const medium := Difficulty.Medium
+const hard := Difficulty.Hard
+const gigantic := Difficulty.Gigantic
+const difficulties: Array[int] = [easy, medium, hard, gigantic]
 
 func before_test() -> void:
   for i: int in reward_names.size():

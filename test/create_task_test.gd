@@ -5,7 +5,7 @@ class Utils extends RefCounted:
   func _init(create_task_test_suite: GdUnitTestSuite) -> void:
     test_suite = create_task_test_suite
 
-  func create_task(task_name: String, parent_name: String, optional: bool, difficulty: Task.TaskDifficulty) -> void:
+  func create_task(task_name: String, parent_name: String, optional: bool, difficulty: int) -> void:
     test_suite.task_name_text_edit.text = task_name
     test_suite.task_parent_option_button.select(find_index_in_option_button(test_suite.task_parent_option_button, parent_name))
     test_suite.task_optional_check_button.set_pressed_no_signal(optional)
@@ -26,7 +26,6 @@ var task_parent_option_button: OptionButton
 var task_optional_check_button: CheckButton
 var task_difficulty_option_button: OptionButton
 var add_task_button: Button
-var tasks: VBoxContainer
 var runner
 var utils: Utils
 
@@ -39,26 +38,25 @@ func before() -> void:
   task_optional_check_button = add_task_dialog.get_node("Optional")
   task_difficulty_option_button = add_task_dialog.get_node("Difficulty")
   add_task_button = add_task_dialog.get_node("AddTask")
-  var tasks_control = runner.invoke("get_node", "Tasks") as Tasks
-  tasks = tasks_control.get_node("TasksVBox")
   utils = Utils.new(self)
   
 func test_task_create() -> void:
-  utils.create_task("TaskName", "", false, Task.TaskDifficulty.Easy)
-  var task: Task = Task.new("TaskName", null, false, Task.TaskDifficulty.Easy)
+  utils.create_task("TaskName", "", false, Difficulty.Easy)
+  var task: Task = Task.new("TaskName", null, false, Difficulty.Easy)
   var control_tasks := [task]
-  var control_string := task.name
-  var control_strings := [control_string]
-  var scene_tasks = runner.scene().tasks.get_tasks()
-  var tasks: Array[String]
-  for task_list_item: TaskListItem in self.tasks.get_children():
-    tasks.append(task_list_item.task_name.text)
-  assert_array(scene_tasks)\
+  var tasks_in_task_bank = runner.scene().task_bank.get_tasks()
+  var enemies: Dictionary = runner.scene().game_world.enemies
+  var monsters: Array[GameWorld.Enemy]
+  for monster_position: Vector2i in enemies:
+    monsters.append(enemies[monster_position])
+  var control_monsters: Array[GameWorld.Enemy]
+  control_monsters.append(GameWorld.Enemy.new(task))
+  assert_array(tasks_in_task_bank)\
     .has_size(1)\
     .contains(control_tasks)
-  assert_array(tasks)\
+  assert_array(monsters)\
     .has_size(1)\
-    .contains(control_strings)
+    .contains(control_monsters)
   
 func delete_everything_before_the_last_occurence_of_test_in_this_name_to_make_it_a_test_learning() -> void:
   var check := false

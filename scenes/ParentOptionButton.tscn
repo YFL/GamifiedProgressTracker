@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c72e5ftl1yoco"]
+
+[ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="1_jdb73"]
+
+[node name="ParentOptionButton" type="OptionButton"]
+script = ExtResource("1_jdb73")
