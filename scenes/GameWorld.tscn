@@ -1,15 +1,24 @@
-[gd_scene load_steps=8 format=3 uid="uid://dp86n8gp81qx7"]
+[gd_scene load_steps=12 format=3 uid="uid://dp86n8gp81qx7"]
 
 [ext_resource type="Script" path="res://scripts/game_world.gd" id="1_foe28"]
 [ext_resource type="Texture2D" uid="uid://blr8ja2cy2ut1" path="res://textures/Grass64x64.png" id="2_q8k2d"]
 [ext_resource type="Texture2D" uid="uid://glabjb5oxixr" path="res://textures/Monsters64x64.png" id="3_fyyjq"]
+[ext_resource type="Texture2D" uid="uid://c04n5xan2a2r0" path="res://textures/Portal.png" id="4_i2bxg"]
 [ext_resource type="PackedScene" uid="uid://cppatxc4uopwg" path="res://scenes/Character.tscn" id="4_lemuh"]
+[ext_resource type="Texture2D" uid="uid://l4xdu8h3ps1f" path="res://textures/CloseButtonNormal.png" id="6_8pmu1"]
+[ext_resource type="Texture2D" uid="uid://psdxsb6th3yj" path="res://textures/CloseButtonPressed.png" id="7_bktjp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ytlj7"]
 texture = ExtResource("2_q8k2d")
 texture_region_size = Vector2i(64, 64)
+0:0/next_alternative_id = 2
 0:0/0 = 0
+0:0/1 = 1
+0:0/1/modulate = Color(0.7815, 0.31, 1, 1)
+1:0/next_alternative_id = 2
 1:0/0 = 0
+1:0/1 = 1
+1:0/1/modulate = Color(0.780392, 0.309804, 1, 1)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_td1eh"]
 texture = ExtResource("3_fyyjq")
@@ -19,11 +28,17 @@ texture_region_size = Vector2i(64, 64)
 0:1/0 = 0
 1:1/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fo025"]
+texture = ExtResource("4_i2bxg")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_urj8f"]
 tile_size = Vector2i(64, 64)
 uv_clipping = true
 sources/0 = SubResource("TileSetAtlasSource_ytlj7")
 sources/1 = SubResource("TileSetAtlasSource_td1eh")
+sources/2 = SubResource("TileSetAtlasSource_fo025")
 
 [node name="GameWorld" type="Node2D"]
 script = ExtResource("1_foe28")
@@ -34,3 +49,14 @@ tile_set = SubResource("TileSet_urj8f")
 [node name="Character" parent="." instance=ExtResource("4_lemuh")]
 position = Vector2(647, 655)
 speed = 100
+
+[node name="ExitButton" type="TextureButton" parent="."]
+visible = false
+custom_minimum_size = Vector2(64, 64)
+offset_left = 1216.0
+offset_right = 1280.0
+offset_bottom = 64.0
+texture_normal = ExtResource("6_8pmu1")
+texture_pressed = ExtResource("7_bktjp")
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

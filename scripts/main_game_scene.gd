@@ -19,8 +19,6 @@ func _ready() -> void:
   project_bank.project_removed.connect(add_task_dialog._on_project_removed)
   project_bank.project_added.connect(add_project_dialog._on_project_added)
   project_bank.project_removed.connect(add_project_dialog._on_project_removed)
-  task_bank.task_added.connect(game_world.add_monster)
-  task_bank.task_removed.connect(game_world.remove_monster)
   reward_screen_container.add_child(reward_screen)
   reward_screen.hide()
 
@@ -35,6 +33,8 @@ func _on_add_task(name: String, parent_name: String, optional: bool, difficulty:
     # Todo: print some fucking error
     return
   task.done.connect(_on_task_done)
+  # If the return value from the find here is null, something is seriously messed up.
+  GameWorld.find_game_world_for_taskoid(task, game_world).add_monster(task)
 
 func _on_add_reward(name: String, difficulty: int, tier: Reward.RewardTier) -> void:
   reward_bank.create(name, difficulty, tier)
@@ -47,7 +47,9 @@ func _on_add_project(name: String, parent: String, duration: int) -> void:
   var parent_project := project_bank.get_project(parent)
   if parent_project != null and not parent_project.can_fit(duration):
     return
-  project_bank.create(name, parent_project, duration)
+  var project := project_bank.create(name, parent_project, duration)
+  if project != null:
+    GameWorld.new_game_world(project, GameWorld.find_game_world_for_taskoid(project, game_world))
 
 func _on_task_done(task: Task) -> void:
   var reward := reward_bank.reward_for(task.difficulty)

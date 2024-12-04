@@ -3,11 +3,13 @@ class_name GameWorld extends Node2D
 @onready var tilemap: TileMapLayer = $TileMapLayer
 @onready var tileset: TileSet = tilemap.tile_set
 @onready var character: Character = $Character
+@onready var exit_button: TextureButton = $ExitButton
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1)]
 const grass_source_id := 0
 const enemy_source_id := 1
+const portal_source_id := 2
 const size := Vector2i(20, 11)
 const tile_size = Vector2i(64, 64)
 const difficulty_to_enemy_index := {
@@ -16,6 +18,7 @@ const difficulty_to_enemy_index := {
   Difficulty.Hard: 2,
   Difficulty.Gigantic: 3,
 }
+const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 
 class Enemy extends RefCounted:
   var task: Task
@@ -23,24 +26,59 @@ class Enemy extends RefCounted:
   func _init(task: Task):
     self.task = task
 
+class Portal extends RefCounted:
+  var game_world: GameWorld
+
+  func _init(game_world: GameWorld):
+    self.game_world = game_world
+
 var enemies: Dictionary
+var portals: Dictionary
 # 1D array of non-occupied tile coordinates. Will be spliced (as in JS) when a task is added.
-var free_tiles: Array[Vector2i]
+var free_tiles: Array[Vector2i] = []
+var children: Array[GameWorld] = []
+var parent: GameWorld = null
+var project: Project = null
+var selected_child: GameWorld = null
+
+static func new_game_world(project: Project, parent: GameWorld = null) -> GameWorld:
+  var instance: GameWorld = GameWorldScene.instantiate()
+  instance.project = project
+  instance.parent = parent
+  instance.hide()
+  if parent != null:
+    parent.add_game_world(instance)
+  return instance
+
+static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
+  return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
 
 static func pixel_position_to_tile_position(pixel_position: Vector2) -> Vector2i:
   return Vector2i(pixel_position.x / tile_size.x, pixel_position.y / tile_size.y)
 
+static func get_enemy_index(task: Task) -> int:
+  return difficulty_to_enemy_index[task.difficulty]
+
+func _init() -> void:
+  for x in size.x:
+    for y in size.y:
+      free_tiles.append(Vector2i(x, y))
+
 func _ready() -> void:
+  if parent != null:
+    exit_button.show()
   character.position = Vector2i(
     size.x / 2 * tile_size.x,
     size.y * tile_size.y - tile_size.y)
   character.arrived.connect(_on_character_arrived)
-  var rng := RandomNumberGenerator.new()
   for x in size.x:
     for y in size.y:
-      free_tiles.append(Vector2i(x, y))
-      var grass_tile_index := 0 if rng.randi_range(0, 6) < 1 else 1
-      tilemap.set_cell(Vector2i(x, y), grass_source_id, grass_tiles[grass_tile_index])
+      draw_grass(Vector2i(x, y))
+  # We try to draw enemies and portals in case they were added, when this GameWorld wasn't yet ready
+  for position: Vector2i in enemies:
+    draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
+  for position: Vector2i in portals:
+    draw_taskoid(position, portal_source_id, Vector2i(0, 0))
 
 func _process(delta: float) -> void:
   var mouse_button_pressed := 0
@@ -50,19 +88,23 @@ func _process(delta: float) -> void:
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
     var tile_position := pixel_position_to_tile_position(get_local_mouse_position())
-    if not enemies.has(tile_position):
+    if not enemies.has(tile_position) and not portals.has(tile_position):
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
     character.move_to_target(Vector2(tile_position.x * tile_size.x, tile_position.y * tile_size.y), notify)
 
+func _notification(what: int) -> void:
+  if what == NOTIFICATION_PREDELETE:
+    for child: GameWorld in children:
+      child.queue_free()
+
 func add_monster(task: Task) -> bool:
   if free_tiles.is_empty():
     return false
-  var enemy_index: int = difficulty_to_enemy_index[task.difficulty]
-  var free_tile: Vector2i = free_tiles.pick_random()
-  free_tiles.erase(free_tile)
-  tilemap.set_cell(free_tile, enemy_source_id, enemy_tiles[enemy_index])
+  var free_tile := reserve_random_free_tile()
   enemies[free_tile] = Enemy.new(task)
+  # We try to draw in case a task is added, when this GameWorld is ready
+  draw_taskoid(free_tile, enemy_source_id, enemy_tiles[get_enemy_index(task)])
   return true
 
 func remove_monster(task: Task) -> bool:
@@ -72,13 +114,75 @@ func remove_monster(task: Task) -> bool:
     if enemies[position].task == task:
       free_tiles.append(position)
       enemies.erase(position)
+      draw_grass(position)
       return true
   return false
 
+func add_game_world(child: GameWorld) -> void:
+  if free_tiles.is_empty():
+    return
+  children.append(child)
+  var free_tile := reserve_random_free_tile()
+  portals[free_tile] = Portal.new(child)
+  draw_taskoid(free_tile, portal_source_id, Vector2i(0, 0))
+
+func remove_game_world(child: GameWorld) -> void:
+  if portals.is_empty():
+    return
+  for position: Vector2i in portals:
+    if portals[position].game_world == child:
+      free_tiles.append(position)
+      portals.erase(position)
+      draw_grass(position)
+      children.erase(child)
+      return
+
+func find_game_world(project: Project) -> GameWorld:
+  if self.project == project:
+    return self
+  for child: GameWorld in children:
+    if child.project == project:
+      return child
+    
+  for child: GameWorld in children:
+    var found := child.find_game_world(project)
+    if found != null:
+      return found
+    
+  return null
+
+func reserve_random_free_tile() -> Vector2i:
+  var free_tile: Vector2i = free_tiles.pick_random()
+  free_tiles.erase(free_tile)
+  return free_tile
+
+func draw_taskoid(position: Vector2i, source_id: int, tile_index: Vector2i) -> void:
+  if tilemap != null:
+    tilemap.set_cell(position, source_id, tile_index)
+
+func draw_grass(position: Vector2i) -> void:
+  if tilemap == null:
+    return
+  var rng := RandomNumberGenerator.new()
+  var grass_tile_index := 0 if rng.randi_range(0, 6) < 1 else 1
+  tilemap.set_cell(position, grass_source_id, grass_tiles[grass_tile_index])
+
 func _on_character_arrived(at: Vector2) -> void:
   var tile_position := pixel_position_to_tile_position(at)
-  if not enemies.has(tile_position):
-    return
-  var enemy: Enemy = enemies[tile_position]
-  enemy.task.complete()
-  remove_monster(enemy.task)
+  if enemies.has(tile_position):
+    var enemy: Enemy = enemies[tile_position]
+    enemy.task.complete()
+    remove_monster(enemy.task)
+  elif portals.has(tile_position):
+    var portal: Portal = portals[tile_position]
+    if selected_child != null:
+      remove_child(selected_child)
+    add_child(portal.game_world)
+    selected_child = portal.game_world
+    selected_child.show()
+
+func _on_exit_button_pressed() -> void:
+  hide()
+  if parent != null:
+    parent.remove_child(self)
+    parent.selected_child = null
