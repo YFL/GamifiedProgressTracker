@@ -1,23 +1,21 @@
-class_name Project extends RefCounted
+class_name Project extends Taskoid
 
-var name := ""
 var capacity := Difficulty.Invalid
-var parent: Project = null
 ## Array of projects and tasks
 var children: Array = []
 var children_difficulty: int = Difficulty.Invalid
 
-func _init(name: String, parent: Project, capacity: int) -> void:
+func _init(name: String, description: String, parent: Project, capacity: int) -> void:
+  super._init(name, description, parent)
   if capacity < Difficulty.Medium:
     return
-  self.name = name
-  self.parent = parent
   if parent != null:
     parent.add_project(self)
   self.capacity = capacity
 
 func _to_string() -> String:
-  return name + " " + (parent.name + " " if parent != null else "None ") + Difficulty.difficulty_names[capacity]
+  return name + " " + (parent.name + " " if parent != null else "None ")\
+    + Difficulty.difficulty_names[capacity]
 
 func add_task(child: Task) -> void:
   if not can_fit(child.difficulty):
