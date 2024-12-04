@@ -14,7 +14,8 @@ func _init(name: String, description: String, parent: Project, capacity: int) ->
   self.capacity = capacity
 
 func _to_string() -> String:
-  return name + " " + (parent.name + " " if parent != null else "None ")\
+  return name + " Description: " + description + " Parent: " +\
+    (parent.name + " " if parent != null else "None ") + " Difficulty: "\
     + Difficulty.difficulty_names[capacity]
 
 func add_task(child: Task) -> void:

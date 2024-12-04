@@ -1,8 +1,9 @@
 class_name AddProjectDialog extends Control
 
-signal add_project(name: String, parent: String, duration: int)
+signal add_project(name: String, description: String, parent: String, duration: int)
 
 @onready var _project_name: TextEdit = $GridContainer/ProjectName
+@onready var _description: TextEdit = $GridContainer/Description
 @onready var _duration: DifficultyOptionButton = $GridContainer/Duration
 @onready var _parent: ParentOptionButton = $GridContainer/Parent
 @onready var _add_project: Button = $GridContainer/AddProject
@@ -19,6 +20,9 @@ func _on_project_removed(project: Project) -> void:
 func project_name() -> String:
   return _project_name.text
 
+func description() -> String:
+  return _description.text
+
 func duration() -> int:
   return _duration.get_item_id(_duration.selected)
 
@@ -33,7 +37,7 @@ func reset() -> void:
   _parent.select(0)
 
 func _on_add_project_pressed() -> void:
-  add_project.emit(project_name(), parent(), duration())
+  add_project.emit(project_name(), description(), parent(), duration())
 
 func _on_project_name_text_changed() -> void:
   if _project_name.text.is_empty():

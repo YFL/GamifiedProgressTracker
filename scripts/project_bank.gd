@@ -5,10 +5,10 @@ signal project_removed(project: Project)
 
 var projects: Dictionary
 
-func create(name: String, parent: Project, duration: int) -> Project:
+func create(name: String, description: String, parent: Project, duration: int) -> Project:
   if projects.has(name):
     return null
-  var project := Project.new(name, parent, duration)
+  var project := Project.new(name, description, parent, duration)
   projects[name] = project
   print("Project \"" + str(project) + "\" added")
   project_added.emit(project)

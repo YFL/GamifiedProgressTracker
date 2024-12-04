@@ -25,8 +25,9 @@ func _notification(what: int) -> void:
       parent.remove_task(self)
 
 func _to_string() -> String:
-  return name + " Parent: " + (parent.name if parent != null else "None") + " Optional: "\
-    + str(optional) + " Difficulty: " + Difficulty.difficulty_names[difficulty]
+  return name + " Description: " + description + " Parent: "\
+    + (parent.name if parent != null else "None") + " Optional: " + str(optional) + " Difficulty: "\
+    + Difficulty.difficulty_names[difficulty]
 
 func complete() -> void:
   completed = true
