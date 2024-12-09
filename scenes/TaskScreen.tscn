@@ -1,0 +1,93 @@
+[gd_scene load_steps=3 format=3 uid="uid://d24g7ew82itoo"]
+
+[ext_resource type="Script" path="res://scripts/task_screen.gd" id="1_ckskd"]
+[ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_rpgap"]
+
+[node name="TaskScreen" type="Control"]
+custom_minimum_size = Vector2(320, 240)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -960.0
+offset_bottom = -480.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ckskd")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 3
+
+[node name="TaskNameLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Task name"
+
+[node name="TaskName" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="ExitButton" parent="GridContainer" instance=ExtResource("1_rpgap")]
+visible = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 8
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="DescriptionLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Description"
+
+[node name="Description" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 89)
+layout_mode = 2
+placeholder_text = "Description"
+editable = false
+
+[node name="EmptySpace" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Difficulty"
+
+[node name="Difficulty" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="EmptySpace2" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="OptionalLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Optional"
+
+[node name="Optional" type="CheckButton" parent="GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+disabled = true
+
+[node name="EmptySpace3" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="ParentLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Parent"
+
+[node name="Parent" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[connection signal="pressed" from="GridContainer/ExitButton" to="." method="_on_exit_button_pressed"]

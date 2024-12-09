@@ -7,7 +7,7 @@ const easy := Difficulty.Easy
 func before_test() -> void:
   for task_name: String in task_names:
     task_bank.remove(task_name)
-    task_bank.create(task_name, null, false, easy)
+    task_bank.create(task_name, task_name, null, false, easy)
 
 func test_task_create_and_get() -> void:
   for task_name: String in task_names:

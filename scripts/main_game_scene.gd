@@ -22,13 +22,13 @@ func _ready() -> void:
   reward_screen_container.add_child(reward_screen)
   reward_screen.hide()
 
-func _on_add_task(name: String, parent_name: String, optional: bool, difficulty: int) -> void:
+func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int) -> void:
   if parent_name != "" and not project_bank.has(parent_name):
     return
   var parent := project_bank.get_project(parent_name)
   if parent != null and not parent.can_fit(difficulty):
     return
-  var task := task_bank.create(name, parent, optional, difficulty)
+  var task := task_bank.create(name, description, parent, optional, difficulty)
   if task == null:
     # Todo: print some fucking error
     return
@@ -39,7 +39,7 @@ func _on_add_task(name: String, parent_name: String, optional: bool, difficulty:
 func _on_add_reward(name: String, difficulty: int, tier: Reward.RewardTier) -> void:
   reward_bank.create(name, difficulty, tier)
 
-func _on_add_project(name: String, parent: String, duration: int) -> void:
+func _on_add_project(name: String, description: String, parent: String, duration: int) -> void:
   if project_bank.has(name):
     return
   if not parent.is_empty() and not project_bank.has(parent):
@@ -47,7 +47,7 @@ func _on_add_project(name: String, parent: String, duration: int) -> void:
   var parent_project := project_bank.get_project(parent)
   if parent_project != null and not parent_project.can_fit(duration):
     return
-  var project := project_bank.create(name, parent_project, duration)
+  var project := project_bank.create(name, description, parent_project, duration)
   if project != null:
     GameWorld.new_game_world(project, GameWorld.find_game_world_for_taskoid(project, game_world))
 

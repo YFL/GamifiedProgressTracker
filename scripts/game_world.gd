@@ -19,6 +19,8 @@ const difficulty_to_enemy_index := {
   Difficulty.Gigantic: 3,
 }
 const GameWorldScene := preload("res://scenes/GameWorld.tscn")
+const TaskScreenScene := preload("res://scenes/TaskScreen.tscn")
+const ProjectScreenScene := preload("res://scenes/ProjectScreen.tscn")
 
 class Enemy extends RefCounted:
   var task: Task
@@ -40,6 +42,8 @@ var children: Array[GameWorld] = []
 var parent: GameWorld = null
 var project: Project = null
 var selected_child: GameWorld = null
+var task_screen: TaskScreen = null
+var project_screen: ProjectScreen = null
 
 static func new_game_world(project: Project, parent: GameWorld = null) -> GameWorld:
   var instance: GameWorld = GameWorldScene.instantiate()
@@ -63,8 +67,12 @@ func _init() -> void:
   for x in size.x:
     for y in size.y:
       free_tiles.append(Vector2i(x, y))
+  task_screen = TaskScreenScene.instantiate()
+  project_screen = ProjectScreenScene.instantiate()
 
 func _ready() -> void:
+  add_child(task_screen)
+  add_child(project_screen)
   if parent != null:
     exit_button.show()
   character.position = Vector2i(
@@ -88,15 +96,52 @@ func _process(delta: float) -> void:
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
     var tile_position := pixel_position_to_tile_position(get_local_mouse_position())
-    if not enemies.has(tile_position) and not portals.has(tile_position):
+    var is_enemy := enemies.has(tile_position)
+    var is_portal := portals.has(tile_position)
+    if not is_enemy and not is_portal:
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
     character.move_to_target(Vector2(tile_position.x * tile_size.x, tile_position.y * tile_size.y), notify)
+    # Left click, show Taskoid Screen
+    if not notify:
+      var screen_position := Vector2i(
+          max(
+            0,
+            min(
+              size.x * tile_size.x - task_screen.size.x,
+              get_local_mouse_position().x - task_screen.size.x / 2)),
+          max(
+            0,
+            min(
+              size.y * tile_size.y - task_screen.size.y,
+              get_local_mouse_position().y - task_screen.size.y / 2)))
+      if is_enemy:
+        # task_screen.position = Vector2(size.x * tile_size.x / 2, size.y * tile_size.y / 2)
+        task_screen.position = screen_position
+        var task: Task = enemies[tile_position].task
+        task_screen.task_name.text = task.name
+        task_screen.description.text = task.description
+        task_screen.optional.button_pressed = task.optional
+        task_screen.parent.text = task.parent.name if task.parent != null else "None"
+        task_screen.difficulty.text = str(Difficulty.difficulty_names[task.difficulty])
+        task_screen.show()
+      elif is_portal:
+        project_screen.position = screen_position
+        var project: Project = portals[tile_position].game_world.project
+        project_screen.project_name.text = project.name
+        project_screen.description.text = project.description
+        project_screen.capacity.text = Difficulty.difficulty_names[project.capacity]
+        project_screen.current_size.text =\
+          Difficulty.difficulty_names[Difficulty.categorize_difficulty(project.children_difficulty)]
+        project_screen.parent.text = project.parent.name if project.parent != null else "None"
+        project_screen.show()
 
 func _notification(what: int) -> void:
   if what == NOTIFICATION_PREDELETE:
     for child: GameWorld in children:
       child.queue_free()
+    task_screen.queue_free()
+    project_screen.queue_free()
 
 func add_monster(task: Task) -> bool:
   if free_tiles.is_empty():

@@ -13,12 +13,12 @@ func _init() -> void:
     difficulties.append(Difficulty.string_to_difficulty(Difficulty.difficulty_names.values()[i]))
   for i: int in range(0, 3):
     var parent := null if i == 0 else test_projects[i - 1]
-    test_projects.append(Project.new(task_names[i], parent, difficulties[i]))
+    test_projects.append(Project.new(task_names[i], task_names[i], parent, difficulties[i]))
   for i: int in task_names.size():
     var parent_index := i if i < test_projects.size() else test_projects.size() - 1
     var difficulty_index := i if i > 0 else 1
     test_tasks.append(
-      Task.new(task_names[i], test_projects[parent_index], false, difficulties[difficulty_index]))
+      Task.new(task_names[i], task_names[i], test_projects[parent_index], false, difficulties[difficulty_index]))
 
 func before_test() -> void:
   game_world = scene_runner(auto_free(GameWorldScene.instantiate()))

@@ -32,6 +32,16 @@ placeholder_text = "Enter the project name"
 wrap_mode = 1
 indent_wrapped_lines = true
 
+[node name="DescriptionLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Description"
+
+[node name="Description" type="TextEdit" parent="GridContainer"]
+custom_minimum_size = Vector2(0, 117)
+layout_mode = 2
+placeholder_text = "Description"
+wrap_mode = 1
+
 [node name="DurationLabel" type="Label" parent="GridContainer"]
 layout_mode = 2
 text = "Duration"

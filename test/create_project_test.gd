@@ -6,14 +6,14 @@ var projects: Array[Project]
 
 func before_test() -> void:
   projects.clear()
-  projects.append(Project.new(project_names[0], null, Difficulty.Gigantic))
+  projects.append(Project.new(project_names[0], project_names[0], null, Difficulty.Gigantic))
   # 0 is Easy 2 is Hard, if it's not, change the loop
   for i: int in range (1, 3):
-    projects.append(Project.new(project_names[i], projects[i - 1], difficulties[difficulties.size() - 1 - i]))
+    projects.append(Project.new(project_names[i], project_names[i], projects[i - 1], difficulties[difficulties.size() - 1 - i]))
 
 func test_create_invalid_project() -> void:
   # Difficulty.Easy is not allowed for projects
-  var project := Project.new(project_names[0], null, difficulties[0])
+  var project := Project.new(project_names[0], project_names[0], null, difficulties[0])
   assert_str(project.name).is_empty()
   assert_int(project.capacity).is_equal(Difficulty.Invalid)
 
@@ -36,7 +36,7 @@ func test_create_project():
 
 func test_add_task_to_child() -> void:
   for i: int in range(0, projects.size()):
-    Task.new(project_names[i], projects[i], false, difficulties[difficulties.size() - 2 - i])
+    Task.new(project_names[i], project_names[i], projects[i], false, difficulties[difficulties.size() - 2 - i])
   var medium_project := projects[2]
   assert_int(medium_project.children_difficulty).is_equal(Difficulty.Easy)
   assert_array(medium_project.children).has_size(1)
@@ -49,11 +49,11 @@ func test_add_task_to_child() -> void:
 
 
 func test_child_exceeding_capacity() -> void:
-  var parent_project := Project.new("parent", null, Difficulty.Medium)
-  var child_project := Project.new("child", parent_project, Difficulty.Medium)
-  var child_task := Task.new("child", child_project, false, Difficulty.Medium)
+  var parent_project := Project.new("parent", "", null, Difficulty.Medium)
+  var child_project := Project.new("child", "", parent_project, Difficulty.Medium)
+  var child_task := Task.new("child", "", child_project, false, Difficulty.Medium)
   assert_int(parent_project.children_difficulty).is_equal(child_task.difficulty)
-  var parent_task := Task.new("parent", parent_project, false, Difficulty.Medium)
+  var parent_task := Task.new("parent", "", parent_project, false, Difficulty.Medium)
   assert_int(child_project.children_difficulty).is_equal(child_task.difficulty)
   assert_int(parent_project.children_difficulty).is_equal(child_task.difficulty)
   assert_array(parent_project.children).not_contains([parent_task]).has_size(1)
