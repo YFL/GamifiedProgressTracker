@@ -44,8 +44,8 @@ func before() -> void:
   utils = Utils.new(self)
   
 func test_task_create() -> void:
-  utils.create_task("TaskName", "Description", "", false, Difficulty.Easy)
-  var task: Task = Task.new("TaskName", "Description", null, false, Difficulty.Easy)
+  utils.create_task("TaskName", "Description", "", false, Difficulty.NoteWorthy)
+  var task: Task = Task.new("TaskName", "Description", null, false, Difficulty.NoteWorthy)
   var control_tasks := [task]
   var tasks_in_task_bank = runner.scene().task_bank.get_tasks()
   var enemies: Dictionary = runner.scene().game_world.enemies

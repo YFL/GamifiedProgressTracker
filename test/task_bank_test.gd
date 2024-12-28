@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 
 var task_bank: TaskBank = TaskBank.new()
 var task_names: Array[String] = ["a", "b", "c", "d"]
-const easy := Difficulty.Easy
+const easy := Difficulty.Modest
 
 func before_test() -> void:
   for task_name: String in task_names:

@@ -6,7 +6,7 @@ var children: Array = []
 var children_difficulty: int = Difficulty.Invalid
 
 func _init(name: String, description: String, parent: Project, capacity: int) -> void:
-  if capacity < Difficulty.Medium:
+  if capacity < Difficulty.NoteWorthy:
     return
   super._init(name, description, parent)
   if parent != null:

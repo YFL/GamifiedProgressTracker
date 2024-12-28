@@ -9,7 +9,7 @@ enum RewardTier {
 }
 
 var name: String = ""
-var difficulty := Difficulty.Easy
+var difficulty := Difficulty.Modest
 var tier: RewardTier = RewardTier.Common
 
 func _init(name: String, difficulty: int, tier: RewardTier) -> void:

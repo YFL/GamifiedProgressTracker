@@ -5,7 +5,7 @@ signal done(task: Task)
 var completed: bool = false
 ## Tells if the parent can be completed without completing this task.
 var optional: bool = true
-var difficulty: int = Difficulty.Easy
+var difficulty: int = Difficulty.Modest
 
 func _init(
   name: String,

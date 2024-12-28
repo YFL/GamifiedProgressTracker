@@ -13,10 +13,16 @@ const portal_source_id := 2
 const size := Vector2i(20, 11)
 const tile_size = Vector2i(64, 64)
 const difficulty_to_enemy_index := {
-  Difficulty.Easy: 0,
-  Difficulty.Medium: 1,
-  Difficulty.Hard: 2,
-  Difficulty.Gigantic: 3,
+  Difficulty.Modest: 0,
+  Difficulty.NoteWorthy: 1,
+  Difficulty.Commendable: 2,
+  Difficulty.Glorious: 3,
+  Difficulty.Heroic: 3,
+  Difficulty.Majestic: 3,
+  Difficulty.Legendary: 3,
+  Difficulty.Imperial: 3,
+  Difficulty.Supreme: 3,
+  Difficulty.Transcendent: 3
 }
 const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 const TaskScreenScene := preload("res://scenes/TaskScreen.tscn")
