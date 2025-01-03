@@ -10,7 +10,6 @@ const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1
 const grass_source_id := 0
 const enemy_source_id := 1
 const portal_source_id := 2
-const size := Vector2i(20, 11)
 const tile_size = Vector2i(64, 64)
 const difficulty_to_enemy_index := {
   Difficulty.Modest: 0,
@@ -40,6 +39,27 @@ class Portal extends RefCounted:
   func _init(game_world: GameWorld):
     self.game_world = game_world
 
+class GameWorldSize extends RefCounted:
+  var x := 0
+  var y := 0
+  var remainder := 0
+
+  func _init(difficulty: int):
+    difficulty = difficulty / Difficulty.Modest
+    var square := int(sqrt(difficulty))
+    var best_diff := difficulty - square * square
+    for width in range(square, difficulty + 1):
+      var height = difficulty / width
+      var diff = difficulty - width * height
+      if diff < best_diff:
+        x = width
+        y = height
+        best_diff = diff
+      if diff == 0:
+        return
+    if difficulty != x * y:
+      remainder = difficulty - x * y
+
 var enemies: Dictionary
 var portals: Dictionary
 # 1D array of non-occupied tile coordinates. Will be spliced (as in JS) when a task is added.
@@ -48,11 +68,13 @@ var children: Array[GameWorld] = []
 var parent: GameWorld = null
 var project: Project = null
 var selected_child: GameWorld = null
+var size := GameWorldSize.new(2200)
 var task_screen: TaskScreen = null
 var project_screen: ProjectScreen = null
 
 static func new_game_world(project: Project, parent: GameWorld = null) -> GameWorld:
   var instance: GameWorld = GameWorldScene.instantiate()
+  instance.size = GameWorldSize.new(project.capacity)
   instance.project = project
   instance.parent = parent
   instance.hide()
@@ -70,13 +92,15 @@ static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
 
 func _init() -> void:
-  for x in size.x:
-    for y in size.y:
-      free_tiles.append(Vector2i(x, y))
   task_screen = TaskScreenScene.instantiate()
   project_screen = ProjectScreenScene.instantiate()
 
 func _ready() -> void:
+  for x in size.x:
+    for y in size.y:
+      free_tiles.append(Vector2i(x, y))
+  for x in size.remainder:
+    free_tiles.append(Vector2i(x, size.y))
   add_child(task_screen)
   add_child(project_screen)
   if parent != null:
@@ -88,6 +112,8 @@ func _ready() -> void:
   for x in size.x:
     for y in size.y:
       draw_grass(Vector2i(x, y))
+  for x in size.remainder:
+    draw_grass(Vector2i(x, size.y))
   # We try to draw enemies and portals in case they were added, when this GameWorld wasn't yet ready
   for position: Vector2i in enemies:
     draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])

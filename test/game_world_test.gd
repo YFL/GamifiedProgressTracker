@@ -29,6 +29,16 @@ func before_test() -> void:
   for task: Task in test_tasks:
     GameWorld.find_game_world_for_taskoid(task, game_world.scene()).add_monster(task)
 
+func test_game_world_size() -> void:
+  var game_world_size := GameWorld.GameWorldSize.new(Difficulty.NoteWorthy)
+  assert_int(game_world_size.x).is_equal(2)
+  assert_int(game_world_size.y).is_equal(3)
+  assert_int(game_world_size.remainder).is_equal(0)
+  game_world_size = GameWorld.GameWorldSize.new(2200)
+  assert_int(game_world_size.x).is_equal(20)
+  assert_int(game_world_size.y).is_equal(11)
+  assert_int(game_world_size.remainder).is_equal(0)
+
 func test_create_task():
   var game_world: GameWorld = game_world.scene().children[0]
   assert_array(game_world.enemies.keys())\
@@ -82,7 +92,6 @@ func test_remove_project():
   assert_array(parent.children).has_size(0)
   # Since a monster is still in there, the free tiles is not fully loaded.
   assert_array(parent.free_tiles).has_size(parent.size.x * parent.size.y - 1)
-
 
 func create_project_tester(
   game_world: GameWorld,
