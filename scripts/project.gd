@@ -50,6 +50,8 @@ func remove_project(child: Project) -> void:
   add_child_difficulty_to_parent(-child.children_difficulty)
 
 func can_fit(difficulty: int) -> bool:
+  if parent != null:
+    return parent.can_fit(difficulty) && children_difficulty + difficulty <= capacity
   return children_difficulty + difficulty <= capacity
 
 func add_child_difficulty_to_parent(difficulty: int) -> void:

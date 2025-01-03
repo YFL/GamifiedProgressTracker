@@ -60,6 +60,23 @@ func test_task_create() -> void:
   assert_array(monsters)\
     .has_size(1)\
     .contains(control_monsters)
+
+func test_add_bigger_child_task_than_free_capacity() -> void:
+  var project := Project.new("ProjectName", "ProjectDescription", null, Difficulty.NoteWorthy)
+  var child_project := Project.new("Project2", "Description2", project, Difficulty.NoteWorthy)
+  var project_child := Task.new("Task1", "TaskDescription", project, false, Difficulty.NoteWorthy)
+  assert_array(project.children).has_size(2).contains([child_project, project_child])
+  var child_project_child :=\
+    Task.new("Task2", "Shouldn't get added", child_project, false, Difficulty.Modest)
+  assert_array(child_project.children).has_size(0).not_contains([child_project_child])
+  var child_project_child_project :=\
+    Project.new("Project3", "Description3", child_project, Difficulty.NoteWorthy)
+  var child_project_child_project_child :=\
+    Task.new("Task3", "TaskDescription3", child_project_child_project, false, Difficulty.Modest)
+  assert_array(child_project_child_project.children)\
+    .has_size(0)\
+    .not_contains([child_project_child_project_child])
+
   
 func delete_everything_before_the_last_occurence_of_test_in_this_name_to_make_it_a_test_learning() -> void:
   var check := false
