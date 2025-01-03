@@ -94,11 +94,11 @@ func _ready() -> void:
   for position: Vector2i in portals:
     draw_taskoid(position, portal_source_id, Vector2i(0, 0))
 
-func _process(delta: float) -> void:
+func _unhandled_input(event: InputEvent) -> void:
   var mouse_button_pressed := 0
-  if Input.is_action_just_pressed("ui_left_click"):
+  if event.is_action_pressed("ui_left_click"):
     mouse_button_pressed += MOUSE_BUTTON_LEFT
-  elif Input.is_action_just_pressed("ui_right_click"):
+  elif event.is_action_pressed("ui_right_click"):
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
     var tile_position := pixel_position_to_tile_position(get_local_mouse_position())
