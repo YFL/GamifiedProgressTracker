@@ -29,6 +29,16 @@ func before_test() -> void:
   for task: Task in test_tasks:
     GameWorld.find_game_world_for_taskoid(task, game_world.scene()).add_monster(task)
 
+func test_game_world_size() -> void:
+  var game_world_size := GameWorld.GameWorldSize.new(Difficulty.NoteWorthy)
+  assert_int(game_world_size.x).is_equal(3)
+  assert_int(game_world_size.y).is_equal(2)
+  assert_int(game_world_size.remainder).is_equal(0)
+  game_world_size = GameWorld.GameWorldSize.new(2200)
+  assert_int(game_world_size.x).is_equal(20)
+  assert_int(game_world_size.y).is_equal(11)
+  assert_int(game_world_size.remainder).is_equal(0)
+
 func test_create_task():
   var game_world: GameWorld = game_world.scene().children[0]
   assert_array(game_world.enemies.keys())\
@@ -37,21 +47,18 @@ func test_create_task():
   for position: Vector2i in game_world.enemies:
     var enemy: GameWorld.Enemy = game_world.enemies[position]
     non_free_tiles.append(position)
-    assert_vector(position)\
-      .is_between(Vector2i(0, 0), game_world.size)
+    position_tester(position, game_world.size)
     assert_object(enemy.task)\
       .is_not_null()
   assert_array(game_world.free_tiles)\
     # - 2 because 1 portal + 1 enemy
-    .has_size(game_world.size.x * game_world.size.y - 2)\
+    .has_size(game_world.size.x * game_world.size.y + game_world.size.remainder - game_world.enemies.size() - game_world.portals.size())\
     .not_contains(non_free_tiles)
   
 func test_remove_task() -> void:
   var game_world: GameWorld = game_world.scene().children[0]
   var enemies = game_world.enemies.duplicate(true)
   assert_array(test_tasks).has_size(4)
-  for task: Task in test_tasks:
-    game_world.remove_monster(task)
   test_tasks.all(func (task: Task): game_world.remove_monster(task))
   assert_dict(game_world.enemies)\
     .is_empty()
@@ -83,7 +90,6 @@ func test_remove_project():
   # Since a monster is still in there, the free tiles is not fully loaded.
   assert_array(parent.free_tiles).has_size(parent.size.x * parent.size.y - 1)
 
-
 func create_project_tester(
   game_world: GameWorld,
   expected_children_size: int,
@@ -99,7 +105,17 @@ func create_project_tester(
       .is_same(portal.game_world)
     assert_object(game_world.children[0].parent).is_same(game_world)
     assert_object(game_world.children[0].project.parent).is_same(game_world.project)
-    assert_vector(portal_position)\
-      .is_between(Vector2i(0, 0), game_world.size)
+    position_tester(portal_position, game_world.size)
     assert_array(game_world.free_tiles).not_contains([portal_position])
     
+func position_tester(position: Vector2i, game_world_size: GameWorld.GameWorldSize) -> void:
+  assert_vector(position)\
+      .is_between(
+        Vector2i(0, 0),
+        Vector2i(
+          game_world_size.x,
+          game_world_size.y + (1 if game_world_size.remainder != 0 else 0)))
+  if game_world_size.remainder != 0:
+    assert_vector(position).is_not_between(
+      Vector2i(game_world_size.remainder, game_world_size.y + 1),
+      Vector2i(game_world_size.x, game_world_size.y + 1))
