@@ -88,15 +88,17 @@ var size: GameWorldSize:
 var task_screen: TaskScreen = null
 var project_screen: ProjectScreen = null
 
-static func new_game_world(project: Project, parent: GameWorld = null) -> GameWorld:
+static func new_game_world(project: Project, parent: GameWorld = null) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
   instance.size = GameWorldSize.new(project.capacity)
   instance.project = project
   instance.parent = parent
   instance.hide()
   if parent != null:
-    parent.add_game_world(instance)
-  return instance
+    if not parent.add_game_world(instance):
+      instance.queue_free()
+      return Result.new(null, "Couldn't add new game world to parent")
+  return Result.new(instance)
 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
   return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
@@ -207,13 +209,14 @@ func remove_monster(task: Task) -> bool:
       return true
   return false
 
-func add_game_world(child: GameWorld) -> void:
+func add_game_world(child: GameWorld) -> bool:
   if free_tiles.is_empty():
-    return
+    return false
   children.append(child)
   var free_tile := reserve_random_free_tile()
   portals[free_tile] = Portal.new(child)
   draw_taskoid(free_tile, portal_source_id, Vector2i(0, 0))
+  return true
 
 func remove_game_world(child: GameWorld) -> void:
   if portals.is_empty():

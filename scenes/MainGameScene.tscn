@@ -17,7 +17,7 @@ script = ExtResource("1_ta6kl")
 
 [node name="GameWorld" parent="." instance=ExtResource("9_tpx84")]
 
-[node name="RewardScreenContainer" type="CenterContainer" parent="."]
+[node name="PopupScreenContainer" type="CenterContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

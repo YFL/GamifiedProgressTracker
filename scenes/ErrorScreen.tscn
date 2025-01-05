@@ -1,0 +1,73 @@
+[gd_scene load_steps=7 format=3 uid="uid://dtslh2ldmg25y"]
+
+[ext_resource type="Script" path="res://scripts/error_screen.gd" id="1_i5aqt"]
+[ext_resource type="Texture2D" uid="uid://bw8jb3kr0leq8" path="res://textures/RewardScreenBackgroung.png" id="1_xdfoe"]
+[ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_ybr4j"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_y8v8j"]
+load_path = "res://.godot/imported/CloseButtonNormal.png-06c7018d656c320fad8817982ce5eaea.ctex"
+
+[sub_resource type="SystemFont" id="SystemFont_6gr2d"]
+font_names = PackedStringArray("AniMe Matrix - MB_EN")
+
+[sub_resource type="LabelSettings" id="LabelSettings_ohfl1"]
+font = SubResource("SystemFont_6gr2d")
+font_size = 26
+
+[node name="ErrorScreen" type="TextureRect"]
+custom_minimum_size = Vector2(640, 480)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -240.0
+offset_right = 320.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_xdfoe")
+script = ExtResource("1_i5aqt")
+
+[node name="ExitButton" parent="." instance=ExtResource("1_ybr4j")]
+visible = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -64.0
+offset_right = 0.0
+grow_horizontal = 0
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -32.0
+offset_right = 320.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="TextureRect" type="TextureRect" parent="GridContainer"]
+self_modulate = Color(1, 0.161319, 0.214521, 1)
+layout_mode = 2
+texture = SubResource("CompressedTexture2D_y8v8j")
+stretch_mode = 3
+
+[node name="Label" type="Label" parent="GridContainer"]
+custom_minimum_size = Vector2(572, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+label_settings = SubResource("LabelSettings_ohfl1")
+vertical_alignment = 1
+autowrap_mode = 3
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
