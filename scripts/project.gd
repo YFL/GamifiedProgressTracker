@@ -1,5 +1,7 @@
 class_name Project extends Taskoid
 
+const capacity_key = "capacity"
+
 var capacity := Difficulty.Invalid
 ## Array of projects and tasks
 var children: Array = []
@@ -59,3 +61,8 @@ func add_child_difficulty_to_parent(difficulty: int) -> void:
     return
   parent.children_difficulty += difficulty
   parent.add_child_difficulty_to_parent(difficulty)
+
+func to_dict() -> Dictionary:
+  var ret_val := super.to_dict()
+  ret_val[capacity_key] = capacity
+  return ret_val

@@ -38,3 +38,9 @@ func remove(project_name: String) -> void:
 
 func remove_project(project: Project) -> void:
   remove(project.name)
+
+func to_dict() -> Dictionary:
+  var ret_val := {}
+  for key in projects.keys():
+    ret_val[key] = projects[key].to_dict()
+  return ret_val

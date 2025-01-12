@@ -8,6 +8,10 @@ enum RewardTier {
   Count
 }
 
+const name_key = "name"
+const difficulty_key = "difficulty"
+const tier_key = "tier"
+
 var name: String = ""
 var difficulty := Difficulty.Modest
 var tier: RewardTier = RewardTier.Common
@@ -19,3 +23,10 @@ func _init(name: String, difficulty: int, tier: RewardTier) -> void:
 
 func _to_string() -> String:
   return name + " " + Difficulty.difficulty_names[difficulty] + " " + RewardTier.keys()[tier]
+
+func to_dict() -> Dictionary:
+  return {
+    name_key: name,
+    difficulty_key: difficulty,
+    tier_key: tier
+  }

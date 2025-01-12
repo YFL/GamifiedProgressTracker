@@ -23,6 +23,7 @@ const difficulty_to_enemy_index := {
   Difficulty.Supreme: 3,
   Difficulty.Transcendent: 3
 }
+
 const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 const TaskScreenScene := preload("res://scenes/TaskScreen.tscn")
 const ProjectScreenScene := preload("res://scenes/ProjectScreen.tscn")

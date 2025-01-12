@@ -50,3 +50,9 @@ func reward_for(difficulty: int) -> Reward:
   if filtered.is_empty():
     filtered = possible_rewards
   return filtered.pick_random() if not filtered.is_empty() else null
+
+func to_dict() -> Dictionary:
+  var ret_val := {}
+  for key in rewards.keys():
+    ret_val[key] = rewards[key].to_dict()
+  return ret_val

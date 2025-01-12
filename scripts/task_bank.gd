@@ -38,3 +38,9 @@ func remove(task_name: String) -> void:
 
 func remove_task(task: Task) -> void:
   remove(task.name)
+
+func to_dict() -> Dictionary:
+  var ret_val := {}
+  for key in tasks.keys():
+    ret_val[key] = tasks[key].to_dict()
+  return ret_val
