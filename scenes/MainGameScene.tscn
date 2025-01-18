@@ -1,11 +1,14 @@
-[gd_scene load_steps=16 format=3 uid="uid://cr08wdj13xxrb"]
+[gd_scene load_steps=21 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://2u7gnl5kcppm" path="res://textures/AddProjectButtonReleased.png" id="3_4mnda"]
+[ext_resource type="Texture2D" uid="uid://7556vw6s8p73" path="res://textures/HamburgerNormal.png" id="3_lrbli"]
+[ext_resource type="Script" path="res://scripts/buttons_panel.gd" id="3_st7qt"]
 [ext_resource type="Texture2D" uid="uid://dr0cr5c5yedgg" path="res://textures/AddTaskButtonPressed.png" id="3_w0mbl"]
 [ext_resource type="Texture2D" uid="uid://be12uyeb8wd84" path="res://textures/AddProjectButtonPressed.png" id="4_2fnwq"]
+[ext_resource type="Texture2D" uid="uid://bj1nsau33dk7r" path="res://textures/HamburgerPressed.png" id="4_khjb4"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
 [ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
@@ -15,6 +18,12 @@
 [ext_resource type="Texture2D" uid="uid://fnr5wey7fufx" path="res://textures/SaveButtonPressed.png" id="10_34gtb"]
 [ext_resource type="Texture2D" uid="uid://bt0ey2un4oeox" path="res://textures/LoadButtonNormal.png" id="11_skqmj"]
 [ext_resource type="Texture2D" uid="uid://bhfx2sbtatqss" path="res://textures/LoadButtonPressed.png" id="12_jebwc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_74g6l"]
+bg_color = Color(0.151276, 0.151276, 0.151276, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sgvvd"]
+bg_color = Color(0.147672, 0.147672, 0.147672, 1)
 
 [node name="MainGameScene" type="Node2D"]
 script = ExtResource("1_ta6kl")
@@ -31,46 +40,75 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="AddButtons" type="HBoxContainer" parent="."]
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 210.0
-offset_bottom = 74.0
+[node name="ButtonsPanel" type="PanelContainer" parent="."]
+offset_left = -30.0
+offset_bottom = 224.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_74g6l")
+script = ExtResource("3_st7qt")
 
-[node name="AddProject" type="TextureButton" parent="AddButtons"]
-custom_minimum_size = Vector2(64, 64)
+[node name="Buttons" type="VBoxContainer" parent="ButtonsPanel"]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="AddProject" type="TextureButton" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("3_4mnda")
 texture_pressed = ExtResource("4_2fnwq")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddTask" type="TextureButton" parent="AddButtons"]
-custom_minimum_size = Vector2(64, 64)
+[node name="AddTask" type="TextureButton" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("2_ul44v")
 texture_pressed = ExtResource("3_w0mbl")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddReward" type="TextureButton" parent="AddButtons"]
-custom_minimum_size = Vector2(64, 64)
+[node name="AddReward" type="TextureButton" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("6_xpefo")
 texture_pressed = ExtResource("7_loacn")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="SaveButton" type="TextureButton" parent="AddButtons"]
-custom_minimum_size = Vector2(64, 64)
+[node name="SaveButton" type="TextureButton" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("9_d1ta8")
 texture_pressed = ExtResource("10_34gtb")
+ignore_texture_size = true
+stretch_mode = 0
 
-[node name="LoadButton" type="TextureButton" parent="AddButtons"]
+[node name="LoadButton" type="TextureButton" parent="ButtonsPanel/Buttons"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("11_skqmj")
 texture_pressed = ExtResource("12_jebwc")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+offset_right = 30.0
+offset_bottom = 30.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_sgvvd")
+
+[node name="Hamburger" type="TextureButton" parent="PanelContainer"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+texture_normal = ExtResource("3_lrbli")
+texture_pressed = ExtResource("4_khjb4")
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
 visible = false
@@ -93,11 +131,12 @@ offset_top = 281.0
 offset_right = 681.4
 offset_bottom = 281.128
 
-[connection signal="pressed" from="AddButtons/AddProject" to="." method="_on_add_project_pressed"]
-[connection signal="pressed" from="AddButtons/AddTask" to="." method="_on_add_task_pressed"]
-[connection signal="pressed" from="AddButtons/AddReward" to="." method="_on_add_reward_pressed"]
-[connection signal="pressed" from="AddButtons/SaveButton" to="." method="_on_save_button_pressed"]
-[connection signal="pressed" from="AddButtons/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="ButtonsPanel/Buttons/AddProject" to="." method="_on_add_project_pressed"]
+[connection signal="pressed" from="ButtonsPanel/Buttons/AddTask" to="." method="_on_add_task_pressed"]
+[connection signal="pressed" from="ButtonsPanel/Buttons/AddReward" to="." method="_on_add_reward_pressed"]
+[connection signal="pressed" from="ButtonsPanel/Buttons/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="ButtonsPanel/Buttons/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="PanelContainer/Hamburger" to="." method="_on_hamburger_pressed"]
 [connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
 [connection signal="add_project" from="AddProjectDialog" to="." method="_on_add_project"]
 [connection signal="add_reward" from="AddRewardDialog" to="." method="_on_add_reward"]

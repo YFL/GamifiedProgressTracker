@@ -17,6 +17,7 @@ var exe_dir := OS.get_executable_path().get_base_dir()
 @onready var add_reward_dialog: AddRewardDialog = $AddRewardDialog
 @onready var add_project_dialog: AddProjectDialog = $AddProjectDialog
 @onready var popup_screen_container: CenterContainer = $PopupScreenContainer
+@onready var button_panel: ButtonPanel = $ButtonsPanel
 @onready var reward_screen: RewardScreen = preload("res://scenes/RewardScreen.tscn").instantiate()
 @onready var error_screen: ErrorScreen = preload("res://scenes/ErrorScreen.tscn").instantiate()
 @onready var load_file_dialog := FileDialog.new()
@@ -162,3 +163,7 @@ func load_project_tree(dict: Dictionary, project_name: String) -> void:
       project_dict[Project.description_key],
       parent_name,
       project_dict[Project.capacity_key])
+
+
+func _on_hamburger_pressed() -> void:
+  button_panel.slide()

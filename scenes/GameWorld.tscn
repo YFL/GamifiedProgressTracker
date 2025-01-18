@@ -50,5 +50,11 @@ position = Vector2(647, 655)
 speed = 100
 
 [node name="ExitButton" parent="." instance=ExtResource("6_ack20")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 1250.0
+offset_bottom = 30.0
+grow_horizontal = 0
 
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
