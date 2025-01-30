@@ -4,6 +4,8 @@ const tasks_key := "tasks"
 const rewards_key := "rewards"
 const projects_key := "projects"
 
+const invalid_save_file_msg := "Invalid save file: "
+
 ## Main task_bank, that when completed (optionality is taken into account), the
 ## project is finished.
 var task_bank := TaskBank.new()
@@ -20,7 +22,6 @@ var exe_dir := OS.get_executable_path().get_base_dir()
 @onready var button_panel: ButtonPanel = $ButtonsPanel
 @onready var reward_screen: RewardScreen = preload("res://scenes/RewardScreen.tscn").instantiate()
 @onready var error_screen: ErrorScreen = preload("res://scenes/ErrorScreen.tscn").instantiate()
-@onready var load_file_dialog := FileDialog.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -32,11 +33,6 @@ func _ready() -> void:
   popup_screen_container.add_child(error_screen)
   reward_screen.hide()
   error_screen.hide()
-  load_file_dialog.hide()
-  load_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
-  load_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-  load_file_dialog.file_selected.connect(self._on_load_file_selected)
-  add_child(load_file_dialog)
 
 func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int) -> void:
   var cant_add_task_text = "Can't add task: "
@@ -108,62 +104,266 @@ func show_error_screen(error: String) -> void:
   error_screen.show()
 
 func _on_save_button_pressed() -> void:
-  print("Exe dir: " + exe_dir)
-  var file := FileAccess.open(exe_dir + "/save.json", FileAccess.WRITE)
-  var to_store := {}
-  to_store[tasks_key] = task_bank.to_dict()
-  to_store[projects_key] = project_bank.to_dict()
-  to_store[rewards_key] = reward_bank.to_dict()
-  file.store_string(JSON.stringify(to_store))
+  var save_dialog := CustomFileDialog.new(FileDialog.FILE_MODE_SAVE_FILE)
+  add_child(save_dialog)
+  save_dialog.show()
+  await save_dialog.finished
+  if save_dialog.valid:
+    var file := FileAccess.open(save_dialog.current_file, FileAccess.WRITE)
+    var to_store := {}
+    to_store[tasks_key] = task_bank.to_dict()
+    to_store[projects_key] = project_bank.to_dict()
+    to_store[rewards_key] = reward_bank.to_dict()
+    file.store_string(JSON.stringify(to_store))
+  remove_child(save_dialog)
+  save_dialog.queue_free()
 
 func _on_load_button_pressed() -> void:
-  var file_path := exe_dir + "/save.json"
-  if not FileAccess.file_exists(file_path):
-    load_file_dialog.show()
-  else:
-    load_saved_state(file_path)
-
-func _on_load_file_selected(path: String) -> void:
-  load_file_dialog.hide()
-  load_saved_state(path)
+  var load_dialog := CustomFileDialog.new(FileDialog.FILE_MODE_OPEN_FILE)
+  add_child(load_dialog)
+  load_dialog.show()
+  await load_dialog.finished
+  if load_dialog.valid:
+    if not FileAccess.file_exists(load_dialog.current_file):
+      # This might not ever be the case though...
+      show_error_screen("File doesn't exist")
+    else:
+      reset()
+      load_saved_state(load_dialog.current_file)  
+  remove_child(load_dialog)
+  load_dialog.queue_free()
 
 func load_saved_state(path: String) -> void:
   var save_file := FileAccess.open(path, FileAccess.READ)
-  var dict: Dictionary = JSON.parse_string(save_file.get_as_text())
-  var projects: Dictionary = dict[projects_key]
-  for project_name in dict[projects_key].keys():
-    load_project_tree(projects, project_name)
-  var tasks: Dictionary = dict[tasks_key]
-  for task_name in tasks.keys():
-    var task: Dictionary = tasks[task_name]
-    _on_add_task(
-      task_name,
-      task[Task.description_key],
-      task[Task.parent_name_key],
-      task[Task.optional_key],
-      task[Task.difficulty_key])
-    if task[Task.completed_key]:
-      task_bank.get_task(task_name).complete()
-  var rewards: Dictionary = dict[rewards_key]
-  for reward_name in rewards.keys():
-    var reward: Dictionary = rewards[reward_name]
-    _on_add_reward(reward_name, reward[Reward.difficulty_key], reward[Reward.tier_key])
+  var jsonParser = JSON.new()
+  if jsonParser.parse(save_file.get_as_text()) != OK:
+    show_error_screen(invalid_save_file_msg + "couldn't parse contents as JSON")
+    reset()
+    return
+  var dict = jsonParser.data
+  if typeof(dict) != TYPE_DICTIONARY:
+    show_error_screen(invalid_save_file_msg + "root element is not a dictionary")
+    reset()
+    return
+  load_projects(dict)
+  load_tasks(dict)
+  load_rewards(dict)
+  
 
 # dict contains project names as keys and dictionaries as values, each of which represents a project
-func load_project_tree(dict: Dictionary, project_name: String) -> void:
-  var parent_project: Project = null
-  var project_dict: Dictionary = dict[project_name]
-  var parent_name: String = project_dict[Project.parent_name_key]
+func load_project_tree(dict: Dictionary, project_name: String) -> bool:
+  var project_dict = dict.get(project_name, null)
+  if project_dict == null:
+    handle_project_loading_error(project_name,
+      "project with the given name doesn't exist in the save")
+    return false
+  if typeof(project_dict) != TYPE_DICTIONARY:
+    handle_project_loading_error(project_name, "is not a dictionary")
+    return false
+  var parent_name = project_dict.get(Project.parent_name_key, null)
+  if typeof(parent_name) != TYPE_STRING:
+    handle_project_loading_error(project_name, "parent name is not a string: " + str(parent_name))
+    return false
   if not parent_name.is_empty():
-    load_project_tree(dict, parent_name)
-    parent_project = project_bank.get_project(parent_name)
-  if not project_bank.has(project_dict[Project.name_key]):
+    if not load_project_tree(dict, parent_name):
+      return false
+  var project_name_field_value = project_dict.get(Project.name_key, null)
+  if project_name_field_value == null:
+    handle_project_loading_error(project_name, "no name in project")
+    return false
+  if typeof(project_name_field_value) != TYPE_STRING:
+    handle_project_loading_error(project_name, "name field value is not a string")
+    return false
+  if project_name_field_value != project_name:
+    handle_project_loading_error(project_name,
+      "project name key \"" + project_name + "\" doesn't equal project name field value \"" +
+      project_name_field_value + "\".")
+    return false
+  if not project_bank.has(project_name_field_value):
+    var project_description = project_dict.get(Project.description_key, null)
+    if project_description == null:
+      show_project_loading_error(project_name,
+        "project description missing. Empty string will be used")
+      project_description = ""
+    if typeof(project_description) != TYPE_STRING:
+      handle_project_loading_error(project_name, "project description is not a string")
+      return false
+    var project_capacity = project_dict.get(Project.capacity_key, null)
+    if project_capacity == null:
+      handle_project_loading_error(project_name, "project capacity missing")
+      return false
+    if typeof(project_capacity) != TYPE_FLOAT:
+      handle_project_loading_error(project_name, "project capacity is not a number")
+      return false
     _on_add_project(
-      project_dict[Project.name_key],
-      project_dict[Project.description_key],
+      project_name_field_value,
+      project_description,
       parent_name,
-      project_dict[Project.capacity_key])
+      project_capacity)
+  return true
 
+func load_projects(saveDict: Dictionary) -> void:
+  var projects = saveDict.get(projects_key, null)
+  if projects == null:
+    show_error_screen(invalid_save_file_msg + "projects key missing")
+    reset()
+    return
+  if typeof(projects) != TYPE_DICTIONARY:
+    show_error_screen(invalid_save_file_msg + "projects is not a dictionary")
+    reset()
+    return
+  for project_name in saveDict[projects_key].keys():
+    if not load_project_tree(projects, project_name):
+      return
+
+func load_tasks(saveDict: Dictionary) -> void:
+  var tasks = saveDict.get(tasks_key, null)
+  if tasks == null:
+    show_error_screen(invalid_save_file_msg + "tasks key missing")
+    reset()
+    return
+  if typeof(tasks) != TYPE_DICTIONARY:
+    show_error_screen(invalid_save_file_msg + "tasks is not a dictionary")
+    reset()
+    return
+  for task_name in tasks.keys():
+    var task = tasks.get(task_name, null)
+    if typeof(task) != TYPE_DICTIONARY:
+      handle_task_loading_error(task_name, "task is not a dictionary")
+      return
+    var task_name_field_value = task.get(Task.name_key, null)
+    if task_name_field_value == null:
+      handle_task_loading_error(task_name, "task name is missing")
+      return
+    if typeof(task_name_field_value) != TYPE_STRING:
+      handle_task_loading_error(task_name, "task name is not a string")
+      return
+    if task_name_field_value != task_name:
+      handle_task_loading_error(task_name,
+        "task name key \"" + task_name + "\" doesn't equal reward name field value \"" +
+        task_name_field_value + "\".")
+      return
+    var task_description = task.get(Task.description_key, null)
+    if task_description == null:
+      show_task_loading_error(task_name, "task description is missing. Empty string will be used.")
+      task_description = ""
+    if typeof(task_description) != TYPE_STRING:
+      handle_task_loading_error(task_name, "task description is not a string")
+      return
+    var task_parent_name = task.get(Task.parent_name_key, null)
+    if task_parent_name == null:
+      handle_task_loading_error(task_name, "task parent name is missing")
+      return
+    if typeof(task_parent_name) != TYPE_STRING:
+      handle_task_loading_error(task_name, "task parent name is not a string")
+      return
+    var task_optional = task.get(Task.optional_key, null)
+    if task_optional == null:
+      handle_task_loading_error(task_name, "optional is missing")
+      return
+    if typeof(task_optional) != TYPE_BOOL:
+      handle_task_loading_error(task_name, "optional is not a bool")
+      return
+    var task_difficulty = task.get(Task.difficulty_key, null)
+    if task_difficulty == null:
+      handle_task_loading_error(task_name, "task difficulty missing")
+      return
+    if typeof(task_difficulty) != TYPE_FLOAT:
+      handle_task_loading_error(task_name, "task difficulty is not a number")
+      return
+    var task_completed = task.get(Task.completed_key, null)
+    if task_completed == null:
+      handle_task_loading_error(task_name, "completed is missing")
+      return
+    if typeof(task_completed) != TYPE_BOOL:
+      handle_task_loading_error(task_name, "completed is not a bool")
+      return
+    _on_add_task(
+      task_name,
+      task_description,
+      task_parent_name,
+      task_optional,
+      task_difficulty)
+    if task_completed:
+      task_bank.get_task(task_name).complete()
+
+func load_rewards(dict: Dictionary) -> void:
+  var rewards = dict.get(rewards_key, null)
+  if typeof(rewards) != TYPE_DICTIONARY:
+    show_error_screen(invalid_save_file_msg + "missing rewards key")
+    reset()
+    return
+  for reward_name in rewards.keys():
+    var reward = rewards.get(reward_name, null)
+    if typeof(reward) != TYPE_DICTIONARY:
+      handle_reward_loading_error(reward_name, "reward is not a dictionary")
+      return
+    var reward_name_field_value = reward.get(Reward.name_key, null)
+    if reward_name_field_value == null:
+      handle_reward_loading_error(reward_name, "reward name is missing")
+      return
+    if typeof(reward_name_field_value) != TYPE_STRING:
+      handle_reward_loading_error(reward_name, "reward name is not a string")
+      return
+    if reward_name_field_value != reward_name:
+      handle_reward_loading_error(reward_name,
+        "reward name key \"" + reward_name + "\" doesn't equal reward name field value \"" +
+        reward_name_field_value + "\".")
+      return
+    var reward_difficulty = reward.get(Reward.difficulty_key, null)
+    if reward_difficulty == null:
+      handle_reward_loading_error(reward_name, "reward difficulty is missing")
+      return
+    if typeof(reward_difficulty) != TYPE_FLOAT:
+      handle_reward_loading_error(reward_name, "reward difficulty is not a number")
+      return
+    var reward_tier = reward.get(Reward.tier_key, null)
+    if reward_tier == null:
+      handle_reward_loading_error(reward_name, "reward tier is missing")
+      return
+    if typeof(reward_tier) != TYPE_FLOAT:
+      handle_reward_loading_error(reward_name, "reward tier is not a number")
+      return
+    _on_add_reward(reward_name, reward_difficulty, reward_tier)
 
 func _on_hamburger_pressed() -> void:
   button_panel.slide()
+
+func reset() -> void:
+  remove_child(game_world)
+  game_world.queue_free()
+  var result := GameWorld.new_game_world(null, null)
+  if not result.error.is_empty():
+    show_error_screen("Couldn't create new game world: "  + result.error)
+  else:
+    game_world = result.result
+    add_child(game_world)
+    move_child(game_world, 0)
+    game_world.show()
+  task_bank.reset()
+  project_bank.reset()
+  reward_bank.reset()
+
+func show_project_loading_error(project_name: String, error_msg: String) -> void:
+  show_error_screen(invalid_save_file_msg + "Problem loading project \"" + project_name + "\": " +
+    error_msg)
+  
+func show_task_loading_error(task_name: String, error_msg: String) -> void:
+  show_error_screen(invalid_save_file_msg + "Problem loading task \"" + task_name + "\": " +
+    error_msg)
+
+func show_reward_loading_error(reward_name: String, error_msg: String) -> void:
+  show_error_screen(invalid_save_file_msg + "Problem loading reward \"" + reward_name + "\": " +
+    error_msg)
+
+func handle_project_loading_error(project_name: String, error_msg: String) -> void:
+  show_project_loading_error(project_name, error_msg)
+  reset()
+
+func handle_task_loading_error(task_name: String, error_msg: String) -> void:
+  show_task_loading_error(task_name, error_msg)
+  reset()
+
+func handle_reward_loading_error(reward_name: String, error_msg: String) -> void:
+  show_reward_loading_error(reward_name, error_msg)
+  reset()

@@ -91,7 +91,8 @@ var project_screen: ProjectScreen = null
 
 static func new_game_world(project: Project, parent: GameWorld = null) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
-  instance.size = GameWorldSize.new(project.capacity)
+  if project != null:
+    instance.size = GameWorldSize.new(project.capacity)
   instance.project = project
   instance.parent = parent
   instance.hide()
@@ -193,6 +194,7 @@ func _notification(what: int) -> void:
 func add_monster(task: Task) -> bool:
   if free_tiles.is_empty():
     return false
+  task.done.connect(_on_task_done)
   var free_tile := reserve_random_free_tile()
   enemies[free_tile] = Enemy.new(task)
   # We try to draw in case a task is added, when this GameWorld is ready
@@ -265,7 +267,6 @@ func _on_character_arrived(at: Vector2) -> void:
   if enemies.has(tile_position):
     var enemy: Enemy = enemies[tile_position]
     enemy.task.complete()
-    remove_monster(enemy.task)
   elif portals.has(tile_position):
     var portal: Portal = portals[tile_position]
     if selected_child != null:
@@ -286,3 +287,6 @@ func _on_exit_button_pressed() -> void:
     parent.character.show()
     if parent.parent != null:
       parent.exit_button.show()
+
+func _on_task_done(task: Task) -> void:
+  remove_monster(task)

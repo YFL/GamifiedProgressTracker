@@ -2,3 +2,7 @@
 .godot/
 /android/
 KritaProjects
+.vscode
+export_presets.cfg
+export
+addons/gdUnit4/GdUnitRunner.cfg
