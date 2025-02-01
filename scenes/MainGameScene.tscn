@@ -1,7 +1,7 @@
 [gd_scene load_steps=21 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
-[ext_resource type="PackedScene" uid="uid://dunysvqlly0om" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
+[ext_resource type="PackedScene" uid="uid://dlyrwjf4dc6hv" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://2u7gnl5kcppm" path="res://textures/AddProjectButtonReleased.png" id="3_4mnda"]
 [ext_resource type="Texture2D" uid="uid://7556vw6s8p73" path="res://textures/HamburgerNormal.png" id="3_lrbli"]
@@ -11,10 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://bj1nsau33dk7r" path="res://textures/HamburgerPressed.png" id="4_khjb4"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
 [ext_resource type="Texture2D" uid="uid://ctc26ayeibdbt" path="res://textures/AddRewardButtonPressed.png" id="7_loacn"]
-[ext_resource type="PackedScene" uid="uid://ciimvioy7polm" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
+[ext_resource type="PackedScene" uid="uid://dundl6rkjm4pt" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
 [ext_resource type="Texture2D" uid="uid://dr6b1o5v325wu" path="res://textures/SaveButtonNormal.png" id="9_d1ta8"]
 [ext_resource type="PackedScene" uid="uid://dp86n8gp81qx7" path="res://scenes/GameWorld.tscn" id="9_tpx84"]
-[ext_resource type="PackedScene" uid="uid://dy0rbh8i4tvt4" path="res://scenes/AddProjectDialog.tscn" id="9_ugrgd"]
+[ext_resource type="PackedScene" uid="uid://bxj232pgccc78" path="res://scenes/AddProjectDialog.tscn" id="9_ugrgd"]
 [ext_resource type="Texture2D" uid="uid://fnr5wey7fufx" path="res://textures/SaveButtonPressed.png" id="10_34gtb"]
 [ext_resource type="Texture2D" uid="uid://bt0ey2un4oeox" path="res://textures/LoadButtonNormal.png" id="11_skqmj"]
 [ext_resource type="Texture2D" uid="uid://bhfx2sbtatqss" path="res://textures/LoadButtonPressed.png" id="12_jebwc"]
@@ -110,26 +110,24 @@ texture_pressed = ExtResource("4_khjb4")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
-visible = false
-offset_left = 799.0
-offset_top = 6.0
-offset_right = 1119.0
-offset_bottom = 246.0
-
 [node name="AddProjectDialog" parent="." instance=ExtResource("9_ugrgd")]
 visible = false
-offset_left = 778.0
-offset_top = 11.0
-offset_right = 1098.0
-offset_bottom = 251.0
+offset_left = 774.0
+offset_right = 1094.0
+offset_bottom = 300.0
+
+[node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
+visible = false
+offset_left = 774.0
+offset_right = 1094.0
+offset_bottom = 300.0
 
 [node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
 visible = false
-offset_left = 681.0
-offset_top = 281.0
-offset_right = 681.4
-offset_bottom = 281.128
+offset_left = 776.0
+offset_top = 298.0
+offset_right = 1096.0
+offset_bottom = 538.0
 
 [connection signal="pressed" from="ButtonsPanel/Buttons/AddProject" to="." method="_on_add_project_pressed"]
 [connection signal="pressed" from="ButtonsPanel/Buttons/AddTask" to="." method="_on_add_task_pressed"]
@@ -137,6 +135,6 @@ offset_bottom = 281.128
 [connection signal="pressed" from="ButtonsPanel/Buttons/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="ButtonsPanel/Buttons/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="PanelContainer/Hamburger" to="." method="_on_hamburger_pressed"]
-[connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
 [connection signal="add_project" from="AddProjectDialog" to="." method="_on_add_project"]
+[connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
 [connection signal="add_reward" from="AddRewardDialog" to="." method="_on_add_reward"]

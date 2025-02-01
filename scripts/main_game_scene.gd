@@ -57,10 +57,7 @@ func _on_add_reward(name: String, difficulty: int, tier: Reward.RewardTier) -> v
     return
 
 func _on_add_project(name: String, description: String, parent: String, duration: int) -> void:
-  # I don't think this is necessary really, or we should add it to the task function as well, for
-  # the same reasons we would keep this here.
-  # if project_bank.has(name):
-  #   return
+  print("HUUUUUU")
   var cant_add_project_text = "Can't add project: "
   if not parent.is_empty() and not project_bank.has(parent):
     show_error_screen(cant_add_project_text + "No parent exists with the given name.")
@@ -88,15 +85,12 @@ func _on_task_done(task: Task) -> void:
   reward_screen.show()
 
 func _on_add_task_pressed() -> void:
-  add_task_dialog.reset()
   add_task_dialog.visible = not add_task_dialog.visible
 
 func _on_add_reward_pressed() -> void:
-  add_reward_dialog.reset()
   add_reward_dialog.visible = not add_reward_dialog.visible
 
 func _on_add_project_pressed() -> void:
-  add_project_dialog.reset()
   add_project_dialog.visible = not add_project_dialog.visible
 
 func show_error_screen(error: String) -> void:

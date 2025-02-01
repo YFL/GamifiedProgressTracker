@@ -1,4 +1,4 @@
-class_name AddProjectDialog extends Control
+class_name AddProjectDialog extends DialogBase
 
 signal add_project(name: String, description: String, parent: String, duration: int)
 
@@ -10,6 +10,7 @@ signal add_project(name: String, description: String, parent: String, duration: 
 
 func _ready() -> void:
   _duration.remove_item(0)
+  _duration.select(0)
 
 func _on_project_added(project: Project) -> void:
   _parent._on_project_added(project)
@@ -31,7 +32,7 @@ func parent() -> String:
     return ""
   return _parent.get_item_text(_parent.selected)
 
-func reset() -> void:
+func _reset() -> void:
   _project_name.clear()
   _duration.select(0)
   _parent.select(0)

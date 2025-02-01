@@ -1,62 +1,37 @@
-[gd_scene load_steps=3 format=3 uid="uid://ciimvioy7polm"]
+[gd_scene load_steps=4 format=3 uid="uid://dundl6rkjm4pt"]
 
-[ext_resource type="Script" path="res://scripts/add_reward_dialog.gd" id="1_pdnj5"]
-[ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="2_d0nko"]
+[ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_ahmdf"]
+[ext_resource type="Script" path="res://scripts/add_reward_dialog.gd" id="2_1nrpb"]
+[ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="2_d1uip"]
 
-[node name="AddRewardDialog" type="Control"]
-layout_mode = 3
-anchor_right = 0.425
-anchor_bottom = 0.364
-offset_right = 0.399994
-offset_bottom = 0.127991
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_pdnj5")
+[node name="AddRewardDialog" instance=ExtResource("1_ahmdf")]
+script = ExtResource("2_1nrpb")
 
-[node name="RewardNameLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 1.0
-offset_top = 10.0
-offset_right = 111.0
-offset_bottom = 33.0
+[node name="RewardNameLabel" type="Label" parent="GridContainer" index="2"]
+layout_mode = 2
 text = "Reward Name"
 
-[node name="RewardName" type="TextEdit" parent="."]
-layout_mode = 0
-offset_left = 165.0
-offset_right = 470.0
-offset_bottom = 35.0
+[node name="RewardName" type="TextEdit" parent="GridContainer" index="3"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
 placeholder_text = "Reward name..."
 
-[node name="DifficultyCategoryLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 59.0
-offset_right = 145.0
-offset_bottom = 82.0
+[node name="DifficultyCategoryLabel" type="Label" parent="GridContainer" index="4"]
+layout_mode = 2
 text = "Difficulty Category"
 
-[node name="DifficultyCategory" parent="." instance=ExtResource("2_d0nko")]
-layout_mode = 0
-offset_left = 165.0
-offset_top = 55.0
-offset_right = 307.0
-offset_bottom = 88.0
+[node name="DifficultyCategory" parent="GridContainer" index="5" instance=ExtResource("2_d1uip")]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
 
-[node name="TierLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 1.0
-offset_top = 109.0
-offset_right = 86.0
-offset_bottom = 132.0
+[node name="TierLabel" type="Label" parent="GridContainer" index="6"]
+layout_mode = 2
 text = "Probability"
 
-[node name="Tier" type="OptionButton" parent="."]
-layout_mode = 0
-offset_left = 165.0
-offset_top = 97.0
-offset_right = 259.0
-offset_bottom = 134.0
+[node name="Tier" type="OptionButton" parent="GridContainer" index="7"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
 selected = 0
 item_count = 4
 popup/item_0/text = "Common"
@@ -67,12 +42,8 @@ popup/item_2/id = 2
 popup/item_3/text = "Legendary"
 popup/item_3/id = 3
 
-[node name="AddReward" type="Button" parent="."]
-layout_mode = 0
-offset_left = 3.0
-offset_top = 150.0
-offset_right = 105.0
-offset_bottom = 181.0
+[node name="AddReward" type="Button" parent="GridContainer" index="8"]
+layout_mode = 2
 text = "Add Reward"
 
-[connection signal="pressed" from="AddReward" to="." method="_on_add_reward_pressed"]
+[connection signal="pressed" from="GridContainer/AddReward" to="." method="_on_add_reward_pressed"]

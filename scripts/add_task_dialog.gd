@@ -1,4 +1,4 @@
-class_name AddTaskDialog extends Control
+class_name AddTaskDialog extends DialogBase
 
 signal add_task(name: String, description: String, parent: String, optional: bool, difficulty: int)
 
@@ -26,7 +26,7 @@ func parent_name() -> String:
     return ""
   return _parent.get_item_text(_parent.selected)
   
-func reset() -> void:
+func _reset() -> void:
   _task_name.clear()
   _description.clear()
   _difficulty.selected = 0
