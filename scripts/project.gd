@@ -66,3 +66,9 @@ func to_dict() -> Dictionary:
   var ret_val := super.to_dict()
   ret_val[capacity_key] = capacity
   return ret_val
+
+func complete() -> bool:
+  for child in children:
+    if not child.completed:
+      return false
+  return super.complete()

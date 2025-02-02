@@ -7,6 +7,7 @@ class_name GameWorld extends Node2D
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1)]
+const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const grass_source_id := 0
 const enemy_source_id := 1
 const portal_source_id := 2
@@ -134,7 +135,9 @@ func _ready() -> void:
   for position: Vector2i in enemies:
     draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
   for position: Vector2i in portals:
-    draw_taskoid(position, portal_source_id, Vector2i(0, 0))
+    var portal_tile_index :=\
+      portal_tiles[0] if portals[position].game_world.project.completed else portal_tiles[1]
+    draw_taskoid(position, portal_source_id, portal_tile_index)
 
 func _unhandled_input(event: InputEvent) -> void:
   var mouse_button_pressed := 0
@@ -182,6 +185,7 @@ func _unhandled_input(event: InputEvent) -> void:
         project_screen.current_size.text =\
           Difficulty.difficulty_names[Difficulty.categorize_difficulty(project.children_difficulty)]
         project_screen.parent.text = project.parent.name if project.parent != null else "None"
+        project_screen.project = project
         project_screen.show()
 
 func _notification(what: int) -> void:
@@ -218,7 +222,7 @@ func add_game_world(child: GameWorld) -> bool:
   children.append(child)
   var free_tile := reserve_random_free_tile()
   portals[free_tile] = Portal.new(child)
-  draw_taskoid(free_tile, portal_source_id, Vector2i(0, 0))
+  draw_taskoid(free_tile, portal_source_id, portal_tiles[0])
   return true
 
 func remove_game_world(child: GameWorld) -> void:
@@ -231,6 +235,13 @@ func remove_game_world(child: GameWorld) -> void:
       draw_grass(position)
       children.erase(child)
       return
+
+func mark_portal_done(project: Project) -> void:
+  if portals.is_empty():
+    return
+  for position: Vector2i in portals:
+    if portals[position].game_world.project == project:
+      tilemap.set_cell(position, portal_source_id, portal_tiles[1])
 
 func find_game_world(project: Project) -> GameWorld:
   if self.project == project:
@@ -290,3 +301,6 @@ func _on_exit_button_pressed() -> void:
 
 func _on_task_done(task: Task) -> void:
   remove_monster(task)
+
+func _on_project_done(project: Project) -> void:
+  mark_portal_done(project)

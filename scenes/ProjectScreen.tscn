@@ -4,13 +4,13 @@
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_q7jdw"]
 
 [node name="ProjectScreen" type="Control"]
-custom_minimum_size = Vector2(320, 240)
+custom_minimum_size = Vector2(320, 300)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -960.0
-offset_bottom = -480.0
+offset_bottom = -420.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_g2cm7")
@@ -39,8 +39,6 @@ visible = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 8
-ignore_texture_size = true
-stretch_mode = 0
 
 [node name="DescriptionLabel" type="Label" parent="GridContainer"]
 layout_mode = 2
@@ -91,4 +89,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
+[node name="EmptySpace4" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="CompleteButton" type="Button" parent="GridContainer"]
+layout_mode = 2
+text = "Complete"
+
 [connection signal="pressed" from="GridContainer/ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="GridContainer/CompleteButton" to="." method="_on_complete_button_pressed"]

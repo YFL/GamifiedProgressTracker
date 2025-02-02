@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/game_world.gd" id="1_foe28"]
 [ext_resource type="Texture2D" uid="uid://blr8ja2cy2ut1" path="res://textures/Grass64x64.png" id="2_q8k2d"]
 [ext_resource type="Texture2D" uid="uid://glabjb5oxixr" path="res://textures/Monsters64x64.png" id="3_fyyjq"]
-[ext_resource type="Texture2D" uid="uid://c04n5xan2a2r0" path="res://textures/Portal.png" id="4_i2bxg"]
+[ext_resource type="Texture2D" uid="uid://bhkggr4obsf53" path="res://textures/Portals64x64.png" id="4_jrb8c"]
 [ext_resource type="PackedScene" uid="uid://cppatxc4uopwg" path="res://scenes/Character.tscn" id="4_lemuh"]
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="6_ack20"]
 
@@ -27,17 +27,18 @@ texture_region_size = Vector2i(64, 64)
 0:1/0 = 0
 1:1/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fo025"]
-texture = ExtResource("4_i2bxg")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8e23b"]
+texture = ExtResource("4_jrb8c")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
+1:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_urj8f"]
 tile_size = Vector2i(64, 64)
 uv_clipping = true
 sources/0 = SubResource("TileSetAtlasSource_ytlj7")
 sources/1 = SubResource("TileSetAtlasSource_td1eh")
-sources/2 = SubResource("TileSetAtlasSource_fo025")
+sources/2 = SubResource("TileSetAtlasSource_8e23b")
 
 [node name="GameWorld" type="Node2D"]
 script = ExtResource("1_foe28")
