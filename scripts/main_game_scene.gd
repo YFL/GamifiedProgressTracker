@@ -34,6 +34,14 @@ func _ready() -> void:
   reward_screen.hide()
   error_screen.hide()
 
+func _unhandled_input(event: InputEvent) -> void:
+  if event is InputEventMouseMotion:
+    print(get_local_mouse_position())
+    if get_local_mouse_position() <= Vector2(5.0, 5.0):
+      button_panel.slide_in()
+    else:
+      button_panel.slide_out()
+
 func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int) -> void:
   var cant_add_task_text = "Can't add task: "
   if parent_name != "" and not project_bank.has(parent_name):
@@ -319,9 +327,6 @@ func load_rewards(dict: Dictionary) -> void:
       handle_reward_loading_error(reward_name, "reward tier is not a number")
       return
     _on_add_reward(reward_name, reward_difficulty, reward_tier)
-
-func _on_hamburger_pressed() -> void:
-  button_panel.slide()
 
 func reset() -> void:
   remove_child(game_world)

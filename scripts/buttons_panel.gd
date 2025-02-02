@@ -11,9 +11,11 @@ const shown_pos := Vector2i(0, 0)
 var hidden_pos: Vector2i
 var is_ready := false
 
-## Starts sliding the panel either to be shown or to be hidden, depending on the last set target.
-func slide() -> void:
-  target_position = shown_pos if target_position == hidden_pos else hidden_pos
+func slide_in() -> void:
+  target_position = shown_pos
+
+func slide_out() -> void:
+  target_position = hidden_pos
 
 func _ready() -> void:
   hidden_pos = Vector2i(int(-self.size.x), 0)
