@@ -8,3 +8,10 @@ class_name TaskScreen extends Control
 
 func _on_exit_button_pressed() -> void:
 	hide()
+
+func set_task(task: Task) -> void:
+	task_name.text = task.name
+	description.text = task.description
+	difficulty.text = Difficulty.difficulty_names[task.difficulty]
+	parent.text = task.parent.name if task.parent else ""
+	optional.button_pressed = task.optional

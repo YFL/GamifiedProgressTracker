@@ -19,6 +19,7 @@ var project_bank := ProjectBank.new()
 @onready var popup_screen_container: CenterContainer = $PopupScreenContainer
 @onready var button_panel: ButtonPanel = $ButtonsPanel
 @onready var reward_screen: RewardScreen = preload("res://scenes/RewardScreen.tscn").instantiate()
+@onready var taskoid_tree: TreeScreen = preload("res://scenes/TreeScreen.tscn").instantiate()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -26,9 +27,16 @@ func _ready() -> void:
   project_bank.project_removed.connect(add_task_dialog._on_project_removed)
   project_bank.project_added.connect(add_project_dialog._on_project_added)
   project_bank.project_removed.connect(add_project_dialog._on_project_removed)
+  project_bank.project_added.connect(taskoid_tree.add_taskoid)
+  task_bank.task_added.connect(taskoid_tree.add_taskoid)
   popup_screen_container.add_child(reward_screen)
   popup_screen_container.add_child(Globals.error_screen)
+  add_child(taskoid_tree)
+  taskoid_tree.position = Vector2i(button_panel.size.x + 10, 0)
+  await get_tree().process_frame
+  print("taskoid tree CUSTOM MINIMUM size: " + str(taskoid_tree.custom_minimum_size))
   reward_screen.hide()
+  taskoid_tree.hide()
   Globals.error_screen.hide()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -365,3 +373,6 @@ func handle_task_loading_error(task_name: String, error_msg: String) -> void:
 func handle_reward_loading_error(reward_name: String, error_msg: String) -> void:
   show_reward_loading_error(reward_name, error_msg)
   reset()
+
+func _on_tree_button_pressed() -> void:
+  taskoid_tree.visible = not taskoid_tree.visible

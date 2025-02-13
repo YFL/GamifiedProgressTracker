@@ -11,6 +11,13 @@ var project: Project:
 	set(to):
 		project = to
 		complete_button.disabled = true if project.completed else false
+		project_name.text = project.name
+		description.text = project.description
+		capacity.text = Difficulty.difficulty_names[project.capacity]
+		current_size.text =\
+			Difficulty.difficulty_names[Difficulty.categorize_difficulty(project.children_difficulty)]
+		parent.text = project.parent.name if project.parent else ""
+
 
 func _on_exit_button_pressed() -> void:
 	hide()

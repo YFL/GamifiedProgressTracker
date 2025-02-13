@@ -170,22 +170,11 @@ func _unhandled_input(event: InputEvent) -> void:
         # task_screen.position = Vector2(size.x * tile_size.x / 2, size.y * tile_size.y / 2)
         task_screen.position = screen_position
         var task: Task = enemies[tile_position].task
-        task_screen.task_name.text = task.name
-        task_screen.description.text = task.description
-        task_screen.optional.button_pressed = task.optional
-        task_screen.parent.text = task.parent.name if task.parent != null else "None"
-        task_screen.difficulty.text = str(Difficulty.difficulty_names[task.difficulty])
+        task_screen.set_task(task)
         task_screen.show()
       elif is_portal:
         project_screen.position = screen_position
-        var project: Project = portals[tile_position].game_world.project
-        project_screen.project_name.text = project.name
-        project_screen.description.text = project.description
-        project_screen.capacity.text = Difficulty.difficulty_names[project.capacity]
-        project_screen.current_size.text =\
-          Difficulty.difficulty_names[Difficulty.categorize_difficulty(project.children_difficulty)]
-        project_screen.parent.text = project.parent.name if project.parent != null else "None"
-        project_screen.project = project
+        project_screen.project = portals[tile_position].game_world.project
         project_screen.show()
 
 func _notification(what: int) -> void:
