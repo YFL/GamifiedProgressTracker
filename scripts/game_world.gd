@@ -192,6 +192,7 @@ func add_monster(task: Task) -> bool:
   enemies[free_tile] = Enemy.new(task)
   # We try to draw in case a task is added, when this GameWorld is ready
   draw_taskoid(free_tile, enemy_source_id, enemy_tiles[get_enemy_index(task)])
+  add_label_for_taskoid(task, free_tile)
   return true
 
 func remove_monster(task: Task) -> bool:
@@ -212,6 +213,7 @@ func add_game_world(child: GameWorld) -> bool:
   var free_tile := reserve_random_free_tile()
   portals[free_tile] = Portal.new(child)
   draw_taskoid(free_tile, portal_source_id, portal_tiles[0])
+  add_label_for_taskoid(child.project, free_tile)
   return true
 
 func remove_game_world(child: GameWorld) -> void:
@@ -293,3 +295,21 @@ func _on_task_done(task: Task) -> void:
 
 func _on_project_done(project: Project) -> void:
   mark_portal_done(project)
+
+func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
+  var label := Label.new()
+  add_child(label)
+  move_child(label, -3)
+  label.text = taskoid.name
+  label.clip_text = true
+  label.size = Vector2(tile_size.x * 3, tile_size.y)
+  label.position = Vector2i(
+    max(
+      0,
+      min(
+        size.x * tile_size.x - label.size.x,
+        tile_pos.x * tile_size.x - tile_size.x)),
+      tile_pos.y * tile_size.y)
+  label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+  label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+  label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
