@@ -1,4 +1,4 @@
-extends Node2D
+class_name MainGameScene extends Node2D
 
 const tasks_key := "tasks"
 const rewards_key := "rewards"
@@ -32,7 +32,7 @@ func _ready() -> void:
   popup_screen_container.add_child(reward_screen)
   popup_screen_container.add_child(Globals.error_screen)
   add_child(taskoid_tree)
-  taskoid_tree.position = Vector2i(button_panel.size.x + 10, 0)
+  taskoid_tree.position = Vector2(button_panel.size.x + 10, 0)
   await get_tree().process_frame
   print("taskoid tree CUSTOM MINIMUM size: " + str(taskoid_tree.custom_minimum_size))
   reward_screen.hide()
@@ -46,7 +46,7 @@ func _unhandled_input(event: InputEvent) -> void:
     else:
       button_panel.slide_out()
 
-func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int) -> void:
+func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int, position = Vector2i(-1, -1)) -> void:
   var cant_add_task_text = "Can't add task: "
   if parent_name != "" and not project_bank.has(parent_name):
     Globals.show_error_screen(cant_add_task_text + "No parent exists with the given name.")
@@ -61,14 +61,14 @@ func _on_add_task(name: String, description: String, parent_name: String, option
     return
   task.done.connect(_on_task_done)
   # If the return value from the find here is null, something is seriously messed up.
-  GameWorld.find_game_world_for_taskoid(task, game_world).add_monster(task)
+  GameWorld.find_game_world_for_taskoid(task, game_world).add_monster(task, position)
 
 func _on_add_reward(name: String, difficulty: int, tier: Reward.RewardTier) -> void:
   if reward_bank.create(name, difficulty, tier) == null:
     Globals.show_error_screen("Can't add reward: A reward with the same name already exists.")
     return
 
-func _on_add_project(name: String, description: String, parent: String, duration: int) -> void:
+func _on_add_project(name: String, description: String, parent: String, duration: int, position = Vector2i(-1, -1)) -> void:
   var cant_add_project_text = "Can't add project: "
   if not parent.is_empty() and not project_bank.has(parent):
     Globals.show_error_screen(cant_add_project_text + "No parent exists with the given name.")
@@ -84,7 +84,7 @@ func _on_add_project(name: String, description: String, parent: String, duration
     return
   var game_world_for_taskoid := GameWorld.find_game_world_for_taskoid(project, game_world)
   var result :=\
-    GameWorld.new_game_world(project, game_world_for_taskoid)
+    GameWorld.new_game_world(project, game_world_for_taskoid, position)
   if not result.result:
     Globals.show_error_screen(cant_add_project_text + result.error)
     return
@@ -119,9 +119,7 @@ func _on_save_button_pressed() -> void:
   await save_dialog.finished
   if save_dialog.valid:
     var file := FileAccess.open(save_dialog.current_file, FileAccess.WRITE)
-    var to_store := {}
-    to_store[tasks_key] = task_bank.to_dict()
-    to_store[projects_key] = project_bank.to_dict()
+    var to_store: Dictionary = game_world.to_dict()
     to_store[rewards_key] = reward_bank.to_dict()
     file.store_string(JSON.stringify(to_store))
   remove_child(save_dialog)
@@ -204,11 +202,20 @@ func load_project_tree(dict: Dictionary, project_name: String) -> bool:
     if typeof(project_capacity) != TYPE_FLOAT:
       handle_project_loading_error(project_name, "project capacity is not a number")
       return false
+    var project_position = project_dict.get(GameWorld.position_key, null)
+    if project_position == null:
+      handle_project_loading_error(project_name, "project position missing")
+      return false
+    project_position = str_to_var("Vector2i" + project_position)
+    if typeof(project_position) != TYPE_VECTOR2I:
+      handle_project_loading_error(project_name, "project position is not a vector2i")
+      return false
     _on_add_project(
       project_name_field_value,
       project_description,
       parent_name,
-      project_capacity)
+      project_capacity,
+      project_position)
   return true
 
 func load_projects(saveDict: Dictionary) -> void:
@@ -287,12 +294,21 @@ func load_tasks(saveDict: Dictionary) -> void:
     if typeof(task_completed) != TYPE_BOOL:
       handle_task_loading_error(task_name, "completed is not a bool")
       return
+    var task_position = task.get(GameWorld.position_key, null)
+    if task_position == null:
+      handle_task_loading_error(task_name, "task position is missing")
+      return
+    task_position = str_to_var("Vector2i" + task_position)
+    if typeof(task_position) != TYPE_VECTOR2I:
+      handle_task_loading_error(task_name, "task position is not a vector2i")
+      return
     _on_add_task(
       task_name,
       task_description,
       task_parent_name,
       task_optional,
-      task_difficulty)
+      task_difficulty,
+      task_position)
     if task_completed:
       task_bank.get_task(task_name).complete()
 
