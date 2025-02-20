@@ -25,6 +25,8 @@ const difficulty_to_enemy_index := {
   Difficulty.Transcendent: 3
 }
 
+const position_key := "position"
+
 const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 const TaskScreenScene := preload("res://scenes/TaskScreen.tscn")
 const ProjectScreenScene := preload("res://scenes/ProjectScreen.tscn")
@@ -90,7 +92,7 @@ var size: GameWorldSize:
 var task_screen: TaskScreen = null
 var project_screen: ProjectScreen = null
 
-static func new_game_world(project: Project, parent: GameWorld = null) -> Result:
+static func new_game_world(project: Project, parent: GameWorld = null, position = Vector2i(-1, -1)) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
   if project != null:
     instance.size = GameWorldSize.new(project.capacity)
@@ -98,7 +100,7 @@ static func new_game_world(project: Project, parent: GameWorld = null) -> Result
   instance.parent = parent
   instance.hide()
   if parent != null:
-    if not parent.add_game_world(instance):
+    if not parent.add_game_world(instance, position):
       instance.queue_free()
       return Result.new(null, "Couldn't add new game world to parent")
   return Result.new(instance)
@@ -184,15 +186,19 @@ func _notification(what: int) -> void:
     task_screen.queue_free()
     project_screen.queue_free()
 
-func add_monster(task: Task) -> bool:
-  if free_tiles.is_empty():
+func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
+  var tile_position: Vector2i
+  if position != Vector2i(-1, -1):
+    tile_position = position
+  elif free_tiles.is_empty():
     return false
+  else:
+    tile_position = reserve_random_free_tile()
   task.done.connect(_on_task_done)
-  var free_tile := reserve_random_free_tile()
-  enemies[free_tile] = Enemy.new(task)
+  enemies[tile_position] = Enemy.new(task)
   # We try to draw in case a task is added, when this GameWorld is ready
-  draw_taskoid(free_tile, enemy_source_id, enemy_tiles[get_enemy_index(task)])
-  add_label_for_taskoid(task, free_tile)
+  draw_taskoid(tile_position, enemy_source_id, enemy_tiles[get_enemy_index(task)])
+  add_label_for_taskoid(task, tile_position)
   return true
 
 func remove_monster(task: Task) -> bool:
@@ -206,14 +212,18 @@ func remove_monster(task: Task) -> bool:
       return true
   return false
 
-func add_game_world(child: GameWorld) -> bool:
-  if free_tiles.is_empty():
+func add_game_world(child: GameWorld, position = Vector2i(-1, -1)) -> bool:
+  var tile_position: Vector2i
+  if position != Vector2i(-1, -1):
+    tile_position = position
+  elif free_tiles.is_empty():
     return false
+  else:
+    tile_position = reserve_random_free_tile()
   children.append(child)
-  var free_tile := reserve_random_free_tile()
-  portals[free_tile] = Portal.new(child)
-  draw_taskoid(free_tile, portal_source_id, portal_tiles[0])
-  add_label_for_taskoid(child.project, free_tile)
+  portals[tile_position] = Portal.new(child)
+  draw_taskoid(tile_position, portal_source_id, portal_tiles[0])
+  add_label_for_taskoid(child.project, tile_position)
   return true
 
 func remove_game_world(child: GameWorld) -> void:
@@ -313,3 +323,23 @@ func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
   label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
   label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
+func to_dict() -> Dictionary:
+  var dict: Dictionary
+  dict[MainGameScene.tasks_key] = {}
+  dict[MainGameScene.projects_key] = {}
+  for position in enemies:
+    var monster: Enemy = enemies[position]
+    var monster_dict: Dictionary = monster.task.to_dict()
+    monster_dict[position_key] = position
+    dict[MainGameScene.tasks_key][monster.task.name] = monster_dict
+  for position in portals:
+    var portal: Portal = portals[position]
+    var portal_dict: Dictionary = portal.game_world.project.to_dict()
+    portal_dict[position_key] = position
+    dict[MainGameScene.projects_key][portal.game_world.project.name] = portal_dict
+  for child in children:
+    var child_dict: Dictionary = child.to_dict()
+    dict[MainGameScene.tasks_key].merge(child_dict[MainGameScene.tasks_key])
+    dict[MainGameScene.projects_key].merge(child_dict[MainGameScene.projects_key])
+  return dict
