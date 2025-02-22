@@ -7,7 +7,7 @@ func before() -> void:
   parent_project = Project.new("Test", "TestDescription", null, Difficulty.Majestic)
 
 func test_task_persistence() -> void:
-  var task := Task.new("test", "testDescription", null, false, Difficulty.Modest)
+  var task := Task.new("test", "testDescription", null, Difficulty.Modest)
   var json := JSON.stringify(task.to_dict())
   var dict: Dictionary = JSON.parse_string(json)
   assert_dict(dict).contains_keys([
@@ -15,18 +15,16 @@ func test_task_persistence() -> void:
     Task.description_key,
     Task.parent_name_key,
     Task.completed_key,
-    Task.optional_key,
     Task.difficulty_key])
   assert_dict(dict).contains_key_value(Task.name_key, task.name)
   assert_dict(dict).contains_key_value(Task.description_key, task.description)
   assert_dict(dict).contains_key_value(Task.parent_name_key, "")
   assert_dict(dict).contains_key_value(Task.completed_key, task.completed)
-  assert_dict(dict).contains_key_value(Task.optional_key, task.optional)
   # Difficulty has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
   assert_dict(dict).contains_key_value(Task.difficulty_key, float(task.difficulty))
 
-  task = Task.new("test2", "testDescription2", parent_project, true, Difficulty.Modest)
+  task = Task.new("test2", "testDescription2", parent_project, Difficulty.Modest)
   task.complete()
   json = JSON.stringify(task.to_dict())
   dict = JSON.parse_string(json)
@@ -35,25 +33,22 @@ func test_task_persistence() -> void:
     Task.description_key,
     Task.parent_name_key,
     Task.completed_key,
-    Task.optional_key,
     Task.difficulty_key])
   assert_dict(dict).contains_key_value(Task.name_key, task.name)
   assert_dict(dict).contains_key_value(Task.description_key, task.description)
   assert_dict(dict).contains_key_value(Task.parent_name_key, parent_project.name)
   assert_dict(dict).contains_key_value(Task.completed_key, task.completed)
-  assert_dict(dict).contains_key_value(Task.optional_key, task.optional)
   # Difficulty has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
   assert_dict(dict).contains_key_value(Task.difficulty_key, float(task.difficulty))
   
-  var test_task := Task.new(dict[Task.name_key], dict[Task.description_key], parent_project, dict[Task.optional_key], int(dict[Task.difficulty_key]))
+  var test_task := Task.new(dict[Task.name_key], dict[Task.description_key], parent_project, int(dict[Task.difficulty_key]))
   if dict[Task.completed_key]:
     test_task.complete()
   assert_str(test_task.name).is_equal(task.name)
   assert_str(test_task.description).is_equal(task.description)
   assert_str(test_task.parent.name).is_equal(task.parent.name)
   assert_bool(test_task.completed).is_equal(task.completed)
-  assert_bool(test_task.optional).is_equal(task.optional)
   assert_int(test_task.difficulty).is_equal(task.difficulty)
 
 func test_project_persistence() -> void:

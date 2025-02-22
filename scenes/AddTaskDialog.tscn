@@ -38,25 +38,17 @@ layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_5rbqu")
 
-[node name="OptionalLabel" type="Label" parent="GridContainer" index="8"]
-layout_mode = 2
-text = "Optional"
-
-[node name="Optional" type="CheckButton" parent="GridContainer" index="9"]
-layout_mode = 2
-size_flags_horizontal = 0
-
-[node name="ParentLabel" type="Label" parent="GridContainer" index="10"]
+[node name="ParentLabel" type="Label" parent="GridContainer" index="8"]
 layout_mode = 2
 text = "Parent"
 
-[node name="Parent" type="OptionButton" parent="GridContainer" index="11"]
+[node name="Parent" type="OptionButton" parent="GridContainer" index="9"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("3_0gp0a")
 
-[node name="AddTask" type="Button" parent="GridContainer" index="12"]
+[node name="AddTask" type="Button" parent="GridContainer" index="10"]
 layout_mode = 2
 text = "Add Task"
 

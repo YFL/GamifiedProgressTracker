@@ -66,18 +66,6 @@ editable = false
 [node name="EmptySpace2" type="Control" parent="GridContainer"]
 layout_mode = 2
 
-[node name="OptionalLabel" type="Label" parent="GridContainer"]
-layout_mode = 2
-text = "Optional"
-
-[node name="Optional" type="CheckButton" parent="GridContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-disabled = true
-
-[node name="EmptySpace3" type="Control" parent="GridContainer"]
-layout_mode = 2
-
 [node name="ParentLabel" type="Label" parent="GridContainer"]
 layout_mode = 2
 text = "Parent"

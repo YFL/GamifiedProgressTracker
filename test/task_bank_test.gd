@@ -7,7 +7,7 @@ const easy := Difficulty.Modest
 func before_test() -> void:
   for task_name: String in task_names:
     task_bank.remove(task_name)
-    task_bank.create(task_name, task_name, null, false, easy)
+    task_bank.create(task_name, task_name, null, easy)
 
 func test_task_create_and_get() -> void:
   for task_name: String in task_names:
@@ -15,7 +15,6 @@ func test_task_create_and_get() -> void:
     assert_bool(task != null).is_true()
     assert_str(task.name).is_equal(task_name)
     assert_object(task.parent).is_null()
-    assert_bool(task.optional).is_false()
     assert_int(task.difficulty).is_equal(easy)
 
 func test_remove_and_remove_task() -> void:

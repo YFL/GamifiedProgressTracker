@@ -5,11 +5,10 @@ class Utils extends RefCounted:
   func _init(create_task_test_suite: GdUnitTestSuite) -> void:
     test_suite = create_task_test_suite
 
-  func create_task(task_name: String, description: String, parent_name: String, optional: bool, difficulty: int) -> void:
+  func create_task(task_name: String, description: String, parent_name: String, difficulty: int) -> void:
     test_suite.task_name_text_edit.text = task_name
     test_suite.task_description_text_edit.text = description
     test_suite.task_parent_option_button.select(find_index_in_option_button(test_suite.task_parent_option_button, parent_name))
-    test_suite.task_optional_check_button.set_pressed_no_signal(optional)
     test_suite.task_difficulty_option_button.select(test_suite.task_difficulty_option_button.get_item_index(difficulty as int))
     test_suite.add_task_dialog._on_add_task_pressed()
   
@@ -25,7 +24,6 @@ var add_task_dialog: AddTaskDialog
 var task_name_text_edit: TextEdit
 var task_description_text_edit: TextEdit
 var task_parent_option_button: OptionButton
-var task_optional_check_button: CheckButton
 var task_difficulty_option_button: OptionButton
 var add_task_button: Button
 var runner
@@ -38,14 +36,13 @@ func before() -> void:
   task_name_text_edit = add_task_dialog.get_node("GridContainer").get_node("TaskName")
   task_description_text_edit = add_task_dialog.get_node("GridContainer").get_node("Description")
   task_parent_option_button = add_task_dialog.get_node("GridContainer").get_node("Parent")
-  task_optional_check_button = add_task_dialog.get_node("GridContainer").get_node("Optional")
   task_difficulty_option_button = add_task_dialog.get_node("GridContainer").get_node("Difficulty")
   add_task_button = add_task_dialog.get_node("GridContainer").get_node("AddTask")
   utils = Utils.new(self)
   
 func test_task_create() -> void:
-  utils.create_task("TaskName", "Description", "", false, Difficulty.NoteWorthy)
-  var task: Task = Task.new("TaskName", "Description", null, false, Difficulty.NoteWorthy)
+  utils.create_task("TaskName", "Description", "", Difficulty.NoteWorthy)
+  var task: Task = Task.new("TaskName", "Description", null, Difficulty.NoteWorthy)
   var control_tasks := [task]
   var tasks_in_task_bank = runner.scene().task_bank.get_tasks()
   var enemies: Dictionary = runner.scene().game_world.enemies
@@ -64,15 +61,15 @@ func test_task_create() -> void:
 func test_add_bigger_child_task_than_free_capacity() -> void:
   var project := Project.new("ProjectName", "ProjectDescription", null, Difficulty.NoteWorthy)
   var child_project := Project.new("Project2", "Description2", project, Difficulty.NoteWorthy)
-  var project_child := Task.new("Task1", "TaskDescription", project, false, Difficulty.NoteWorthy)
+  var project_child := Task.new("Task1", "TaskDescription", project, Difficulty.NoteWorthy)
   assert_array(project.children).has_size(2).contains([child_project, project_child])
   var child_project_child :=\
-    Task.new("Task2", "Shouldn't get added", child_project, false, Difficulty.Modest)
+    Task.new("Task2", "Shouldn't get added", child_project, Difficulty.Modest)
   assert_array(child_project.children).has_size(0).not_contains([child_project_child])
   var child_project_child_project :=\
     Project.new("Project3", "Description3", child_project, Difficulty.NoteWorthy)
   var child_project_child_project_child :=\
-    Task.new("Task3", "TaskDescription3", child_project_child_project, false, Difficulty.Modest)
+    Task.new("Task3", "TaskDescription3", child_project_child_project, Difficulty.Modest)
   assert_array(child_project_child_project.children)\
     .has_size(0)\
     .not_contains([child_project_child_project_child])

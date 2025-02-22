@@ -6,8 +6,6 @@ const projects_key := "projects"
 
 const invalid_save_file_msg := "Invalid save file: "
 
-## Main task_bank, that when completed (optionality is taken into account), the
-## project is finished.
 var task_bank := TaskBank.new()
 var reward_bank := RewardBank.new() 
 var project_bank := ProjectBank.new()
@@ -46,7 +44,7 @@ func _unhandled_input(event: InputEvent) -> void:
     else:
       button_panel.slide_out()
 
-func _on_add_task(name: String, description: String, parent_name: String, optional: bool, difficulty: int, position = Vector2i(-1, -1)) -> void:
+func _on_add_task(name: String, description: String, parent_name: String, difficulty: int, position = Vector2i(-1, -1)) -> void:
   var cant_add_task_text = "Can't add task: "
   if parent_name != "" and not project_bank.has(parent_name):
     Globals.show_error_screen(cant_add_task_text + "No parent exists with the given name.")
@@ -55,7 +53,7 @@ func _on_add_task(name: String, description: String, parent_name: String, option
   if parent != null and not parent.can_fit(difficulty):
     Globals.show_error_screen(cant_add_task_text + "Parent doesn't have enough free capacity for the task.")
     return
-  var task := task_bank.create(name, description, parent, optional, difficulty)
+  var task := task_bank.create(name, description, parent, difficulty)
   if task == null:
     Globals.show_error_screen(cant_add_task_text + "A task with the same name already extists.")
     return
@@ -273,13 +271,6 @@ func load_tasks(saveDict: Dictionary) -> void:
     if typeof(task_parent_name) != TYPE_STRING:
       handle_task_loading_error(task_name, "task parent name is not a string")
       return
-    var task_optional = task.get(Task.optional_key, null)
-    if task_optional == null:
-      handle_task_loading_error(task_name, "optional is missing")
-      return
-    if typeof(task_optional) != TYPE_BOOL:
-      handle_task_loading_error(task_name, "optional is not a bool")
-      return
     var task_difficulty = task.get(Task.difficulty_key, null)
     if task_difficulty == null:
       handle_task_loading_error(task_name, "task difficulty missing")
@@ -306,7 +297,6 @@ func load_tasks(saveDict: Dictionary) -> void:
       task_name,
       task_description,
       task_parent_name,
-      task_optional,
       task_difficulty,
       task_position)
     if task_completed:

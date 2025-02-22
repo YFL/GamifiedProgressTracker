@@ -24,8 +24,6 @@ func add_task(child: Task) -> void:
   if not can_fit(child.difficulty):
     return
   children.append(child)
-  if child.optional:
-    return
   children_difficulty += child.difficulty
   add_child_difficulty_to_parent(child.difficulty)
 
@@ -40,9 +38,8 @@ func remove_task(child: Task) -> void:
   if children.find(child) < 0:
     return
   children.erase(child)
-  if not child.optional:
-    children_difficulty -= child.difficulty
-    add_child_difficulty_to_parent(-child.difficulty)
+  children_difficulty -= child.difficulty
+  add_child_difficulty_to_parent(-child.difficulty)
 
 func remove_project(child: Project) -> void:
   if children.find(child) < 0:

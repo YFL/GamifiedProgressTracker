@@ -18,7 +18,7 @@ func _init() -> void:
     var parent_index := i if i < test_projects.size() else test_projects.size() - 1
     var difficulty_index := i if i > 0 else 1
     test_tasks.append(
-      Task.new(task_names[i], task_names[i], test_projects[parent_index], false, difficulties[difficulty_index]))
+      Task.new(task_names[i], task_names[i], test_projects[parent_index], difficulties[difficulty_index]))
 
 func before_test() -> void:
   game_world = scene_runner(auto_free(GameWorldScene.instantiate()))

@@ -5,10 +5,10 @@ signal task_removed(task: Task)
 
 var tasks: Dictionary
 
-func create(name: String, description: String, parent: Project, optional: bool, difficulty: int) -> Task:
+func create(name: String, description: String, parent: Project, difficulty: int) -> Task:
   if tasks.has(name):
     return null
-  var task := Task.new(name, description, parent, optional, difficulty)
+  var task := Task.new(name, description, parent, difficulty)
   tasks[name] = task
   print("Task \"" + str(task) + "\" added")
   task_added.emit(task)
