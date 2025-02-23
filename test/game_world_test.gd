@@ -113,9 +113,9 @@ func position_tester(position: Vector2i, game_world_size: GameWorld.GameWorldSiz
       .is_between(
         Vector2i(0, 0),
         Vector2i(
-          game_world_size.x,
-          game_world_size.y + (1 if game_world_size.remainder != 0 else 0)))
+          game_world_size.x * 3,
+          game_world_size.y * 2 + (2 if game_world_size.remainder != 0 else 0)))
   if game_world_size.remainder != 0:
     assert_vector(position).is_not_between(
-      Vector2i(game_world_size.remainder, game_world_size.y + 1),
-      Vector2i(game_world_size.x, game_world_size.y + 1))
+      Vector2i(game_world_size.remainder * 3, game_world_size.y + 2),
+      Vector2i(game_world_size.x * 3, game_world_size.y + 2))

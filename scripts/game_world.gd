@@ -51,14 +51,20 @@ class GameWorldSize extends RefCounted:
   func _init(difficulty: int):
     difficulty = difficulty / Difficulty.Modest
     var square := int(sqrt(difficulty))
-    var best_diff := difficulty - square * square
+    var best_difficulty_diff := difficulty - square * square
+    var best_dimension_diff := square - (difficulty - square)
+    if best_dimension_diff < 0:
+      best_dimension_diff *= -1
     for width in range(square, difficulty + 1):
-      var height = difficulty / width
-      var diff = difficulty - width * height
-      if diff <= best_diff:
+      var height := difficulty / width
+      var diff := difficulty - width * height
+      var dimension_diff := width - height
+      if dimension_diff < 0:
+        dimension_diff *= -1
+      if diff <= best_difficulty_diff and dimension_diff <= best_dimension_diff:
         x = width
         y = height
-        best_diff = diff
+        best_difficulty_diff = diff
       if diff == 0:
         break
     if x < y:
@@ -67,6 +73,9 @@ class GameWorldSize extends RefCounted:
       y = tmp
     if difficulty != x * y:
       remainder = difficulty - x * y
+    x *= 3
+    y *= 2
+    remainder *= 3
 
 var enemies: Dictionary
 var portals: Dictionary
@@ -84,11 +93,11 @@ var size: GameWorldSize:
     free_tiles.clear()
     children.clear()
     selected_child = null
-    for x in size.x:
-      for y in size.y:
-        free_tiles.append(Vector2i(x, y))
-    for x in size.remainder:
-      free_tiles.append(Vector2i(x, size.y))
+    for x in range(0, size.x, 3):
+      for y in range(0, size.y, 2):
+        free_tiles.append(Vector2i(x + 1, y))
+    for x in range(0, size.remainder, 3):
+      free_tiles.append(Vector2i(x + 1, size.y))
 var task_screen: TaskScreen = null
 var project_screen: ProjectScreen = null
 
@@ -114,7 +123,7 @@ static func pixel_position_to_tile_position(pixel_position: Vector2) -> Vector2i
 static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
 
-func _init(size := GameWorldSize.new(2200)) -> void:
+func _init(size := GameWorldSize.new(300)) -> void:
   self.size = size
   task_screen = TaskScreenScene.instantiate()
   project_screen = ProjectScreenScene.instantiate()
@@ -130,9 +139,10 @@ func _ready() -> void:
   character.arrived.connect(_on_character_arrived)
   for x in size.x:
     for y in size.y:
-      draw_grass(Vector2i(x, y))
+        draw_grass(Vector2i(x, y))
   for x in size.remainder:
-    draw_grass(Vector2i(x, size.y))
+      draw_grass(Vector2i(x, size.y))
+      draw_grass(Vector2i(x, size.y + 1))
   # We try to draw enemies and portals in case they were added, when this GameWorld wasn't yet ready
   for position: Vector2i in enemies:
     draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
@@ -154,7 +164,7 @@ func _unhandled_input(event: InputEvent) -> void:
     if not is_enemy and not is_portal:
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
-    character.move_to_target(Vector2(tile_position.x * tile_size.x, tile_position.y * tile_size.y), notify)
+    character.move_to_target(Vector2(tile_position.x * tile_size.x, (tile_position.y + 1)* tile_size.y), notify)
     # Left click, show Taskoid Screen
     if not notify:
       var screen_position := Vector2i(
@@ -169,7 +179,6 @@ func _unhandled_input(event: InputEvent) -> void:
               size.y * tile_size.y - task_screen.size.y,
               get_local_mouse_position().y - task_screen.size.y / 2)))
       if is_enemy:
-        # task_screen.position = Vector2(size.x * tile_size.x / 2, size.y * tile_size.y / 2)
         task_screen.position = screen_position
         var task: Task = enemies[tile_position].task
         task_screen.set_task(task)
@@ -313,13 +322,8 @@ func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
   label.text = taskoid.name
   label.clip_text = true
   label.size = Vector2(tile_size.x * 3, tile_size.y)
-  label.position = Vector2i(
-    max(
-      0,
-      min(
-        size.x * tile_size.x - label.size.x,
-        tile_pos.x * tile_size.x - tile_size.x)),
-      tile_pos.y * tile_size.y)
+  label.position = tile_pos * tile_size
+  label.position.x -= tile_size.x
   label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
   label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

@@ -19,7 +19,6 @@ class Utils extends RefCounted:
     return -1
 
 const MainGameSceneRes = preload("res://scenes/MainGameScene.tscn")
-const MainGameScene = preload("res://scripts/main_game_scene.gd")
 var add_task_dialog: AddTaskDialog
 var task_name_text_edit: TextEdit
 var task_description_text_edit: TextEdit
