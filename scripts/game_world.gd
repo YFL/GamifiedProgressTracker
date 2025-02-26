@@ -166,7 +166,10 @@ func _unhandled_input(event: InputEvent) -> void:
     if not is_enemy and not is_portal:
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
-    character.move_to_target(Vector2(tile_position.x * tile_size.x, (tile_position.y + 1)* tile_size.y), notify)
+    character.move_to_target(Vector2(
+      tile_position.x * tile_size.x,
+      (tile_position.y + (1 if is_enemy else 0)) * tile_size.y),
+      notify)
     # Left click, show Taskoid Screen
     if not notify:
       var screen_position := Vector2i(
@@ -287,10 +290,8 @@ func draw_grass(position: Vector2i) -> void:
 
 func _on_character_arrived(at: Vector2) -> void:
   var tile_position := pixel_position_to_tile_position(at)
-  if enemies.has(tile_position):
-    var enemy: Enemy = enemies[tile_position]
-    enemy.task.complete()
-  elif portals.has(tile_position):
+  var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
+  if portals.has(tile_position):
     var portal: Portal = portals[tile_position]
     if selected_child != null:
       remove_child(selected_child)
@@ -300,6 +301,9 @@ func _on_character_arrived(at: Vector2) -> void:
     tilemap.hide()
     character.hide()
     exit_button.hide()
+  elif enemies.has(enemy_tile_pos):
+    var enemy: Enemy = enemies[enemy_tile_pos]
+    enemy.task.complete()
 
 func _on_exit_button_pressed() -> void:
   hide()
