@@ -1,16 +1,21 @@
 class_name AddProjectDialog extends DialogBase
 
-signal add_project(name: String, description: String, parent: String, duration: int)
+signal add_project(name: String, description: String, parent: String, has_deadline: bool,
+  deadline: String, duration: int)
 
 @onready var _project_name: TextEdit = $GridContainer/ProjectName
 @onready var _description: TextEdit = $GridContainer/Description
 @onready var _duration: DifficultyOptionButton = $GridContainer/Duration
 @onready var _parent: ParentOptionButton = $GridContainer/Parent
 @onready var _add_project: Button = $GridContainer/AddProject
+@onready var _deadline: DateControl = $GridContainer/Deadline
+@onready var _has_deadline: CheckButton = $GridContainer/HasDeadline
 
 func _ready() -> void:
   _duration.remove_item(0)
   _duration.select(0)
+  _has_deadline.button_pressed = false
+  _deadline.toggle(false)
 
 func _on_project_added(project: Project) -> void:
   _parent._on_project_added(project)
@@ -32,16 +37,25 @@ func parent() -> String:
     return ""
   return _parent.get_item_text(_parent.selected)
 
+func has_deadline() -> bool:
+  return _has_deadline.button_pressed
+
+func deadline() -> String:
+  return _deadline.date if has_deadline() else ""
+
 func _reset() -> void:
   _project_name.clear()
   _duration.select(0)
   _parent.select(0)
 
 func _on_add_project_pressed() -> void:
-  add_project.emit(project_name(), description(), parent(), duration())
+  add_project.emit(project_name(), description(), parent(), has_deadline(), deadline(), duration())
 
 func _on_project_name_text_changed() -> void:
   if _project_name.text.is_empty():
     _add_project.disabled = true
   elif _add_project.disabled:
     _add_project.disabled = false
+
+func _on_has_deadline_toggled(toggled_on: bool) -> void:
+  _deadline.toggle(toggled_on)

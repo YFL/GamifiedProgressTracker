@@ -6,6 +6,8 @@ class_name ProjectScreen extends Control
 @onready var current_size: TextEdit = $GridContainer/Size
 @onready var parent: TextEdit = $GridContainer/Parent
 @onready var complete_button: Button = $GridContainer/CompleteButton
+@onready var has_deadline: CheckButton = $GridContainer/HasDeadline
+@onready var deadline: DateControl = $GridContainer/Deadline
 
 var project: Project:
 	set(to):
@@ -13,6 +15,8 @@ var project: Project:
 		complete_button.disabled = true if project.completed else false
 		project_name.text = project.name
 		description.text = project.description
+		has_deadline.button_pressed = project.has_deadline
+		deadline.date = project.deadline
 		capacity.text = Difficulty.difficulty_names[project.capacity]
 		current_size.text =\
 			Difficulty.difficulty_names[Difficulty.categorize_difficulty(project.children_difficulty)]

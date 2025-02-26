@@ -1,12 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://dlyrwjf4dc6hv"]
+[gd_scene load_steps=6 format=3 uid="uid://dlyrwjf4dc6hv"]
 
 [ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_sgxs1"]
 [ext_resource type="Script" path="res://scripts/add_task_dialog.gd" id="2_0dg2u"]
 [ext_resource type="Script" path="res://scripts/difficulty_option_button.gd" id="2_5rbqu"]
 [ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="3_0gp0a"]
+[ext_resource type="Script" path="res://scripts/date_control.gd" id="3_d857q"]
 
 [node name="AddTaskDialog" instance=ExtResource("1_sgxs1")]
-custom_minimum_size = Vector2(320, 300)
+custom_minimum_size = Vector2(320, 360)
 script = ExtResource("2_0dg2u")
 
 [node name="TaskNameLabel" type="Label" parent="GridContainer" index="2"]
@@ -28,28 +29,44 @@ custom_minimum_size = Vector2(0, 89)
 layout_mode = 2
 placeholder_text = "Description"
 
-[node name="DifficultyLabel" type="Label" parent="GridContainer" index="6"]
+[node name="HasDeadlineLabel" type="Label" parent="GridContainer" index="6"]
+layout_mode = 2
+text = "Has deadline"
+
+[node name="HasDeadline" type="CheckButton" parent="GridContainer" index="7"]
+layout_mode = 2
+
+[node name="DeadlineLabel" type="Label" parent="GridContainer" index="8"]
+layout_mode = 2
+text = "Deadline"
+
+[node name="Deadline" type="HBoxContainer" parent="GridContainer" index="9"]
+layout_mode = 2
+script = ExtResource("3_d857q")
+
+[node name="DifficultyLabel" type="Label" parent="GridContainer" index="10"]
 layout_mode = 2
 text = "Difficulty"
 
-[node name="Difficulty" type="OptionButton" parent="GridContainer" index="7"]
+[node name="Difficulty" type="OptionButton" parent="GridContainer" index="11"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_5rbqu")
 
-[node name="ParentLabel" type="Label" parent="GridContainer" index="8"]
+[node name="ParentLabel" type="Label" parent="GridContainer" index="12"]
 layout_mode = 2
 text = "Parent"
 
-[node name="Parent" type="OptionButton" parent="GridContainer" index="9"]
+[node name="Parent" type="OptionButton" parent="GridContainer" index="13"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("3_0gp0a")
 
-[node name="AddTask" type="Button" parent="GridContainer" index="10"]
+[node name="AddTask" type="Button" parent="GridContainer" index="14"]
 layout_mode = 2
 text = "Add Task"
 
+[connection signal="toggled" from="GridContainer/HasDeadline" to="." method="_on_has_deadline_toggled"]
 [connection signal="pressed" from="GridContainer/AddTask" to="." method="_on_add_task_pressed"]

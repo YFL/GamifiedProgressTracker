@@ -7,10 +7,11 @@ var capacity := Difficulty.Invalid
 var children: Array = []
 var children_difficulty: int = Difficulty.Invalid
 
-func _init(name: String, description: String, parent: Project, capacity: int) -> void:
+func _init(name: String, description: String, parent: Project, has_deadline: bool, deadline: String,
+  capacity: int) -> void:
   if capacity < Difficulty.NoteWorthy:
     return
-  super._init(name, description, parent)
+  super._init(name, description, parent, has_deadline, deadline)
   if parent != null:
     parent.add_project(self)
   self.capacity = capacity

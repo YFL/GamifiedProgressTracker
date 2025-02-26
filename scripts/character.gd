@@ -12,7 +12,7 @@ var already_notified := false
 var has_target := false
 
 ## We use the notify param to emit the arrived signal which is used
-## as a task complition signal
+## as a task completion signal
 ## TODO: redo the notify part to something less hacky
 func move_to_target(target: Vector2, notify: bool = false) -> void:
   self.target = target

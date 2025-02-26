@@ -126,7 +126,9 @@ static func get_enemy_index(task: Task) -> int:
 func _init(size := GameWorldSize.new(300)) -> void:
   self.size = size
   task_screen = TaskScreenScene.instantiate()
+  task_screen.hide()
   project_screen = ProjectScreenScene.instantiate()
+  project_screen.hide()
 
 func _ready() -> void:
   add_child(task_screen)

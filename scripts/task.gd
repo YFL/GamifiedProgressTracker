@@ -9,8 +9,10 @@ func _init(
   name: String,
   description: String,
   parent: Project,
+  has_deadline: bool,
+  deadline: String,
   difficulty: int) -> void:
-  super._init(name, description, parent)
+  super._init(name, description, parent, has_deadline, deadline)
   self.difficulty = difficulty
   if parent:
     parent.add_task(self)

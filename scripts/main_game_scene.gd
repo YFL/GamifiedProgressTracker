@@ -32,7 +32,6 @@ func _ready() -> void:
   add_child(taskoid_tree)
   taskoid_tree.position = Vector2(button_panel.size.x + 10, 0)
   await get_tree().process_frame
-  print("taskoid tree CUSTOM MINIMUM size: " + str(taskoid_tree.custom_minimum_size))
   reward_screen.hide()
   taskoid_tree.hide()
   Globals.error_screen.hide()
@@ -44,7 +43,8 @@ func _unhandled_input(event: InputEvent) -> void:
     else:
       button_panel.slide_out()
 
-func _on_add_task(name: String, description: String, parent_name: String, difficulty: int, position = Vector2i(-1, -1)) -> void:
+func _on_add_task(name: String, description: String, parent_name: String, has_deadline: bool,
+  deadline: String, difficulty: int, position = Vector2i(-1, -1)) -> void:
   var cant_add_task_text = "Can't add task: "
   if parent_name != "" and not project_bank.has(parent_name):
     Globals.show_error_screen(cant_add_task_text + "No parent exists with the given name.")
@@ -53,7 +53,7 @@ func _on_add_task(name: String, description: String, parent_name: String, diffic
   if parent != null and not parent.can_fit(difficulty):
     Globals.show_error_screen(cant_add_task_text + "Parent doesn't have enough free capacity for the task.")
     return
-  var task := task_bank.create(name, description, parent, difficulty)
+  var task := task_bank.create(name, description, parent, has_deadline, deadline, difficulty)
   if task == null:
     Globals.show_error_screen(cant_add_task_text + "A task with the same name already extists.")
     return
@@ -66,7 +66,8 @@ func _on_add_reward(name: String, difficulty: int, tier: Reward.RewardTier) -> v
     Globals.show_error_screen("Can't add reward: A reward with the same name already exists.")
     return
 
-func _on_add_project(name: String, description: String, parent: String, duration: int, position = Vector2i(-1, -1)) -> void:
+func _on_add_project(name: String, description: String, parent: String, has_deadline: bool,
+  deadline: String, duration: int, position = Vector2i(-1, -1)) -> void:
   var cant_add_project_text = "Can't add project: "
   if not parent.is_empty() and not project_bank.has(parent):
     Globals.show_error_screen(cant_add_project_text + "No parent exists with the given name.")
@@ -76,7 +77,8 @@ func _on_add_project(name: String, description: String, parent: String, duration
     Globals.show_error_screen(cant_add_project_text +\
       "Project capacity is bigger then it's parent's free capacity.")
     return
-  var project := project_bank.create(name, description, parent_project, duration)
+  var project := project_bank.create(name, description, parent_project, has_deadline, deadline,
+    duration)
   if project == null:
     Globals.show_error_screen(cant_add_project_text + "A project with the same name already exists.")
     return
@@ -193,6 +195,20 @@ func load_project_tree(dict: Dictionary, project_name: String) -> bool:
     if typeof(project_description) != TYPE_STRING:
       handle_project_loading_error(project_name, "project description is not a string")
       return false
+    var has_deadline = project_dict.get(Project.has_deadline_key, null)
+    if has_deadline == null:
+      handle_project_loading_error(project_name, "has deadline missing")
+      return false
+    if typeof(has_deadline) != TYPE_BOOL:
+      handle_project_loading_error(project_name, "has deadline is not a bool")
+      return false
+    var deadline = project_dict.get(Project.deadline_key, null)
+    if deadline == null:
+      handle_project_loading_error(project_name, "deadline is missing")
+      return false
+    if typeof(deadline) != TYPE_STRING:
+      handle_project_loading_error(project_name, "deadline is not a string")
+      return false
     var project_capacity = project_dict.get(Project.capacity_key, null)
     if project_capacity == null:
       handle_project_loading_error(project_name, "project capacity missing")
@@ -212,6 +228,8 @@ func load_project_tree(dict: Dictionary, project_name: String) -> bool:
       project_name_field_value,
       project_description,
       parent_name,
+      has_deadline,
+      deadline,
       project_capacity,
       project_position)
   return true
@@ -271,6 +289,20 @@ func load_tasks(saveDict: Dictionary) -> void:
     if typeof(task_parent_name) != TYPE_STRING:
       handle_task_loading_error(task_name, "task parent name is not a string")
       return
+    var has_deadline = task.get(Project.has_deadline_key, null)
+    if has_deadline == null:
+      handle_task_loading_error(task_name, "has deadline missing")
+      return
+    if typeof(has_deadline) != TYPE_BOOL:
+      handle_task_loading_error(task_name, "has deadline is not a bool")
+      return
+    var deadline = task.get(Project.deadline_key, null)
+    if deadline == null:
+      handle_task_loading_error(task_name, "deadline is missing")
+      return
+    if typeof(deadline) != TYPE_STRING:
+      handle_task_loading_error(task_name, "deadline is not a string")
+      return
     var task_difficulty = task.get(Task.difficulty_key, null)
     if task_difficulty == null:
       handle_task_loading_error(task_name, "task difficulty missing")
@@ -297,6 +329,8 @@ func load_tasks(saveDict: Dictionary) -> void:
       task_name,
       task_description,
       task_parent_name,
+      has_deadline,
+      deadline,
       task_difficulty,
       task_position)
     if task_completed:

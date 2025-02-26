@@ -1,18 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://b5a2dmcnrqk5h"]
+[gd_scene load_steps=4 format=3 uid="uid://b5a2dmcnrqk5h"]
 
 [ext_resource type="Script" path="res://scripts/project_screen.gd" id="1_g2cm7"]
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_q7jdw"]
+[ext_resource type="Script" path="res://scripts/date_control.gd" id="3_hb6w4"]
 
 [node name="ProjectScreen" type="Control"]
-custom_minimum_size = Vector2(320, 300)
+custom_minimum_size = Vector2(320, 350)
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -960.0
-offset_bottom = -420.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 0
+offset_right = 320.0
+offset_bottom = 350.0
 script = ExtResource("1_g2cm7")
 
 [node name="GridContainer" type="GridContainer" parent="."]
@@ -51,6 +48,29 @@ placeholder_text = "Description"
 editable = false
 
 [node name="EmptySpace" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="HasDeadlineLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Has deadline"
+
+[node name="HasDeadline" type="CheckButton" parent="GridContainer"]
+layout_mode = 2
+disabled = true
+
+[node name="EmptySpace5" type="Control" parent="GridContainer"]
+layout_mode = 2
+
+[node name="DeadlineLabel" type="Label" parent="GridContainer"]
+layout_mode = 2
+text = "Deadline"
+
+[node name="Deadline" type="HBoxContainer" parent="GridContainer"]
+layout_mode = 2
+script = ExtResource("3_hb6w4")
+editable = false
+
+[node name="EmptySpace6" type="Control" parent="GridContainer"]
 layout_mode = 2
 
 [node name="CapacityLabel" type="Label" parent="GridContainer"]

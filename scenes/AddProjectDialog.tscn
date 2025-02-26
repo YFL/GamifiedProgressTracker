@@ -1,12 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://bxj232pgccc78"]
+[gd_scene load_steps=6 format=3 uid="uid://bxj232pgccc78"]
 
 [ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_r751v"]
 [ext_resource type="Script" path="res://scripts/add_project_dialog.gd" id="2_fb3ya"]
 [ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="3_8rb3q"]
 [ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="3_i0fer"]
+[ext_resource type="Script" path="res://scripts/date_control.gd" id="4_uto40"]
 
 [node name="AddProjectDialog" instance=ExtResource("1_r751v")]
-custom_minimum_size = Vector2(320, 300)
+custom_minimum_size = Vector2(320, 360)
 script = ExtResource("2_fb3ya")
 
 [node name="ProjectNameLabel" type="Label" parent="GridContainer" index="2"]
@@ -38,17 +39,33 @@ text = "Duration"
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
-[node name="ParentLabel" type="Label" parent="GridContainer" index="8"]
+[node name="HasDeadlineLabel" type="Label" parent="GridContainer" index="8"]
+layout_mode = 2
+text = "Has deadline"
+
+[node name="HasDeadline" type="CheckButton" parent="GridContainer" index="9"]
+layout_mode = 2
+
+[node name="DeadlineLabel" type="Label" parent="GridContainer" index="10"]
+layout_mode = 2
+text = "Deadline"
+
+[node name="Deadline" type="HBoxContainer" parent="GridContainer" index="11"]
+layout_mode = 2
+script = ExtResource("4_uto40")
+
+[node name="ParentLabel" type="Label" parent="GridContainer" index="12"]
 layout_mode = 2
 text = "Parent"
 
-[node name="Parent" type="OptionButton" parent="GridContainer" index="9"]
+[node name="Parent" type="OptionButton" parent="GridContainer" index="13"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 script = ExtResource("3_i0fer")
 
-[node name="AddProject" type="Button" parent="GridContainer" index="10"]
+[node name="AddProject" type="Button" parent="GridContainer" index="14"]
 layout_mode = 2
 text = "Add Project"
 
+[connection signal="toggled" from="GridContainer/HasDeadline" to="." method="_on_has_deadline_toggled"]
 [connection signal="pressed" from="GridContainer/AddProject" to="." method="_on_add_project_pressed"]
