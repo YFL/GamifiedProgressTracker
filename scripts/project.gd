@@ -1,24 +1,20 @@
 class_name Project extends Taskoid
 
-const capacity_key = "capacity"
-
-var capacity := Difficulty.Invalid
 ## Array of projects and tasks
-var children: Array = []
+var children: Array[Taskoid] = []
 var children_difficulty: int = Difficulty.Invalid
 
-func _init(name: String, description: String, parent: Project, capacity: int) -> void:
-  if capacity < Difficulty.NoteWorthy:
+func _init(params: Taskoid.Params) -> void:
+  if params.difficulty < Difficulty.NoteWorthy:
     return
-  super._init(name, description, parent)
+  super._init(params)
   if parent != null:
     parent.add_project(self)
-  self.capacity = capacity
 
 func _to_string() -> String:
   return name + " Description: " + description + " Parent: " +\
     (parent.name + " " if parent != null else "None ") + " Difficulty: "\
-    + Difficulty.difficulty_names[capacity]
+    + Difficulty.difficulty_names[difficulty]
 
 func add_task(child: Task) -> void:
   if not can_fit(child.difficulty):
@@ -50,8 +46,8 @@ func remove_project(child: Project) -> void:
 
 func can_fit(difficulty: int) -> bool:
   if parent != null:
-    return parent.can_fit(difficulty) && children_difficulty + difficulty <= capacity
-  return children_difficulty + difficulty <= capacity
+    return parent.can_fit(difficulty) && children_difficulty + difficulty <= self.difficulty
+  return children_difficulty + difficulty <= self.difficulty
 
 func add_child_difficulty_to_parent(difficulty: int) -> void:
   if parent == null:
@@ -59,13 +55,8 @@ func add_child_difficulty_to_parent(difficulty: int) -> void:
   parent.children_difficulty += difficulty
   parent.add_child_difficulty_to_parent(difficulty)
 
-func to_dict() -> Dictionary:
-  var ret_val := super.to_dict()
-  ret_val[capacity_key] = capacity
-  return ret_val
-
-func complete() -> bool:
+func complete() -> Result:
   for child in children:
     if not child.completed:
-      return false
+      return Result.new(false, child.name + " is not completed yet")
   return super.complete()

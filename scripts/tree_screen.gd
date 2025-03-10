@@ -2,7 +2,8 @@ class_name TreeScreen extends DialogBase
 
 @onready var grid_container: GridContainer = $GridContainer
 @onready var taskoid_tree: Tree = $GridContainer/TaskoidTree
-@onready var task_screen: TaskScreen = preload("res://scenes/TaskScreen.tscn").instantiate()
+@onready var task_screen: TaskoidScreenBase =\
+  preload("res://scenes/TaskoidScreenBase.tscn").instantiate()
 @onready var project_screen: ProjectScreen =\
   preload("res://scenes/ProjectScreen.tscn").instantiate()
 @onready var texture: Texture2D = preload("res://textures/HamburgerNormal.png")

@@ -111,6 +111,7 @@ offset_bottom = 300.0
 
 [node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
 visible = false
+custom_minimum_size = Vector2(320, 240)
 offset_left = 776.0
 offset_top = 298.0
 offset_right = 1096.0

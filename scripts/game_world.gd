@@ -28,7 +28,7 @@ const difficulty_to_enemy_index := {
 const position_key := "position"
 
 const GameWorldScene := preload("res://scenes/GameWorld.tscn")
-const TaskScreenScene := preload("res://scenes/TaskScreen.tscn")
+const TaskScreenScene := preload("res://scenes/TaskoidScreenBase.tscn")
 const ProjectScreenScene := preload("res://scenes/ProjectScreen.tscn")
 
 class Enemy extends RefCounted:
@@ -98,13 +98,13 @@ var size: GameWorldSize:
         free_tiles.append(Vector2i(x + 1, y))
     for x in range(0, size.remainder, 3):
       free_tiles.append(Vector2i(x + 1, size.y))
-var task_screen: TaskScreen = null
+var task_screen: TaskoidScreenBase = null
 var project_screen: ProjectScreen = null
 
 static func new_game_world(project: Project, parent: GameWorld = null, position = Vector2i(-1, -1)) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
   if project != null:
-    instance.size = GameWorldSize.new(project.capacity)
+    instance.size = GameWorldSize.new(project.difficulty)
   instance.project = project
   instance.parent = parent
   instance.hide()
@@ -126,7 +126,9 @@ static func get_enemy_index(task: Task) -> int:
 func _init(size := GameWorldSize.new(300)) -> void:
   self.size = size
   task_screen = TaskScreenScene.instantiate()
+  task_screen.hide()
   project_screen = ProjectScreenScene.instantiate()
+  project_screen.hide()
 
 func _ready() -> void:
   add_child(task_screen)
@@ -164,28 +166,35 @@ func _unhandled_input(event: InputEvent) -> void:
     if not is_enemy and not is_portal:
       return
     var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
-    character.move_to_target(Vector2(tile_position.x * tile_size.x, (tile_position.y + 1)* tile_size.y), notify)
+    character.move_to_target(Vector2(
+      tile_position.x * tile_size.x,
+      (tile_position.y + (1 if is_enemy else 0)) * tile_size.y),
+      notify)
     # Left click, show Taskoid Screen
     if not notify:
+      var screen_size := task_screen.size if is_enemy else project_screen.size
+      print("size.x * tile_size.x - task_screen.size.x: ", size.x * tile_size.x - screen_size.x)
+      print("get_local_mouse_position().x - task_screen.size.x / 2: ", get_local_mouse_position().x - screen_size.x / 2)
       var screen_position := Vector2i(
           max(
             0,
             min(
-              size.x * tile_size.x - task_screen.size.x,
-              get_local_mouse_position().x - task_screen.size.x / 2)),
+              size.x * tile_size.x - screen_size.x,
+              get_local_mouse_position().x - screen_size.x / 2)),
           max(
             0,
             min(
-              size.y * tile_size.y - task_screen.size.y,
-              get_local_mouse_position().y - task_screen.size.y / 2)))
+              size.y * tile_size.y - screen_size.y,
+              get_local_mouse_position().y - screen_size.y / 2)))
+      print("screen_position: ", screen_position)
       if is_enemy:
         task_screen.position = screen_position
         var task: Task = enemies[tile_position].task
-        task_screen.set_task(task)
+        task_screen.set_taskoid(task)
         task_screen.show()
       elif is_portal:
         project_screen.position = screen_position
-        project_screen.project = portals[tile_position].game_world.project
+        project_screen.set_taskoid(portals[tile_position].game_world.project)
         project_screen.show()
 
 func _notification(what: int) -> void:
@@ -285,10 +294,8 @@ func draw_grass(position: Vector2i) -> void:
 
 func _on_character_arrived(at: Vector2) -> void:
   var tile_position := pixel_position_to_tile_position(at)
-  if enemies.has(tile_position):
-    var enemy: Enemy = enemies[tile_position]
-    enemy.task.complete()
-  elif portals.has(tile_position):
+  var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
+  if portals.has(tile_position):
     var portal: Portal = portals[tile_position]
     if selected_child != null:
       remove_child(selected_child)
@@ -298,6 +305,9 @@ func _on_character_arrived(at: Vector2) -> void:
     tilemap.hide()
     character.hide()
     exit_button.hide()
+  elif enemies.has(enemy_tile_pos):
+    var enemy: Enemy = enemies[enemy_tile_pos]
+    enemy.task.complete()
 
 func _on_exit_button_pressed() -> void:
   hide()
@@ -334,12 +344,12 @@ func to_dict() -> Dictionary:
   dict[MainGameScene.projects_key] = {}
   for position in enemies:
     var monster: Enemy = enemies[position]
-    var monster_dict: Dictionary = monster.task.to_dict()
+    var monster_dict: Dictionary = monster.task.config().to_dict()
     monster_dict[position_key] = position
     dict[MainGameScene.tasks_key][monster.task.name] = monster_dict
   for position in portals:
     var portal: Portal = portals[position]
-    var portal_dict: Dictionary = portal.game_world.project.to_dict()
+    var portal_dict: Dictionary = portal.game_world.project.config().to_dict()
     portal_dict[position_key] = position
     dict[MainGameScene.projects_key][portal.game_world.project.name] = portal_dict
   for child in children:

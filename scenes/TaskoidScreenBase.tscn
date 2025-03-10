@@ -1,0 +1,94 @@
+[gd_scene load_steps=5 format=3 uid="uid://bm8crogl1dr7w"]
+
+[ext_resource type="Script" path="res://scripts/taskoid_screen_base.gd" id="1_h7be5"]
+[ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_nfyx4"]
+[ext_resource type="Script" path="res://scripts/date_control.gd" id="2_k6cl3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3yq0x"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[node name="TaskoidScreenBase" type="GridContainer"]
+custom_minimum_size = Vector2(320, 350)
+columns = 2
+script = ExtResource("1_h7be5")
+
+[node name="Spacer" type="Panel" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_3yq0x")
+
+[node name="ExitButton" parent="." instance=ExtResource("1_nfyx4")]
+visible = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+
+[node name="ProjectNameLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Name"
+
+[node name="Name" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+
+[node name="DescriptionLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Description"
+
+[node name="Description" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(0, 89)
+layout_mode = 2
+placeholder_text = "Description"
+editable = false
+
+[node name="HasDeadlineLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Has deadline"
+
+[node name="HasDeadline" type="CheckButton" parent="."]
+layout_mode = 2
+disabled = true
+
+[node name="DeadlineLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Deadline"
+
+[node name="Deadline" type="HBoxContainer" parent="."]
+layout_mode = 2
+script = ExtResource("2_k6cl3")
+editable = false
+
+[node name="DifficultyLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Difficulty
+"
+
+[node name="Difficulty" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+editable = false
+
+[node name="ParentLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Parent"
+
+[node name="Parent" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+editable = false
+
+[node name="CompleteButton" type="Button" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Complete"
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="CompleteButton" to="." method="_on_complete_button_pressed"]
