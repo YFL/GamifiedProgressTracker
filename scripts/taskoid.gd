@@ -9,6 +9,7 @@ var parent: Project = null
 var completed: bool = false
 var has_deadline: bool = false
 var deadline: String = ""
+var repetition_config: RepetitionConfig = null
 
 class Params extends RefCounted:
   var name: String = ""
@@ -17,15 +18,17 @@ class Params extends RefCounted:
   var parent: Project = null
   var has_deadline: bool = false
   var deadline: String = ""
+  var repetition_config: RepetitionConfig = null
 
   func _init(name: String, description: String, difficulty: int, parent: Project,
-    has_deadline: bool, deadline: String) -> void:
+    has_deadline: bool, deadline: String, repetition_config: RepetitionConfig) -> void:
     self.name = name
     self.description = description
     self.difficulty = difficulty
     self.parent = parent
     self.has_deadline = has_deadline
     self.deadline = deadline
+    self.repetition_config = repetition_config
   
 class Config extends RefCounted:
   
@@ -36,6 +39,7 @@ class Config extends RefCounted:
   const completed_key = "completed"
   const has_deadline_key = "has_deadline"
   const deadline_key = "deadline"
+  const repetition_config_key = "repetition_config_key"
 
   var name: String = ""
   var description: String = ""
@@ -44,9 +48,10 @@ class Config extends RefCounted:
   var completed: bool = false
   var has_deadline: bool = false
   var deadline: String = ""
+  var repetition_config: RepetitionConfig = null
 
   func _init(name: String, description: String, difficulty: int, parent: String, completed: bool,
-    has_deadline: bool, deadline: String) -> void:
+    has_deadline: bool, deadline: String, repetition_config: RepetitionConfig) -> void:
     self.name = name
     self.description = description
     self.difficulty = difficulty
@@ -54,6 +59,7 @@ class Config extends RefCounted:
     self.completed = completed
     self.has_deadline = has_deadline
     self.deadline = deadline
+    self.repetition_config = repetition_config
   
   func to_dict() -> Dictionary:
     return {
@@ -63,7 +69,8 @@ class Config extends RefCounted:
       parent_name_key: parent,
       completed_key: completed,
       has_deadline_key: has_deadline,
-      deadline_key: deadline
+      deadline_key: deadline,
+      repetition_config: repetition_config.to_dict()
     }
 
 func _init(param: Params) -> void:
@@ -83,7 +90,7 @@ func complete() -> Result:
 
 func config() -> Config:
   return Config.new(name, description, difficulty, (parent.name if parent != null else ""),
-    completed, has_deadline, deadline)
+    completed, has_deadline, deadline, repetition_config)
 
 static func config_from_dict(dict: Dictionary) -> Result:
   const name_key = "name"
@@ -130,5 +137,8 @@ static func config_from_dict(dict: Dictionary) -> Result:
     return Result.new(null, "Taskoid deadline is missing")
   if typeof(deadline) != TYPE_STRING:
     return Result.new(null, "Taskoid deadline is not a string")
+  var repetition_config_res := RepetitionConfig.from_dict(dict.get(Config.repetition_config_key))
+  if repetition_config_res.result == null:
+    return Result.new(null, "Taskoid repetition config is invalid: " + repetition_config_res.error)
   return Result.new(Config.new(name, description, difficulty, parent, completed, has_deadline,
-    deadline))
+    deadline, repetition_config_res.result))
