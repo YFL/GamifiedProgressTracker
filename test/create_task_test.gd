@@ -32,18 +32,19 @@ func before() -> void:
   print("Starting Create Task testsuite")
   runner = scene_runner(auto_free(MainGameSceneRes.instantiate()))
   add_task_dialog = runner.invoke("get_node", "AddTaskDialog") as AddTaskDialog
-  task_name_text_edit = add_task_dialog.get_node("GridContainer").get_node("TaskName")
+  task_name_text_edit = add_task_dialog.get_node("GridContainer").get_node("Name")
   task_description_text_edit = add_task_dialog.get_node("GridContainer").get_node("Description")
   task_parent_option_button = add_task_dialog.get_node("GridContainer").get_node("Parent")
-  task_difficulty_option_button = add_task_dialog.get_node("GridContainer").get_node("Difficulty")
+  task_difficulty_option_button = add_task_dialog.get_node("GridContainer").get_node("Duration")
   add_task_button = add_task_dialog.get_node("GridContainer").get_node("AddTask")
   utils = Utils.new(self)
   
 func test_task_create() -> void:
   utils.create_task("TaskName", "Description", "", Difficulty.NoteWorthy)
-  var task: Task = Task.new("TaskName", "Description", null, Difficulty.NoteWorthy)
+  var params := Taskoid.Params.new("TaskName", "Description", Difficulty.NoteWorthy, null, false, "")
+  var task: Task = Task.new(params)
   var control_tasks := [task]
-  var tasks_in_task_bank = runner.scene().task_bank.get_tasks()
+  var tasks_in_task_bank = runner.scene().taskoid_bank.get_tasks()
   var enemies: Dictionary = runner.scene().game_world.enemies
   var monsters: Array[GameWorld.Enemy]
   for monster_position: Vector2i in enemies:
@@ -58,17 +59,34 @@ func test_task_create() -> void:
     .contains(control_monsters)
 
 func test_add_bigger_child_task_than_free_capacity() -> void:
-  var project := Project.new("ProjectName", "ProjectDescription", null, Difficulty.NoteWorthy)
-  var child_project := Project.new("Project2", "Description2", project, Difficulty.NoteWorthy)
-  var project_child := Task.new("Task1", "TaskDescription", project, Difficulty.NoteWorthy)
+  var params := Taskoid.Params.new("ProjectName", "ProjectDescription", Difficulty.NoteWorthy, null, false, "")
+  var project := Project.new(params)
+  params.name = "Project2"
+  params.description = "Description2"
+  params.parent = project
+  var child_project := Project.new(params)
+  params.name = "Task1"
+  params.description = "TaskDescription"
+  var project_child := Task.new(params)
   assert_array(project.children).has_size(2).contains([child_project, project_child])
+  params.name = "Task2"
+  params.description = "Shouldn't get added"
+  params.parent = child_project
+  params.difficulty = Difficulty.Modest
   var child_project_child :=\
-    Task.new("Task2", "Shouldn't get added", child_project, Difficulty.Modest)
+    Task.new(params)
   assert_array(child_project.children).has_size(0).not_contains([child_project_child])
+  params.name = "Project3"
+  params.description = "Description3"
+  params.difficulty = Difficulty.NoteWorthy
   var child_project_child_project :=\
-    Project.new("Project3", "Description3", child_project, Difficulty.NoteWorthy)
+    Project.new(params)
+  params.name = "Task3"
+  params.description = " TaskDescription3"
+  params.parent = child_project_child_project
+  params.difficulty = Difficulty.Modest
   var child_project_child_project_child :=\
-    Task.new("Task3", "TaskDescription3", child_project_child_project, Difficulty.Modest)
+    Task.new(params)
   assert_array(child_project_child_project.children)\
     .has_size(0)\
     .not_contains([child_project_child_project_child])

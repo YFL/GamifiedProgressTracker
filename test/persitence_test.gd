@@ -4,46 +4,54 @@ var parent_project: Project = null
 var project: Project = null
 
 func before() -> void:
-  parent_project = Project.new("Test", "TestDescription", null, Difficulty.Majestic)
+  var params := Taskoid.Params.new("Test", "TestDescription", Difficulty.Majestic, null, false, "")
+  parent_project = Project.new(params)
 
 func test_task_persistence() -> void:
-  var task := Task.new("test", "testDescription", null, Difficulty.Modest)
-  var json := JSON.stringify(task.to_dict())
+  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Modest, null, false, "")
+  var task := Task.new(params)
+  var json := JSON.stringify(task.config().to_dict())
   var dict: Dictionary = JSON.parse_string(json)
   assert_dict(dict).contains_keys([
-    Task.name_key,
-    Task.description_key,
-    Task.parent_name_key,
-    Task.completed_key,
-    Task.difficulty_key])
-  assert_dict(dict).contains_key_value(Task.name_key, task.name)
-  assert_dict(dict).contains_key_value(Task.description_key, task.description)
-  assert_dict(dict).contains_key_value(Task.parent_name_key, "")
-  assert_dict(dict).contains_key_value(Task.completed_key, task.completed)
+    Taskoid.Config.name_key,
+    Taskoid.Config.description_key,
+    Taskoid.Config.parent_name_key,
+    Taskoid.Config.completed_key,
+    Taskoid.Config.difficulty_key])
+  assert_dict(dict).contains_key_value(Task.Config.name_key, task.name)
+  assert_dict(dict).contains_key_value(Task.Config.description_key, task.description)
+  assert_dict(dict).contains_key_value(Task.Config.parent_name_key, "")
+  assert_dict(dict).contains_key_value(Task.Config.completed_key, task.completed)
   # Difficulty has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
-  assert_dict(dict).contains_key_value(Task.difficulty_key, float(task.difficulty))
+  assert_dict(dict).contains_key_value(Task.Config.difficulty_key, float(task.difficulty))
 
-  task = Task.new("test2", "testDescription2", parent_project, Difficulty.Modest)
+  params.name = "test2"
+  params.description = "testDescription2"
+  params.parent = parent_project
+  task = Task.new(params)
   task.complete()
-  json = JSON.stringify(task.to_dict())
+  json = JSON.stringify(task.config().to_dict())
   dict = JSON.parse_string(json)
   assert_dict(dict).contains_keys([
-    Task.name_key,
-    Task.description_key,
-    Task.parent_name_key,
-    Task.completed_key,
-    Task.difficulty_key])
-  assert_dict(dict).contains_key_value(Task.name_key, task.name)
-  assert_dict(dict).contains_key_value(Task.description_key, task.description)
-  assert_dict(dict).contains_key_value(Task.parent_name_key, parent_project.name)
-  assert_dict(dict).contains_key_value(Task.completed_key, task.completed)
+    Task.Config.name_key,
+    Task.Config.description_key,
+    Task.Config.parent_name_key,
+    Task.Config.completed_key,
+    Task.Config.difficulty_key])
+  assert_dict(dict).contains_key_value(Task.Config.name_key, task.name)
+  assert_dict(dict).contains_key_value(Task.Config.description_key, task.description)
+  assert_dict(dict).contains_key_value(Task.Config.parent_name_key, parent_project.name)
+  assert_dict(dict).contains_key_value(Task.Config.completed_key, task.completed)
   # Difficulty has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
-  assert_dict(dict).contains_key_value(Task.difficulty_key, float(task.difficulty))
+  assert_dict(dict).contains_key_value(Task.Config.difficulty_key, float(task.difficulty))
   
-  var test_task := Task.new(dict[Task.name_key], dict[Task.description_key], parent_project, int(dict[Task.difficulty_key]))
-  if dict[Task.completed_key]:
+  params.name = dict[Task.Config.name_key]
+  params.description = dict[Task.Config.description_key]
+  params.difficulty = int(dict[Task.Config.difficulty_key])
+  var test_task := Task.new(params)
+  if dict[Task.Config.completed_key]:
     test_task.complete()
   assert_str(test_task.name).is_equal(task.name)
   assert_str(test_task.description).is_equal(task.description)
@@ -52,42 +60,48 @@ func test_task_persistence() -> void:
   assert_int(test_task.difficulty).is_equal(task.difficulty)
 
 func test_project_persistence() -> void:
-  var project := Project.new("test", "testDescription", null, Difficulty.Majestic)
-  var json := JSON.stringify(project.to_dict())
+  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Majestic, null, false, "")
+  var project := Project.new(params)
+  var json := JSON.stringify(project.config().to_dict())
   var dict: Dictionary = JSON.parse_string(json)
   assert_dict(dict).contains_keys([
-    Project.name_key,
-    Project.description_key,
-    Project.capacity_key,
-    Project.parent_name_key
+    Taskoid.Config.name_key,
+    Taskoid.Config.description_key,
+    Taskoid.Config.difficulty_key,
+    Taskoid.Config.parent_name_key
   ])
-  assert_dict(dict).contains_key_value(Project.name_key, project.name)
-  assert_dict(dict).contains_key_value(Project.description_key, project.description)
+  assert_dict(dict).contains_key_value(Taskoid.Config.name_key, project.name)
+  assert_dict(dict).contains_key_value(Taskoid.Config.description_key, project.description)
   # Capacity has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
-  assert_dict(dict).contains_key_value(Project.capacity_key, float(project.capacity))
-  assert_dict(dict).contains_key_value(Project.parent_name_key, "")
+  assert_dict(dict).contains_key_value(Taskoid.Config.difficulty_key, float(project.difficulty))
+  assert_dict(dict).contains_key_value(Taskoid.Config.parent_name_key, "")
 
-  project = Project.new("test2", "testDescription2", parent_project, Difficulty.NoteWorthy)
-  json = JSON.stringify(project.to_dict())
+  params.name = "test2"
+  params.description = "testDescription2"
+  params.parent = parent_project
+  params.difficulty = Difficulty.NoteWorthy
+  project = Project.new(params)
+  json = JSON.stringify(project.config().to_dict())
   dict = JSON.parse_string(json)
   assert_dict(dict).contains_keys([
-    Project.name_key,
-    Project.description_key,
-    Project.capacity_key,
-    Project.parent_name_key
+    Taskoid.Config.name_key,
+    Taskoid.Config.description_key,
+    Taskoid.Config.difficulty_key,
+    Taskoid.Config.parent_name_key
   ])
-  assert_dict(dict).contains_key_value(Project.name_key, project.name)
-  assert_dict(dict).contains_key_value(Project.description_key, project.description)
+  assert_dict(dict).contains_key_value(Taskoid.Config.name_key, project.name)
+  assert_dict(dict).contains_key_value(Taskoid.Config.description_key, project.description)
   # Capacity has to be converted to float, because all numbers are converted to float in
   # JSON.stringify
-  assert_dict(dict).contains_key_value(Project.capacity_key, float(project.capacity))
-  assert_dict(dict).contains_key_value(Project.parent_name_key, parent_project.name)
+  assert_dict(dict).contains_key_value(Taskoid.Config.difficulty_key, float(project.difficulty))
+  assert_dict(dict).contains_key_value(Taskoid.Config.parent_name_key, parent_project.name)
   
-  var test_project := Project.new(dict[Project.name_key], dict[Project.description_key], parent_project, int(dict[Project.capacity_key]))
+  params = Taskoid.Params.new(dict[Taskoid.Config.name_key], dict[Taskoid.Config.description_key], int(dict[Taskoid.Config.difficulty_key]), parent_project, false, "")
+  var test_project := Project.new(params)
   assert_str(test_project.name).is_equal(project.name)
   assert_str(test_project.description).is_equal(project.description)
-  assert_int(test_project.capacity).is_equal(project.capacity)
+  assert_int(test_project.difficulty).is_equal(project.difficulty)
   assert_str(test_project.parent.name).is_equal(project.parent.name)
 
 func test_reward_persistence() -> void:

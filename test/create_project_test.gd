@@ -6,21 +6,27 @@ var projects: Array[Project]
 
 func before_test() -> void:
   projects.clear()
-  projects.append(Project.new(project_names[0], project_names[0], null, Difficulty.Glorious))
+  var params := Taskoid.Params.new(project_names[0], project_names[0], Difficulty.Glorious, null, false, "")
+  projects.append(Project.new(params))
   # 0 is Easy 2 is Hard, if it's not, change the loop
   for i: int in range (1, 3):
-    projects.append(Project.new(project_names[i], project_names[i], projects[i - 1], difficulties[difficulties.size() - 1 - i]))
+    params.name = project_names[i]
+    params.description = project_names[i]
+    params.parent = projects[i - 1]
+    params.difficulty = difficulties[difficulties.size() - 1 - i]
+    projects.append(Project.new(params))
 
 func test_create_invalid_project() -> void:
   # Difficulty.Easy is not allowed for projects
-  var project := Project.new(project_names[0], project_names[0], null, difficulties[0])
+  var params := Taskoid.Params.new(project_names[0], project_names[0], difficulties[0], null, false, "")
+  var project := Project.new(params)
   assert_str(project.name).is_empty()
-  assert_int(project.capacity).is_equal(Difficulty.Invalid)
+  assert_int(project.difficulty).is_equal(Difficulty.Invalid)
 
 func test_create_parentless_project() -> void:
   assert_str(projects[0].name).is_equal(project_names[0])
   assert_object(projects[0].parent).is_null()
-  assert_int(projects[0].capacity).is_equal(Difficulty.Glorious)
+  assert_int(projects[0].difficulty).is_equal(Difficulty.Glorious)
 
 func test_create_project():
   assert_array(projects).has_size(3)
@@ -32,11 +38,12 @@ func test_create_project():
     assert_array(parent.children).contains([project]).has_size(1)
     assert_int(project.children_difficulty).is_equal(0)
     assert_str(project.name).is_equal(project_names[i])
-    assert_int(project.capacity).is_equal(difficulties[difficulty_idx])
+    assert_int(project.difficulty).is_equal(difficulties[difficulty_idx])
 
 func test_add_task_to_child() -> void:
   for i: int in range(0, projects.size()):
-    Task.new(project_names[i], project_names[i], projects[i], difficulties[difficulties.size() - 2 - i])
+    var params := Taskoid.Params.new(project_names[i], project_names[i], difficulties[difficulties.size() - 2 - i], projects[i], false, "")
+    Task.new(params)
   var medium_project := projects[2]
   assert_int(medium_project.children_difficulty).is_equal(Difficulty.Modest)
   assert_array(medium_project.children).has_size(1)
@@ -49,11 +56,17 @@ func test_add_task_to_child() -> void:
 
 
 func test_child_exceeding_capacity() -> void:
-  var parent_project := Project.new("parent", "", null, Difficulty.NoteWorthy)
-  var child_project := Project.new("child", "", parent_project, Difficulty.NoteWorthy)
-  var child_task := Task.new("child", "", child_project, Difficulty.NoteWorthy)
+  var params := Taskoid.Params.new("parent", "", Difficulty.NoteWorthy, null, false, "")
+  var parent_project := Project.new(params)
+  params.name = "child"
+  params.parent = parent_project
+  var child_project := Project.new(params)
+  params.parent = child_project
+  var child_task := Task.new(params)
   assert_int(parent_project.children_difficulty).is_equal(child_task.difficulty)
-  var parent_task := Task.new("parent", "", parent_project, Difficulty.NoteWorthy)
+  params.name = "parent"
+  params.parent = parent_project
+  var parent_task := Task.new(params)
   assert_int(child_project.children_difficulty).is_equal(child_task.difficulty)
   assert_int(parent_project.children_difficulty).is_equal(child_task.difficulty)
   assert_array(parent_project.children).not_contains([parent_task]).has_size(1)

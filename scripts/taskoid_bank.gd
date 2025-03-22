@@ -31,7 +31,7 @@ func create_project(config: Taskoid.Config) -> Result:
 
 func create_task(config: Taskoid.Config) -> Result:
   if tasks.has(config.name):
-    return Result.new(null, "Task with name" + config.anem + " already exists")
+    return Result.new(null, "Task with name" + config.name + " already exists")
   var res := params_from_config(config)
   if res.result == null:
     return res
