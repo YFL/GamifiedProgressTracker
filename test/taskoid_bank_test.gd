@@ -7,7 +7,7 @@ const easy := Difficulty.Modest
 func before_test() -> void:
   for task_name: String in task_names:
     task_bank.remove_task_name(task_name)
-    var config := Taskoid.Config.new(task_name, task_name, easy, "", false, false, "")
+    var config := Taskoid.Config.new(task_name, task_name, easy, "", false, false, "", null)
     task_bank.create_task(config)
 
 func test_task_create_and_get() -> void:

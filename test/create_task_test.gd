@@ -41,7 +41,7 @@ func before() -> void:
   
 func test_task_create() -> void:
   utils.create_task("TaskName", "Description", "", Difficulty.NoteWorthy)
-  var params := Taskoid.Params.new("TaskName", "Description", Difficulty.NoteWorthy, null, false, "")
+  var params := Taskoid.Params.new("TaskName", "Description", Difficulty.NoteWorthy, null, false, "", null)
   var task: Task = Task.new(params)
   var control_tasks := [task]
   var tasks_in_task_bank = runner.scene().taskoid_bank.get_tasks()
@@ -59,7 +59,7 @@ func test_task_create() -> void:
     .contains(control_monsters)
 
 func test_add_bigger_child_task_than_free_capacity() -> void:
-  var params := Taskoid.Params.new("ProjectName", "ProjectDescription", Difficulty.NoteWorthy, null, false, "")
+  var params := Taskoid.Params.new("ProjectName", "ProjectDescription", Difficulty.NoteWorthy, null, false, "", null)
   var project := Project.new(params)
   params.name = "Project2"
   params.description = "Description2"
