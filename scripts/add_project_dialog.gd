@@ -9,5 +9,5 @@ func _ready() -> void:
 
 func _on_add_project_pressed() -> void:
   var config := Taskoid.Config.new(taskoid_name(), description(), difficulty(), parent(), false,
-    has_deadline(), deadline())
+    has_deadline(), deadline(), repetition_config())
   add_project.emit(config)

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://co6iajan8fwid"]
+
+[ext_resource type="Script" path="res://scripts/exitable_base.gd" id="1_ip0pi"]
+[ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_kofeb"]
+
+[node name="ExitableBase" type="VBoxContainer"]
+script = ExtResource("1_ip0pi")
+
+[node name="ExitButton" parent="." instance=ExtResource("1_kofeb")]
+visible = true
+layout_mode = 2
+size_flags_horizontal = 8
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

@@ -15,7 +15,7 @@ func params_from_config(config: Taskoid.Config) -> Result:
   if parent != null and not parent.can_fit(config.difficulty):
     return Result.new(null, "Parent " + config.parent + " can't fit task " + config.name)
   return Result.new(Taskoid.Params.new(config.name, config.description, config.difficulty,
-    parent, config.has_deadline, config.deadline))
+    parent, config.has_deadline, config.deadline, config.repetition_config))
 
 func create_project(config: Taskoid.Config) -> Result:
   if projects.has(config.name):
