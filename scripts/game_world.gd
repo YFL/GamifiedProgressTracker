@@ -24,6 +24,7 @@ const difficulty_to_enemy_index := {
   Difficulty.Supreme: 3,
   Difficulty.Transcendent: 3
 }
+const repeatable_check_interval := 24 * 60 * 60.0
 
 const position_key := "position"
 
@@ -100,6 +101,7 @@ var size: GameWorldSize:
       free_tiles.append(Vector2i(x + 1, size.y))
 var task_screen: TaskoidScreenBase = null
 var project_screen: ProjectScreen = null
+var time_since_last_repeatable_check := repeatable_check_interval
 
 static func new_game_world(project: Project, parent: GameWorld = null, position = Vector2i(-1, -1)) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
@@ -150,7 +152,7 @@ func _ready() -> void:
     draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
   for position: Vector2i in portals:
     var portal_tile_index :=\
-      portal_tiles[0] if portals[position].game_world.project.completed else portal_tiles[1]
+      portal_tiles[0] if not portals[position].game_world.project.completed else portal_tiles[1]
     draw_taskoid(position, portal_source_id, portal_tile_index)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -203,6 +205,21 @@ func _notification(what: int) -> void:
       child.queue_free()
     task_screen.queue_free()
     project_screen.queue_free()
+
+func _process(delta: float) -> void:
+  time_since_last_repeatable_check += delta
+  if time_since_last_repeatable_check >= repeatable_check_interval:
+    display_repeatables()
+
+func display_repeatables() -> void:
+  for position in portals:
+    var portal: Portal = portals[position]
+    if portal.project.repetition_config.next_starting_date >= Time.get_date_string_from_system():
+      portal.show()
+  for position in enemies:
+    var enemy: Enemy = enemies[position]
+    if enemy.task.repetition_config.next_starting_date >= Time.get_date_string_from_system():
+      enemy.show()
 
 func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   var tile_position: Vector2i
