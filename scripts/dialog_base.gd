@@ -9,23 +9,6 @@ class_name DialogBase extends ExitableBase
 @onready var _does_repeat: CheckButton = $GridContainer/DoesRepeat
 @onready var _add_taskoid: Button = $GridContainer/AddTaskoid
 
-class RepetitionConfigDialogItems extends RefCounted:
-	var starting_date_label := Label.new()
-	var starting_date := DateControl.new()
-	var interval_label := Label.new()
-	var interval := IntervalControl.new()
-
-	func _init() -> void:
-		starting_date_label.text = "Starting date"
-		interval_label.text = "Interval"
-
-	func _notification(what: int) -> void:
-		if what == NOTIFICATION_PREDELETE:
-			starting_date_label.queue_free()
-			starting_date.queue_free()
-			interval_label.queue_free()
-			interval.queue_free()
-
 var _repetition_config := RepetitionConfigDialogItems.new()
 
 func _ready() -> void:
@@ -87,18 +70,6 @@ func _on_taskoid_name_text_changed() -> void:
 
 func _on_does_repeat_toggled(toggled_on: bool) -> void:
 	if toggled_on:
-		add_repetition_config_children()
+		_repetition_config.add_nodes_as_siblings_to(_does_repeat)
 	else:
-		remove_repetition_config_children()
-
-func add_repetition_config_children() -> void:
-	_does_repeat.add_sibling(_repetition_config.starting_date_label)
-	_repetition_config.starting_date_label.add_sibling(_repetition_config.starting_date)
-	_repetition_config.starting_date.add_sibling(_repetition_config.interval_label)
-	_repetition_config.interval_label.add_sibling(_repetition_config.interval)
-
-func remove_repetition_config_children() -> void:
-	remove_child(_repetition_config.starting_date_label)
-	remove_child(_repetition_config.starting_date)
-	remove_child(_repetition_config.interval_label)
-	remove_child(_repetition_config.interval)
+		_repetition_config.remove_children_from_parent()

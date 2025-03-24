@@ -80,6 +80,7 @@ func _init(param: Params) -> void:
   self.parent = param.parent
   self.has_deadline = param.has_deadline
   self.deadline = param.deadline
+  self.repetition_config = param.repetition_config
 
 func complete() -> Result:
   if not completed:
