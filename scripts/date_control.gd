@@ -13,14 +13,20 @@ var day := SpinBox.new()
 
 var date: String:
   get:
-    return str(int(year.value)) + "-" + str(int(month.value)) + "-" + str(int(day.value))
+    var dict := {
+      "year": year.value,
+      "month": month.value,
+      "day": day.value
+    }
+    
+    return Time.get_datetime_string_from_datetime_dict(dict, false)
   set(new_date):
     if new_date.is_empty():
       return
-    var split = new_date.split("-")
-    year.value = split[0].to_int()
-    month.value = split[1].to_int()
-    day.value = split[2].to_int()
+    var dict := Time.get_datetime_dict_from_datetime_string(new_date, false)
+    year.value = dict["year"] as int
+    month.value = dict["month"] as int
+    day.value = dict["day"] as int
 
 func _init() -> void:
   var current_date := Time.get_date_dict_from_system(false)

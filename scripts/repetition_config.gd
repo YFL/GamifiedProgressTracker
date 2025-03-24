@@ -19,6 +19,9 @@ func _init(next_starting_date: String, interval: String, type: String = "Invalid
   self.type = type
   current_starting_date = next_starting_date
 
+func can_contain(repetition_config: RepetitionConfig) -> bool:
+  return repetition_config.type == type
+
 func update_deadline(deadline: String) -> String:
   var deadline_date_time: Dictionary = Time.get_datetime_dict_from_datetime_string(deadline, false)
   var interval_date_time: Dictionary = Time.get_datetime_dict_from_datetime_string(interval, false)
