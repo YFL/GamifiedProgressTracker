@@ -22,12 +22,25 @@ func _init(next_starting_date: String, interval: String, type: String = "Invalid
 func can_contain(repetition_config: RepetitionConfig) -> bool:
   return repetition_config.type == type
 
-func update_deadline(deadline: String) -> String:
-  var deadline_date_time: Dictionary = Time.get_datetime_dict_from_datetime_string(deadline, false)
-  var interval_date_time: Dictionary = Time.get_datetime_dict_from_datetime_string(interval, false)
-  var year := deadline_date_time[year_key] + interval_date_time[year_key] as int
-  var month := deadline_date_time[month_key] + interval_date_time[month_key] as int
-  var day := deadline_date_time[day_key] + interval_date_time[day_key] as int
+## Computes the next starting date and the next deadline
+## deadline is advanced by interval and the result is returned
+func advance_deadline(deadline: String) -> String:
+  var deadline_date_time := Time.get_datetime_dict_from_datetime_string(deadline, false)
+  var interval_date_time := Time.get_datetime_dict_from_datetime_string(interval, false)
+  return Time.get_datetime_string_from_datetime_dict(
+    add_dates(deadline_date_time, interval_date_time), false)
+
+func advance() -> void:
+  var current_starting_date_dict :=\
+    Time.get_datetime_dict_from_datetime_string(current_starting_date, false)
+  var interval_date_time := Time.get_datetime_dict_from_datetime_string(interval, false)
+  next_starting_date = Time.get_datetime_string_from_datetime_dict(
+    add_dates(current_starting_date_dict, interval_date_time), false)
+
+func add_dates(l: Dictionary, r: Dictionary) -> Dictionary:
+  var year := l[year_key] + r[year_key] as int
+  var month := l[month_key] + r[month_key] as int
+  var day := l[day_key] + r[day_key] as int
   if month > Time.MONTH_DECEMBER:
     month -= Time.MONTH_DECEMBER
     year += 1
@@ -41,10 +54,11 @@ func update_deadline(deadline: String) -> String:
   if day > days_in_month:
     day -= days_in_month
     month += 1
-  deadline_date_time[year_key] = year
-  deadline_date_time[month_key] = month
-  deadline_date_time[day_key] = day
-  return Time.get_datetime_string_from_datetime_dict(deadline_date_time, false)
+  return {
+    year: year,
+    month: month,
+    day: day
+  }
 
 func to_dict() -> Dictionary:
   return {

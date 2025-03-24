@@ -86,6 +86,8 @@ func complete() -> Result:
   if not completed:
     completed = true
     done.emit(self)
+    if repetition_config:
+      deadline = repetition_config.advance_deadline(deadline)
     return Result.new(true)
   return Result.new(false, "Taskoid already completed")
 
