@@ -14,7 +14,7 @@ func params_from_config(config: Taskoid.Config) -> Result:
   var parent: Project = projects.get(config.parent)
   if parent != null and not parent.can_fit(config.difficulty):
     return Result.new(null, "Parent " + config.parent + " can't fit task " + config.name)
-  if config.repetition_config:
+  if parent and config.repetition_config:
     if not parent.repetition_config:
       return Result.new(null, "Child is repeatabel, but parent isn't")
     if not parent.repetition_config.can_contain(config.repetition_config):

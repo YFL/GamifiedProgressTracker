@@ -78,6 +78,24 @@ class GameWorldSize extends RefCounted:
     y *= 2
     remainder *= 3
 
+class DrawConfig extends RefCounted:
+  var position := Vector2i(-1, -1)
+  var source_id: int = -1
+  var tile_index := Vector2i(-1, -1)
+
+  func _init(position: Vector2i, source_id: int, tile_index: Vector2i) -> void:
+    self.position = position
+    self.source_id = source_id
+    self.tile_index = tile_index
+
+  static func enemy_config(task: Task, position: Vector2i) -> DrawConfig:
+    return DrawConfig.new(position, enemy_source_id, enemy_tiles[GameWorld.get_enemy_index(task)])
+  
+  static func portal_config(project: Project, position: Vector2i) -> DrawConfig:
+    var portal_tile_index :=\
+      portal_tiles[0] if not project.completed else portal_tiles[1]
+    return DrawConfig.new(position, portal_source_id, portal_tile_index)
+
 var enemies: Dictionary
 var portals: Dictionary
 # 1D array of non-occupied tile coordinates. Will be spliced (as in JS) when a task is added.
@@ -149,11 +167,14 @@ func _ready() -> void:
       draw_grass(Vector2i(x, size.y + 1))
   # We try to draw enemies and portals in case they were added, when this GameWorld wasn't yet ready
   for position: Vector2i in enemies:
-    draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
+    var enemy: Enemy = enemies[position]
+    try_to_draw(enemy.task, DrawConfig.enemy_config(enemy.task, position))
   for position: Vector2i in portals:
+    var portal: Portal = portals[position]
     var portal_tile_index :=\
-      portal_tiles[0] if not portals[position].game_world.project.completed else portal_tiles[1]
-    draw_taskoid(position, portal_source_id, portal_tile_index)
+      portal_tiles[0] if not portal.game_world.project.completed else portal_tiles[1]
+    try_to_draw(portal.game_world.project, DrawConfig.portal_config(portal.game_world.project,
+      position))
 
 func _unhandled_input(event: InputEvent) -> void:
   var mouse_button_pressed := 0
@@ -214,12 +235,28 @@ func _process(delta: float) -> void:
 func display_repeatables() -> void:
   for position in portals:
     var portal: Portal = portals[position]
-    if portal.project.repetition_config.next_starting_date >= Time.get_date_string_from_system():
-      portal.show()
+    var project := portal.game_world.project
+    if not project.repetition_config:
+      continue
+    try_to_draw(project, DrawConfig.portal_config(project, position))
   for position in enemies:
     var enemy: Enemy = enemies[position]
-    if enemy.task.repetition_config.next_starting_date >= Time.get_date_string_from_system():
-      enemy.show()
+    var task: Task = enemy.task
+    if not task.repetition_config:
+      continue
+    try_to_draw(task, DrawConfig.enemy_config(task, position))
+
+func try_to_draw(taskoid: Taskoid, config: DrawConfig) -> void:
+  var should_be_shown := should_be_shown(taskoid)
+  if not should_be_shown:
+    return
+  if taskoid.repetition_config:
+    taskoid.prepare_to_be_shown()
+  draw_taskoid(config)
+    
+func should_be_shown(taskoid: Taskoid) -> bool:
+  return not taskoid.repetition_config or\
+    taskoid.repetition_config.starting_date >= Time.get_date_string_from_system()
 
 func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   var tile_position: Vector2i
@@ -232,7 +269,7 @@ func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   task.done.connect(_on_task_done)
   enemies[tile_position] = Enemy.new(task)
   # We try to draw in case a task is added, when this GameWorld is ready
-  draw_taskoid(tile_position, enemy_source_id, enemy_tiles[get_enemy_index(task)])
+  try_to_draw(task, DrawConfig.enemy_config(task, tile_position))
   add_label_for_taskoid(task, tile_position)
   return true
 
@@ -257,7 +294,7 @@ func add_game_world(child: GameWorld, position = Vector2i(-1, -1)) -> bool:
     tile_position = reserve_random_free_tile()
   children.append(child)
   portals[tile_position] = Portal.new(child)
-  draw_taskoid(tile_position, portal_source_id, portal_tiles[0])
+  try_to_draw(child.project, DrawConfig.portal_config(child.project, tile_position))
   add_label_for_taskoid(child.project, tile_position)
   return true
 
@@ -298,9 +335,9 @@ func reserve_random_free_tile() -> Vector2i:
   free_tiles.erase(free_tile)
   return free_tile
 
-func draw_taskoid(position: Vector2i, source_id: int, tile_index: Vector2i) -> void:
+func draw_taskoid(config: DrawConfig) -> void:
   if tilemap != null:
-    tilemap.set_cell(position, source_id, tile_index)
+    tilemap.set_cell(config.position, config.source_id, config.tile_index)
 
 func draw_grass(position: Vector2i) -> void:
   if tilemap == null:
@@ -337,7 +374,8 @@ func _on_exit_button_pressed() -> void:
       parent.exit_button.show()
 
 func _on_task_done(task: Task) -> void:
-  remove_monster(task)
+  # TODO: replace the texture with a dead texture
+  pass
 
 func _on_project_done(project: Project) -> void:
   mark_portal_done(project)

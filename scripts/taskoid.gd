@@ -91,6 +91,14 @@ func complete() -> Result:
     return Result.new(true)
   return Result.new(false, "Taskoid already completed")
 
+func prepare_to_be_shown() -> void:
+  if completed:
+    completed = false
+  else:
+    # Since the deadline is only updated, if the taskoid was completed, we have to update it here
+    deadline = repetition_config.advance_deadline(deadline)
+  repetition_config.advance()
+
 func config() -> Config:
   return Config.new(name, description, difficulty, (parent.name if parent != null else ""),
     completed, has_deadline, deadline, repetition_config)
