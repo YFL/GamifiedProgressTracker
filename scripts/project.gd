@@ -25,14 +25,8 @@ func add_child_taskoid(taskoid: Taskoid, difficulty: int) -> void:
   if repetition_config:
     taskoid.repetition_config = repetition_config
   if has_deadline and taskoid.has_deadline:
-    var this_dict := Time.get_datetime_dict_from_datetime_string(deadline, false)
-    var child_dict := Time.get_datetime_dict_from_datetime_string(taskoid.deadline, false)
-    if child_dict["year"] > this_dict["year"]:
-      child_dict["year"] = this_dict["year"]
-    if child_dict["month"] > this_dict["month"]:
-      child_dict["month"] = this_dict["month"]
-    if child_dict["day"] > this_dict["day"]:
-      child_dict["day"] = this_dict["day"]
+    if taskoid.deadline.gt(deadline):
+      taskoid.deadline = deadline
 
 func add_task(child: Task) -> void:
   add_child_taskoid(child, child.difficulty)

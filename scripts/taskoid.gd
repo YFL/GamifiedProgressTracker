@@ -8,7 +8,7 @@ var difficulty: int = Difficulty.Invalid
 var parent: Project = null
 var completed: bool = false
 var has_deadline: bool = false
-var deadline: String = ""
+var deadline: Date
 var repetition_config: RepetitionConfig = null
 
 class Params extends RefCounted:
@@ -17,17 +17,17 @@ class Params extends RefCounted:
   var difficulty: int = Difficulty.Invalid
   var parent: Project = null
   var has_deadline: bool = false
-  var deadline: String = ""
+  var deadline: Date
   var repetition_config: RepetitionConfig = null
 
   func _init(name: String, description: String, difficulty: int, parent: Project,
-    has_deadline: bool, deadline: String, repetition_config: RepetitionConfig) -> void:
+    has_deadline: bool, deadline: int, repetition_config: RepetitionConfig) -> void:
     self.name = name
     self.description = description
     self.difficulty = difficulty
     self.parent = parent
     self.has_deadline = has_deadline
-    self.deadline = deadline
+    self.deadline = Date.from_int(deadline)
     self.repetition_config = repetition_config
   
 class Config extends RefCounted:
@@ -47,11 +47,11 @@ class Config extends RefCounted:
   var parent: String = ""
   var completed: bool = false
   var has_deadline: bool = false
-  var deadline: String = ""
+  var deadline: int = 0
   var repetition_config: RepetitionConfig = null
 
   func _init(name: String, description: String, difficulty: int, parent: String, completed: bool,
-    has_deadline: bool, deadline: String, repetition_config: RepetitionConfig) -> void:
+    has_deadline: bool, deadline: int, repetition_config: RepetitionConfig) -> void:
     self.name = name
     self.description = description
     self.difficulty = difficulty
@@ -87,7 +87,7 @@ func complete() -> Result:
     completed = true
     done.emit(self)
     if repetition_config:
-      deadline = repetition_config.advance_deadline(deadline)
+      deadline.add_interval(repetition_config.interval)
     return Result.new(true)
   return Result.new(false, "Taskoid already completed")
 
@@ -96,12 +96,12 @@ func prepare_to_be_shown() -> void:
     completed = false
   else:
     # Since the deadline is only updated, if the taskoid was completed, we have to update it here
-    deadline = repetition_config.advance_deadline(deadline)
+    deadline.add_interval(repetition_config.interval)
   repetition_config.advance()
 
 func config() -> Config:
   return Config.new(name, description, difficulty, (parent.name if parent != null else ""),
-    completed, has_deadline, deadline, repetition_config)
+    completed, has_deadline, deadline.to_int(), repetition_config)
 
 static func config_from_dict(dict: Dictionary) -> Result:
   const name_key = "name"
@@ -146,8 +146,8 @@ static func config_from_dict(dict: Dictionary) -> Result:
   var deadline = dict.get(deadline_key, null)
   if deadline == null:
     return Result.new(null, "Taskoid deadline is missing")
-  if typeof(deadline) != TYPE_STRING:
-    return Result.new(null, "Taskoid deadline is not a string")
+  if typeof(deadline) != TYPE_FLOAT:
+    return Result.new(null, "Taskoid deadline is not a number")
   var repetition_config_res := RepetitionConfig.from_dict(dict.get(Config.repetition_config_key))
   if repetition_config_res.result == null:
     return Result.new(null, "Taskoid repetition config is invalid: " + repetition_config_res.error)

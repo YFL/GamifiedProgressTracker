@@ -11,22 +11,20 @@ var year := SpinBox.new()
 var month := SpinBox.new()
 var day := SpinBox.new()
 
-var date: String:
+var date: Dictionary:
   get:
     var dict := {
-      "year": year.value,
-      "month": month.value,
-      "day": day.value
+      year = year.value,
+      month = month.value,
+      day = day.value
     }
-    
-    return Time.get_datetime_string_from_datetime_dict(dict, false)
+    return dict
   set(new_date):
-    if new_date.is_empty():
+    if not new_date.get("year") or not new_date.get("month") or not new_date.get("day"):
       return
-    var dict := Time.get_datetime_dict_from_datetime_string(new_date, false)
-    year.value = dict["year"] as int
-    month.value = dict["month"] as int
-    day.value = dict["day"] as int
+    year.value = new_date["year"] as int
+    month.value = new_date["month"] as int
+    day.value = new_date["day"] as int
 
 func _init() -> void:
   var current_date := Time.get_date_dict_from_system(false)
