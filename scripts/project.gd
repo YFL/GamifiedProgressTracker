@@ -16,33 +16,37 @@ func _to_string() -> String:
     (parent.name + " " if parent != null else "None ") + " Difficulty: "\
     + Difficulty.difficulty_names[difficulty]
 
-func add_task(child: Task) -> void:
-  if not can_fit(child.difficulty):
+func add_child_taskoid(taskoid: Taskoid, difficulty: int) -> void:
+  if not can_fit(taskoid.difficulty):
     return
-  children.append(child)
-  children_difficulty += child.difficulty
-  add_child_difficulty_to_parent(child.difficulty)
+  children.append(taskoid)
+  children_difficulty += difficulty
+  add_child_difficulty_to_parent(difficulty)
+  if repetition_config:
+    taskoid.repetition_config = repetition_config
+  if has_deadline and taskoid.has_deadline:
+    if taskoid.deadline.gt(deadline):
+      taskoid.deadline = deadline
+
+func add_task(child: Task) -> void:
+  add_child_taskoid(child, child.difficulty)
 
 func add_project(child: Project) -> void:
-  if not can_fit(child.children_difficulty):
+  add_child_taskoid(child, child.children_difficulty)
+
+func remove_child_taskoid(taskoid: Taskoid, difficulty: int) -> void:
+  var index := children.find(taskoid)
+  if index < 0:
     return
-  children.append(child)
-  children_difficulty += child.children_difficulty
-  add_child_difficulty_to_parent(child.children_difficulty)
-  
+  children.remove_at(index)
+  children_difficulty -= difficulty
+  add_child_difficulty_to_parent(-difficulty)
+
 func remove_task(child: Task) -> void:
-  if children.find(child) < 0:
-    return
-  children.erase(child)
-  children_difficulty -= child.difficulty
-  add_child_difficulty_to_parent(-child.difficulty)
+  remove_child_taskoid(child, child.difficulty)
 
 func remove_project(child: Project) -> void:
-  if children.find(child) < 0:
-    return
-  children.erase(child)
-  children_difficulty -= child.children_difficulty
-  add_child_difficulty_to_parent(-child.children_difficulty)
+  remove_child_taskoid(child, child.children_difficulty)
 
 func can_fit(difficulty: int) -> bool:
   if parent != null:
@@ -60,3 +64,8 @@ func complete() -> Result:
     if not child.completed:
       return Result.new(false, child.name + " is not completed yet")
   return super.complete()
+
+func prepare_to_be_repeated() -> void:
+  super.prepare_to_be_repeated()
+  for child in children:
+    child.prepare_to_be_repeated()

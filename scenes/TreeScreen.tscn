@@ -1,26 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://c6c0de1gwfyhb"]
+[gd_scene load_steps=3 format=3 uid="uid://bcpiic13ak3p4"]
 
 [ext_resource type="Script" path="res://scripts/tree_screen.gd" id="1_amr4l"]
-[ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_eoqfu"]
+[ext_resource type="PackedScene" uid="uid://co6iajan8fwid" path="res://scenes/ExitableBase.tscn" id="1_eoqfu"]
 
-[node name="DialogBase" instance=ExtResource("1_eoqfu")]
-custom_minimum_size = Vector2(330, 330)
+[node name="ExitableBase" instance=ExtResource("1_eoqfu")]
 script = ExtResource("1_amr4l")
 
-[node name="GridContainer" parent="." index="0"]
-custom_minimum_size = Vector2(330, 330)
-anchors_preset = 9
-anchor_right = 0.0
-offset_right = 334.0
-grow_horizontal = 1
-
-[node name="Panel" type="Label" parent="GridContainer" index="1"]
-layout_mode = 2
-
-[node name="TaskoidTree" type="Tree" parent="GridContainer" index="2"]
+[node name="TaskoidTree" type="Tree" parent="." index="1"]
 custom_minimum_size = Vector2(300, 300)
 layout_mode = 2
-hide_root = true
-
-[node name="ExitButton" parent="GridContainer" index="3"]
-size_flags_vertical = 0

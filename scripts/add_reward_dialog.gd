@@ -1,4 +1,4 @@
-class_name AddRewardDialog extends DialogBase
+class_name AddRewardDialog extends ExitableBase
 
 signal add_reward(name: String, difficulty: int, tier: Reward.RewardTier)
 

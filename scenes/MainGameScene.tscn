@@ -1,7 +1,6 @@
 [gd_scene load_steps=20 format=3 uid="uid://cr08wdj13xxrb"]
 
 [ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
-[ext_resource type="PackedScene" uid="uid://dlyrwjf4dc6hv" path="res://scenes/AddTaskDialog.tscn" id="2_p6o0e"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://2u7gnl5kcppm" path="res://textures/AddProjectButtonReleased.png" id="3_4mnda"]
 [ext_resource type="Script" path="res://scripts/buttons_panel.gd" id="3_st7qt"]
@@ -12,12 +11,13 @@
 [ext_resource type="PackedScene" uid="uid://dundl6rkjm4pt" path="res://scenes/AddRewardDialog.tscn" id="8_rlr0i"]
 [ext_resource type="Texture2D" uid="uid://dr6b1o5v325wu" path="res://textures/SaveButtonNormal.png" id="9_d1ta8"]
 [ext_resource type="PackedScene" uid="uid://dp86n8gp81qx7" path="res://scenes/GameWorld.tscn" id="9_tpx84"]
-[ext_resource type="PackedScene" uid="uid://bxj232pgccc78" path="res://scenes/AddProjectDialog.tscn" id="9_ugrgd"]
+[ext_resource type="PackedScene" uid="uid://nlaksjsqmx2p" path="res://scenes/AddProjectDialog.tscn" id="9_ugrgd"]
 [ext_resource type="Texture2D" uid="uid://b0cm0t38jauvo" path="res://textures/TreeButtonNormal.png" id="10_2lfer"]
 [ext_resource type="Texture2D" uid="uid://fnr5wey7fufx" path="res://textures/SaveButtonPressed.png" id="10_34gtb"]
 [ext_resource type="Texture2D" uid="uid://bnw8eepe0j7dd" path="res://textures/TreeButtonPressed.png" id="11_8yopn"]
 [ext_resource type="Texture2D" uid="uid://bt0ey2un4oeox" path="res://textures/LoadButtonNormal.png" id="11_skqmj"]
 [ext_resource type="Texture2D" uid="uid://bhfx2sbtatqss" path="res://textures/LoadButtonPressed.png" id="12_jebwc"]
+[ext_resource type="PackedScene" uid="uid://crx7fe414gll0" path="res://scenes/AddTaskDialog.tscn" id="17_ejtvg"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_74g6l"]
 bg_color = Color(0.151276, 0.151276, 0.151276, 1)
@@ -101,13 +101,13 @@ stretch_mode = 0
 visible = false
 offset_left = 774.0
 offset_right = 1094.0
-offset_bottom = 300.0
+offset_bottom = 394.0
 
-[node name="AddTaskDialog" parent="." instance=ExtResource("2_p6o0e")]
+[node name="AddTaskDialog" parent="." instance=ExtResource("17_ejtvg")]
 visible = false
 offset_left = 774.0
 offset_right = 1094.0
-offset_bottom = 300.0
+offset_bottom = 394.0
 
 [node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
 visible = false

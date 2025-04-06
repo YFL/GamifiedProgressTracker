@@ -4,11 +4,11 @@ var parent_project: Project = null
 var project: Project = null
 
 func before() -> void:
-  var params := Taskoid.Params.new("Test", "TestDescription", Difficulty.Majestic, null, false, "")
+  var params := Taskoid.Params.new("Test", "TestDescription", Difficulty.Majestic, null, false, "", null)
   parent_project = Project.new(params)
 
 func test_task_persistence() -> void:
-  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Modest, null, false, "")
+  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Modest, null, false, "", null)
   var task := Task.new(params)
   var json := JSON.stringify(task.config().to_dict())
   var dict: Dictionary = JSON.parse_string(json)
@@ -60,7 +60,7 @@ func test_task_persistence() -> void:
   assert_int(test_task.difficulty).is_equal(task.difficulty)
 
 func test_project_persistence() -> void:
-  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Majestic, null, false, "")
+  var params := Taskoid.Params.new("test", "testDescription", Difficulty.Majestic, null, false, "", null)
   var project := Project.new(params)
   var json := JSON.stringify(project.config().to_dict())
   var dict: Dictionary = JSON.parse_string(json)
@@ -97,7 +97,7 @@ func test_project_persistence() -> void:
   assert_dict(dict).contains_key_value(Taskoid.Config.difficulty_key, float(project.difficulty))
   assert_dict(dict).contains_key_value(Taskoid.Config.parent_name_key, parent_project.name)
   
-  params = Taskoid.Params.new(dict[Taskoid.Config.name_key], dict[Taskoid.Config.description_key], int(dict[Taskoid.Config.difficulty_key]), parent_project, false, "")
+  params = Taskoid.Params.new(dict[Taskoid.Config.name_key], dict[Taskoid.Config.description_key], int(dict[Taskoid.Config.difficulty_key]), parent_project, false, "", null)
   var test_project := Project.new(params)
   assert_str(test_project.name).is_equal(project.name)
   assert_str(test_project.description).is_equal(project.description)

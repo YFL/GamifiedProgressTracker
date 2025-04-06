@@ -11,16 +11,20 @@ var year := SpinBox.new()
 var month := SpinBox.new()
 var day := SpinBox.new()
 
-var date: String:
+var date: Dictionary:
   get:
-    return str(int(year.value)) + "-" + str(int(month.value)) + "-" + str(int(day.value))
+    var dict := {
+      year = year.value,
+      month = month.value,
+      day = day.value
+    }
+    return dict
   set(new_date):
-    if new_date.is_empty():
+    if new_date.get("year") == null or new_date.get("month") == null or new_date.get("day") == null:
       return
-    var split = new_date.split("-")
-    year.value = split[0].to_int()
-    month.value = split[1].to_int()
-    day.value = split[2].to_int()
+    year.value = new_date["year"] as int
+    month.value = new_date["month"] as int
+    day.value = new_date["day"] as int
 
 func _init() -> void:
   var current_date := Time.get_date_dict_from_system(false)

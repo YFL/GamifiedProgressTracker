@@ -1,7 +1,6 @@
-class_name TreeScreen extends DialogBase
+class_name TreeScreen extends ExitableBase
 
-@onready var grid_container: GridContainer = $GridContainer
-@onready var taskoid_tree: Tree = $GridContainer/TaskoidTree
+@onready var taskoid_tree: Tree = $TaskoidTree
 @onready var task_screen: TaskoidScreenBase =\
   preload("res://scenes/TaskoidScreenBase.tscn").instantiate()
 @onready var project_screen: ProjectScreen =\
@@ -14,8 +13,8 @@ func _ready() -> void:
   project_screen.hide()
   add_child(task_screen)
   add_child(project_screen)
-  task_screen.position = Vector2(grid_container.size.x + position.x, 0)
-  project_screen.position = Vector2(grid_container.size.x + position.x, 0)
+  task_screen.position = Vector2(size.x + position.x, 0)
+  project_screen.position = Vector2(size.x + position.x, 0)
   taskoid_tree.button_clicked.connect(handle_button_click)
   var img := texture.get_image()
   img.resize(30, 30)

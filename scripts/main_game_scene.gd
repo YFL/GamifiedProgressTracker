@@ -142,7 +142,7 @@ func load_saved_state(path: String) -> void:
 # dict contains project names as keys and dictionaries as values, each of which represents a project
 ## Loads the tree ABOVE the current project, i.e. only the parents, not the children.
 func load_project_tree(dict: Dictionary, project_name: String) -> bool:
-  var project_dict = dict.get(project_name, null)
+  var project_dict = dict.get(project_name)
   if project_dict == null:
     handle_project_loading_error(project_name,
       "project with the given name doesn't exist in the save")
@@ -150,21 +150,15 @@ func load_project_tree(dict: Dictionary, project_name: String) -> bool:
   if typeof(project_dict) != TYPE_DICTIONARY:
     handle_project_loading_error(project_name, "is not a dictionary")
     return false
-  var parent_name = project_dict.get(Taskoid.Config.parent_name_key, null)
-  if parent_name == null:
-    handle_project_loading_error(project_name, "Parent is missing")
-    return false
-  if typeof(parent_name) != TYPE_STRING:
-    handle_project_loading_error(project_name, "parent name is not a string: " + str(parent_name))
-    return false
-  if not parent_name.is_empty():
-    if not load_project_tree(dict, parent_name):
-      return false
   var res := Taskoid.config_from_dict(project_dict)
   if res.result == null:
     handle_project_loading_error(project_name, res.error)
     return false
   var config: Taskoid.Config = res.result
+  if not config.parent.is_empty():
+    if not taskoid_bank.has_project_name(config.parent):
+      if not load_project_tree(dict, config.parent):
+        return false
   res = load_position_from_dict(project_dict)
   if res.result == null:
     handle_project_loading_error(project_name, res.error)
@@ -176,7 +170,7 @@ func load_project_tree(dict: Dictionary, project_name: String) -> bool:
   return true
 
 func load_projects(saveDict: Dictionary) -> void:
-  var projects = saveDict.get(projects_key, null)
+  var projects = saveDict.get(projects_key)
   if projects == null:
     Globals.show_error_screen(invalid_save_file_msg + "projects key missing")
     reset()
@@ -193,7 +187,7 @@ func load_projects(saveDict: Dictionary) -> void:
       return
 
 func load_tasks(saveDict: Dictionary) -> void:
-  var tasks = saveDict.get(tasks_key, null)
+  var tasks = saveDict.get(tasks_key)
   if tasks == null:
     Globals.show_error_screen(invalid_save_file_msg + "tasks key missing")
     reset()
@@ -203,12 +197,12 @@ func load_tasks(saveDict: Dictionary) -> void:
     reset()
     return
   for task_name in tasks.keys():
-    var task = tasks.get(task_name, null)
+    var task = tasks.get(task_name)
     if typeof(task) != TYPE_DICTIONARY:
       handle_task_loading_error(task_name, "task is not a dictionary")
       return
     var res := Taskoid.config_from_dict(task)
-    if res == null:
+    if res.result == null:
       handle_task_loading_error(task_name, res.error)
       return
     var config: Taskoid.Config = res.result
@@ -222,17 +216,17 @@ func load_tasks(saveDict: Dictionary) -> void:
       taskoid_bank.get_task(task_name).complete()
 
 func load_rewards(dict: Dictionary) -> void:
-  var rewards = dict.get(rewards_key, null)
+  var rewards = dict.get(rewards_key)
   if typeof(rewards) != TYPE_DICTIONARY:
     Globals.show_error_screen(invalid_save_file_msg + "missing rewards key")
     reset()
     return
   for reward_name in rewards.keys():
-    var reward = rewards.get(reward_name, null)
+    var reward = rewards.get(reward_name)
     if typeof(reward) != TYPE_DICTIONARY:
       handle_reward_loading_error(reward_name, "reward is not a dictionary")
       return
-    var reward_name_field_value = reward.get(Reward.name_key, null)
+    var reward_name_field_value = reward.get(Reward.name_key)
     if reward_name_field_value == null:
       handle_reward_loading_error(reward_name, "reward name is missing")
       return
@@ -244,14 +238,14 @@ func load_rewards(dict: Dictionary) -> void:
         "reward name key \"" + reward_name + "\" doesn't equal reward name field value \"" +
         reward_name_field_value + "\".")
       return
-    var reward_difficulty = reward.get(Reward.difficulty_key, null)
+    var reward_difficulty = reward.get(Reward.difficulty_key)
     if reward_difficulty == null:
       handle_reward_loading_error(reward_name, "reward difficulty is missing")
       return
     if typeof(reward_difficulty) != TYPE_FLOAT:
       handle_reward_loading_error(reward_name, "reward difficulty is not a number")
       return
-    var reward_tier = reward.get(Reward.tier_key, null)
+    var reward_tier = reward.get(Reward.tier_key)
     if reward_tier == null:
       handle_reward_loading_error(reward_name, "reward tier is missing")
       return
@@ -261,12 +255,12 @@ func load_rewards(dict: Dictionary) -> void:
     _on_add_reward(reward_name, reward_difficulty, reward_tier)
 
 func load_position_from_dict(dict: Dictionary) -> Result:
-  var position = dict.get(GameWorld.position_key, null)
+  var position = dict.get(GameWorld.position_key)
   if position == null:
-    return Result.new(null, "Position is missing")
+    return Result.Error("Position is missing")
   position = str_to_var("Vector2i" + position)
   if typeof(position) != TYPE_VECTOR2I:
-    return Result.new(null, "Position is not a vector2i")
+    return Result.Error("Position is not a vector2i")
   return Result.new(position)
 
 func reset() -> void:
@@ -282,6 +276,8 @@ func reset() -> void:
     game_world.show()
   taskoid_bank.reset()
   reward_bank.reset()
+  add_project_dialog.clear()
+  add_task_dialog.clear()
 
 func show_project_loading_error(project_name: String, error_msg: String) -> void:
   Globals.show_error_screen(invalid_save_file_msg + "Problem loading project \"" + project_name + "\": " +

@@ -1,0 +1,77 @@
+[gd_scene load_steps=6 format=3 uid="uid://dmfkecm4471su"]
+
+[ext_resource type="PackedScene" uid="uid://bb7k2o1bpnkjr" path="res://scenes/DialogBase.tscn" id="1_1wtfj"]
+[ext_resource type="Script" path="res://scripts/taskoid_dialog_base.gd" id="1_77fqf"]
+[ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="3_r3cyr"]
+[ext_resource type="Script" path="res://scripts/date_control.gd" id="4_q1ht1"]
+[ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="5_4imb3"]
+
+[node name="TaskoidDialogBase" instance=ExtResource("1_1wtfj")]
+script = ExtResource("1_77fqf")
+
+[node name="NameLabel" type="Label" parent="GridContainer" index="0"]
+layout_mode = 2
+text = "Project Name"
+
+[node name="Name" type="TextEdit" parent="GridContainer" index="1"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter the project name"
+indent_wrapped_lines = true
+
+[node name="DescriptionLabel" type="Label" parent="GridContainer" index="2"]
+layout_mode = 2
+text = "Description"
+
+[node name="Description" type="TextEdit" parent="GridContainer" index="3"]
+custom_minimum_size = Vector2(0, 117)
+layout_mode = 2
+placeholder_text = "Description"
+wrap_mode = 1
+
+[node name="DurationLabel" type="Label" parent="GridContainer" index="4"]
+layout_mode = 2
+text = "Duration"
+
+[node name="Duration" parent="GridContainer" index="5" instance=ExtResource("3_r3cyr")]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="HasDeadlineLabel" type="Label" parent="GridContainer" index="6"]
+layout_mode = 2
+text = "Has deadline"
+
+[node name="HasDeadline" type="CheckButton" parent="GridContainer" index="7"]
+layout_mode = 2
+
+[node name="DeadlineLabel" type="Label" parent="GridContainer" index="8"]
+layout_mode = 2
+text = "Deadline"
+
+[node name="Deadline" type="HBoxContainer" parent="GridContainer" index="9"]
+layout_mode = 2
+script = ExtResource("4_q1ht1")
+
+[node name="DoesRepeatLabel" type="Label" parent="GridContainer" index="10"]
+layout_mode = 2
+text = "Does repeat"
+
+[node name="DoesRepeat" type="CheckButton" parent="GridContainer" index="11"]
+layout_mode = 2
+
+[node name="ParentLabel" type="Label" parent="GridContainer" index="12"]
+layout_mode = 2
+text = "Parent"
+
+[node name="Parent" type="OptionButton" parent="GridContainer" index="13"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+script = ExtResource("5_4imb3")
+
+[node name="AddTaskoid" type="Button" parent="GridContainer" index="14"]
+layout_mode = 2
+text = "Add Taskoid"
+
+[connection signal="toggled" from="GridContainer/HasDeadline" to="." method="_on_has_deadline_toggled"]
+[connection signal="toggled" from="GridContainer/DoesRepeat" to="." method="_on_does_repeat_toggled"]

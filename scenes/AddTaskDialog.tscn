@@ -1,14 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://dlyrwjf4dc6hv"]
+[gd_scene load_steps=3 format=3 uid="uid://crx7fe414gll0"]
 
-[ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_sgxs1"]
-[ext_resource type="Script" path="res://scripts/add_task_dialog.gd" id="2_0dg2u"]
+[ext_resource type="PackedScene" uid="uid://dmfkecm4471su" path="res://scenes/TaskoidDialogBase.tscn" id="1_1kbr6"]
+[ext_resource type="Script" path="res://scripts/add_task_dialog.gd" id="2_1bb3c"]
 
-[node name="AddTaskDialog" instance=ExtResource("1_sgxs1")]
-custom_minimum_size = Vector2(320, 360)
-script = ExtResource("2_0dg2u")
+[node name="AddTaskDialog" instance=ExtResource("1_1kbr6")]
+script = ExtResource("2_1bb3c")
 
-[node name="NameLabel" parent="GridContainer" index="2"]
+[node name="NameLabel" parent="GridContainer" index="0"]
 text = "Task Name"
+
+[node name="DurationLabel" parent="GridContainer" index="4"]
+text = "Difficulty"
 
 [node name="AddTaskoid" parent="GridContainer" index="14"]
 text = "Add Task"

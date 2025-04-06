@@ -24,6 +24,7 @@ const difficulty_to_enemy_index := {
   Difficulty.Supreme: 3,
   Difficulty.Transcendent: 3
 }
+const repeatable_check_interval := 5.0 # 24 * 60 * 60.0
 
 const position_key := "position"
 
@@ -31,57 +32,29 @@ const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 const TaskScreenScene := preload("res://scenes/TaskoidScreenBase.tscn")
 const ProjectScreenScene := preload("res://scenes/ProjectScreen.tscn")
 
-class Enemy extends RefCounted:
-  var task: Task
+class DrawConfig extends RefCounted:
+  var source_id: int = -1
+  var tile_index := Vector2i(-1, -1)
+  var position := Vector2i(-1, -1)
 
-  func _init(task: Task):
-    self.task = task
+  func _init(position: Vector2i, source_id: int, tile_index: Vector2i) -> void:
+    self.position = position
+    self.source_id = source_id
+    self.tile_index = tile_index
 
-class Portal extends RefCounted:
-  var game_world: GameWorld
+  static func enemy_config(task: Task, position: Vector2i) -> DrawConfig:
+    return DrawConfig.new(position, enemy_source_id, enemy_tiles[GameWorld.get_enemy_index(task)])
 
-  func _init(game_world: GameWorld):
-    self.game_world = game_world
-
-class GameWorldSize extends RefCounted:
-  var x := 0
-  var y := 0
-  var remainder := 0
-
-  func _init(difficulty: int):
-    difficulty = difficulty / Difficulty.Modest
-    var square := int(sqrt(difficulty))
-    var best_difficulty_diff := difficulty - square * square
-    var best_dimension_diff := square - (difficulty - square)
-    if best_dimension_diff < 0:
-      best_dimension_diff *= -1
-    for width in range(square, difficulty + 1):
-      var height := difficulty / width
-      var diff := difficulty - width * height
-      var dimension_diff := width - height
-      if dimension_diff < 0:
-        dimension_diff *= -1
-      if diff <= best_difficulty_diff and dimension_diff <= best_dimension_diff:
-        x = width
-        y = height
-        best_difficulty_diff = diff
-      if diff == 0:
-        break
-    if x < y:
-      var tmp := x;
-      x = y
-      y = tmp
-    if difficulty != x * y:
-      remainder = difficulty - x * y
-    x *= 3
-    y *= 2
-    remainder *= 3
+  static func portal_config(project: Project, position: Vector2i) -> DrawConfig:
+    var portal_tile_index :=\
+      portal_tiles[0] if not project.completed else portal_tiles[1]
+    return DrawConfig.new(position, portal_source_id, portal_tile_index)
 
 var enemies: Dictionary
 var portals: Dictionary
 # 1D array of non-occupied tile coordinates. Will be spliced (as in JS) when a task is added.
 var free_tiles: Array[Vector2i] = []
-var children: Array[GameWorld] = []
+var children: Dictionary
 var parent: GameWorld = null
 var project: Project = null
 var selected_child: GameWorld = null
@@ -100,6 +73,7 @@ var size: GameWorldSize:
       free_tiles.append(Vector2i(x + 1, size.y))
 var task_screen: TaskoidScreenBase = null
 var project_screen: ProjectScreen = null
+var time_since_last_repeatable_check := repeatable_check_interval
 
 static func new_game_world(project: Project, parent: GameWorld = null, position = Vector2i(-1, -1)) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
@@ -111,7 +85,7 @@ static func new_game_world(project: Project, parent: GameWorld = null, position 
   if parent != null:
     if not parent.add_game_world(instance, position):
       instance.queue_free()
-      return Result.new(null, "Couldn't add new game world to parent")
+      return Result.Error("Couldn't add new game world to parent")
   return Result.new(instance)
 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
@@ -122,6 +96,11 @@ static func pixel_position_to_tile_position(pixel_position: Vector2) -> Vector2i
 
 static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
+
+static func create_entity(taskoid: Taskoid) -> Entity:
+  if taskoid.repetition_config:
+    return RevivingEntity.new(taskoid)
+  return MortalEntity.new(taskoid)
 
 func _init(size := GameWorldSize.new(300)) -> void:
   self.size = size
@@ -147,11 +126,11 @@ func _ready() -> void:
       draw_grass(Vector2i(x, size.y + 1))
   # We try to draw enemies and portals in case they were added, when this GameWorld wasn't yet ready
   for position: Vector2i in enemies:
-    draw_taskoid(position, enemy_source_id, enemy_tiles[get_enemy_index(enemies[position].task)])
+    var enemy: Entity = enemies[position]
+    try_to_draw(enemy, DrawConfig.enemy_config(enemy.taskoid, position))
   for position: Vector2i in portals:
-    var portal_tile_index :=\
-      portal_tiles[0] if portals[position].game_world.project.completed else portal_tiles[1]
-    draw_taskoid(position, portal_source_id, portal_tile_index)
+    var portal: Entity = portals[position]
+    try_to_draw(portal, DrawConfig.portal_config(portal.taskoid, position))
 
 func _unhandled_input(event: InputEvent) -> void:
   var mouse_button_pressed := 0
@@ -173,8 +152,6 @@ func _unhandled_input(event: InputEvent) -> void:
     # Left click, show Taskoid Screen
     if not notify:
       var screen_size := task_screen.size if is_enemy else project_screen.size
-      print("size.x * tile_size.x - task_screen.size.x: ", size.x * tile_size.x - screen_size.x)
-      print("get_local_mouse_position().x - task_screen.size.x / 2: ", get_local_mouse_position().x - screen_size.x / 2)
       var screen_position := Vector2i(
           max(
             0,
@@ -186,44 +163,64 @@ func _unhandled_input(event: InputEvent) -> void:
             min(
               size.y * tile_size.y - screen_size.y,
               get_local_mouse_position().y - screen_size.y / 2)))
-      print("screen_position: ", screen_position)
       if is_enemy:
         task_screen.position = screen_position
-        var task: Task = enemies[tile_position].task
-        task_screen.set_taskoid(task)
+        task_screen.set_taskoid(enemies[tile_position].taskoid)
         task_screen.show()
       elif is_portal:
         project_screen.position = screen_position
-        project_screen.set_taskoid(portals[tile_position].game_world.project)
+        project_screen.set_taskoid(portals[tile_position].taskoid)
         project_screen.show()
 
 func _notification(what: int) -> void:
   if what == NOTIFICATION_PREDELETE:
-    for child: GameWorld in children:
-      child.queue_free()
+    for position: Vector2i in children:
+      children[position].queue_free()
     task_screen.queue_free()
     project_screen.queue_free()
 
+func _process(delta: float) -> void:
+  time_since_last_repeatable_check += delta
+  if time_since_last_repeatable_check >= repeatable_check_interval:
+    display_repeatables()
+    time_since_last_repeatable_check = 0
+
+func display_repeatables() -> void:
+  for position in portals:
+    var portal: Entity = portals[position]
+    if not portal is RevivingEntity:
+      continue
+    try_to_draw(portal, DrawConfig.portal_config(portal.taskoid, position))
+  for position in enemies:
+    var enemy: Entity = enemies[position]
+    if not enemy is RevivingEntity:
+      continue
+    try_to_draw(enemy, DrawConfig.enemy_config(enemy.taskoid, position))
+
+func try_to_draw(entity: Entity, config: DrawConfig) -> void:
+  if not entity.should_be_drawn():
+    return
+  draw_taskoid(config)
+  entity.on_draw()
+
 func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   var tile_position: Vector2i
-  if position != Vector2i(-1, -1):
-    tile_position = position
-  elif free_tiles.is_empty():
+  if free_tiles.is_empty():
     return false
+  elif position != Vector2i(-1, -1):
+    tile_position = position
   else:
     tile_position = reserve_random_free_tile()
   task.done.connect(_on_task_done)
-  enemies[tile_position] = Enemy.new(task)
+  enemies[tile_position] = create_entity(task)
   # We try to draw in case a task is added, when this GameWorld is ready
-  draw_taskoid(tile_position, enemy_source_id, enemy_tiles[get_enemy_index(task)])
+  try_to_draw(enemies[tile_position], DrawConfig.enemy_config(task, tile_position))
   add_label_for_taskoid(task, tile_position)
   return true
 
 func remove_monster(task: Task) -> bool:
-  if enemies.is_empty():
-    return false;
   for position: Vector2i in enemies:
-    if enemies[position].task == task:
+    if enemies[position].taskoid == task:
       free_tiles.append(position)
       enemies.erase(position)
       draw_grass(position)
@@ -232,23 +229,21 @@ func remove_monster(task: Task) -> bool:
 
 func add_game_world(child: GameWorld, position = Vector2i(-1, -1)) -> bool:
   var tile_position: Vector2i
-  if position != Vector2i(-1, -1):
-    tile_position = position
-  elif free_tiles.is_empty():
+  if free_tiles.is_empty():
     return false
+  elif position != Vector2i(-1, -1):
+    tile_position = position
   else:
     tile_position = reserve_random_free_tile()
-  children.append(child)
-  portals[tile_position] = Portal.new(child)
-  draw_taskoid(tile_position, portal_source_id, portal_tiles[0])
+  children[tile_position] = child
+  portals[tile_position] = create_entity(child.project)
+  try_to_draw(portals[tile_position], DrawConfig.portal_config(child.project, tile_position))
   add_label_for_taskoid(child.project, tile_position)
   return true
 
 func remove_game_world(child: GameWorld) -> void:
-  if portals.is_empty():
-    return
-  for position: Vector2i in portals:
-    if portals[position].game_world == child:
+  for position: Vector2i in children:
+    if children[position] == child:
       free_tiles.append(position)
       portals.erase(position)
       draw_grass(position)
@@ -259,21 +254,22 @@ func mark_portal_done(project: Project) -> void:
   if portals.is_empty():
     return
   for position: Vector2i in portals:
-    if portals[position].game_world.project == project:
+    if portals[position].taskoid == project:
       tilemap.set_cell(position, portal_source_id, portal_tiles[1])
 
 func find_game_world(project: Project) -> GameWorld:
   if self.project == project:
     return self
-  for child: GameWorld in children:
+  for position: Vector2i in children:
+    var child: GameWorld = children[position]
     if child.project == project:
       return child
     
-  for child: GameWorld in children:
+  for position: Vector2i in children:
+    var child: GameWorld = children[position]
     var found := child.find_game_world(project)
     if found != null:
       return found
-    
   return null
 
 func reserve_random_free_tile() -> Vector2i:
@@ -281,9 +277,9 @@ func reserve_random_free_tile() -> Vector2i:
   free_tiles.erase(free_tile)
   return free_tile
 
-func draw_taskoid(position: Vector2i, source_id: int, tile_index: Vector2i) -> void:
+func draw_taskoid(config: DrawConfig) -> void:
   if tilemap != null:
-    tilemap.set_cell(position, source_id, tile_index)
+    tilemap.set_cell(config.position, config.source_id, config.tile_index)
 
 func draw_grass(position: Vector2i) -> void:
   if tilemap == null:
@@ -296,18 +292,17 @@ func _on_character_arrived(at: Vector2) -> void:
   var tile_position := pixel_position_to_tile_position(at)
   var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
   if portals.has(tile_position):
-    var portal: Portal = portals[tile_position]
     if selected_child != null:
       remove_child(selected_child)
-    add_child(portal.game_world)
-    selected_child = portal.game_world
+    selected_child = children[tile_position]
+    add_child(selected_child)
     selected_child.show()
     tilemap.hide()
     character.hide()
     exit_button.hide()
   elif enemies.has(enemy_tile_pos):
-    var enemy: Enemy = enemies[enemy_tile_pos]
-    enemy.task.complete()
+    var enemy: Entity = enemies[enemy_tile_pos]
+    enemy.taskoid.complete()
 
 func _on_exit_button_pressed() -> void:
   hide()
@@ -320,7 +315,8 @@ func _on_exit_button_pressed() -> void:
       parent.exit_button.show()
 
 func _on_task_done(task: Task) -> void:
-  remove_monster(task)
+  # TODO: replace the texture with a dead texture
+  pass
 
 func _on_project_done(project: Project) -> void:
   mark_portal_done(project)
@@ -343,16 +339,17 @@ func to_dict() -> Dictionary:
   dict[MainGameScene.tasks_key] = {}
   dict[MainGameScene.projects_key] = {}
   for position in enemies:
-    var monster: Enemy = enemies[position]
-    var monster_dict: Dictionary = monster.task.config().to_dict()
+    var monster: Entity = enemies[position]
+    var monster_dict: Dictionary = monster.taskoid.config().to_dict()
     monster_dict[position_key] = position
-    dict[MainGameScene.tasks_key][monster.task.name] = monster_dict
+    dict[MainGameScene.tasks_key][monster.taskoid.name] = monster_dict
   for position in portals:
-    var portal: Portal = portals[position]
-    var portal_dict: Dictionary = portal.game_world.project.config().to_dict()
+    var portal: Entity = portals[position]
+    var portal_dict: Dictionary = portal.taskoid.config().to_dict()
     portal_dict[position_key] = position
-    dict[MainGameScene.projects_key][portal.game_world.project.name] = portal_dict
-  for child in children:
+    dict[MainGameScene.projects_key][portal.taskoid.name] = portal_dict
+  for position in children:
+    var child: GameWorld = children[position]
     var child_dict: Dictionary = child.to_dict()
     dict[MainGameScene.tasks_key].merge(child_dict[MainGameScene.tasks_key])
     dict[MainGameScene.projects_key].merge(child_dict[MainGameScene.projects_key])

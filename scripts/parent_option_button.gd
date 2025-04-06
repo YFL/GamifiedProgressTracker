@@ -35,3 +35,6 @@ func sort_parents() -> void:
   for project: String in sorted:
     add_item(project)
  
+func clear_added():
+  clear()
+  add_item("None")

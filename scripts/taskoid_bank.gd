@@ -10,16 +10,21 @@ var tasks: Dictionary
 
 func params_from_config(config: Taskoid.Config) -> Result:
   if not config.parent.is_empty() and not projects.has(config.parent):
-    return Result.new(null, "Parent with name " + config.parent + " doesn't exist")
+    return Result.Error("Parent with name " + config.parent + " doesn't exist")
   var parent: Project = projects.get(config.parent)
   if parent != null and not parent.can_fit(config.difficulty):
-    return Result.new(null, "Parent " + config.parent + " can't fit task " + config.name)
+    return Result.Error("Parent " + config.parent + " can't fit task " + config.name)
+  if parent and config.repetition_config:
+    if not parent.repetition_config:
+      return Result.Error("Child is repeatabel, but parent isn't")
+    if not parent.repetition_config.can_contain(config.repetition_config):
+      return Result.Error("The child's repetition type is not the same as the parent's")
   return Result.new(Taskoid.Params.new(config.name, config.description, config.difficulty,
-    parent, config.has_deadline, config.deadline))
+    parent, config.has_deadline, config.deadline, config.repetition_config))
 
 func create_project(config: Taskoid.Config) -> Result:
   if projects.has(config.name):
-    return Result.new(null, "Project with name " + config.name + " already exists")
+    return Result.Error("Project with name " + config.name + " already exists")
   var res := params_from_config(config)
   if res.result == null:
     return res
@@ -31,7 +36,7 @@ func create_project(config: Taskoid.Config) -> Result:
 
 func create_task(config: Taskoid.Config) -> Result:
   if tasks.has(config.name):
-    return Result.new(null, "Task with name" + config.name + " already exists")
+    return Result.Error("Task with name" + config.name + " already exists")
   var res := params_from_config(config)
   if res.result == null:
     return res
