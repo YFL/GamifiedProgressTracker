@@ -1,5 +1,7 @@
 class_name GameWorld extends Node2D
 
+signal open_game_world(game_world: GameWorld)
+
 @onready var tilemap: TileMapLayer = $TileMapLayer
 @onready var tileset: TileSet = tilemap.tile_set
 @onready var character: Character = $Character
@@ -57,7 +59,6 @@ var free_tiles: Array[Vector2i] = []
 var children: Dictionary
 var parent: GameWorld = null
 var project: Project = null
-var selected_child: GameWorld = null
 var size: GameWorldSize:
   set(new_size):
     size = new_size
@@ -65,7 +66,6 @@ var size: GameWorldSize:
     portals.clear()
     free_tiles.clear()
     children.clear()
-    selected_child = null
     for x in range(0, size.x, 3):
       for y in range(0, size.y, 2):
         free_tiles.append(Vector2i(x + 1, y))
@@ -292,27 +292,16 @@ func _on_character_arrived(at: Vector2) -> void:
   var tile_position := pixel_position_to_tile_position(at)
   var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
   if portals.has(tile_position):
-    if selected_child != null:
-      remove_child(selected_child)
-    selected_child = children[tile_position]
-    add_child(selected_child)
-    selected_child.show()
-    tilemap.hide()
-    character.hide()
-    exit_button.hide()
+    open_game_world.emit(children[tile_position])
   elif enemies.has(enemy_tile_pos):
     var enemy: Entity = enemies[enemy_tile_pos]
     enemy.taskoid.complete()
 
 func _on_exit_button_pressed() -> void:
-  hide()
   if parent != null:
-    parent.remove_child(self)
-    parent.selected_child = null
-    parent.tilemap.show()
-    parent.character.show()
-    if parent.parent != null:
-      parent.exit_button.show()
+    open_game_world.emit(parent)
+  else:
+    Globals.show_error_screen("Exit button pressed on game world, that doesn't have parent")
 
 func _on_task_done(task: Task) -> void:
   # TODO: replace the texture with a dead texture

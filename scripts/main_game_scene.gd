@@ -6,10 +6,13 @@ const projects_key := "projects"
 
 const invalid_save_file_msg := "Invalid save file: "
 
-var taskoid_bank := TaskoidBank.new()
-var reward_bank := RewardBank.new() 
+const GameWorldScene := preload("res://scenes/GameWorld.tscn")
 
-@onready var game_world: GameWorld = $GameWorld
+var taskoid_bank := TaskoidBank.new()
+var reward_bank := RewardBank.new()
+var game_world: GameWorld = GameWorldScene.instantiate()
+
+@onready var game_world_display: GameWorldDisplay = $GameWorldDisplay
 @onready var add_task_dialog: AddTaskDialog = $AddTaskDialog
 @onready var add_reward_dialog: AddRewardDialog = $AddRewardDialog
 @onready var add_project_dialog: AddProjectDialog = $AddProjectDialog
@@ -33,6 +36,8 @@ func _ready() -> void:
   reward_screen.hide()
   taskoid_tree.hide()
   Globals.error_screen.hide()
+  game_world_display.set_game_world(game_world)
+  game_world.open_game_world.connect(game_world_display.set_game_world)
 
 func _unhandled_input(event: InputEvent) -> void:
   if event is InputEventMouseMotion:
@@ -72,6 +77,9 @@ func _on_add_project(config: Taskoid.Config, position = Vector2i(-1, -1)) -> voi
     return
   project.done.connect(_on_task_done)
   project.done.connect(game_world_for_taskoid._on_project_done)
+  var gw := result.result as GameWorld
+  if gw.open_game_world.connect(game_world_display.set_game_world) != 0:
+    Globals.show_error_screen("Couldn't connect open_game_world to game_world_display.set_game_world")
 
 func _on_task_done(task: Taskoid) -> void:
   var difficulty: int
@@ -264,15 +272,13 @@ func load_position_from_dict(dict: Dictionary) -> Result:
   return Result.new(position)
 
 func reset() -> void:
-  remove_child(game_world)
   game_world.queue_free()
   var result := GameWorld.new_game_world(null, null)
   if not result.error.is_empty():
     Globals.show_error_screen("Couldn't create new game world: "  + result.error)
   else:
     game_world = result.result
-    add_child(game_world)
-    move_child(game_world, 0)
+    game_world_display.set_game_world(game_world)
     game_world.show()
   taskoid_bank.reset()
   reward_bank.reset()
