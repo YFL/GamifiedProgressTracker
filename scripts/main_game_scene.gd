@@ -279,6 +279,7 @@ func reset() -> void:
   else:
     game_world = result.result
     game_world_display.set_game_world(game_world)
+    game_world.open_game_world.connect(game_world_display.set_game_world)
     game_world.show()
   taskoid_bank.reset()
   reward_bank.reset()

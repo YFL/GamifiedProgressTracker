@@ -8,7 +8,15 @@ var starting_date: Date
 var interval: Date
 var type: String = "Invalid"
 
+## """
+## Returns a repetition config in the result, if the operation was successfull AND a non empty
+## repetition config was found.
+## Returns null and an empty error message if an empty repetition config was found.
+## Returns null and a non empty error message if an invalid repetition config was found.
+## """
 static func from_dict(dict: Dictionary) -> Result:
+  if not dict.size():
+    return Result.new(null)
   var type = dict.get(type_key)
   if type == null:
     return Result.Error("Type missing")

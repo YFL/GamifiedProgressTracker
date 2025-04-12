@@ -70,7 +70,7 @@ class Config extends RefCounted:
       completed_key: completed,
       has_deadline_key: has_deadline,
       deadline_key: deadline.to_dict(),
-      repetition_config_key: repetition_config.to_dict()
+      repetition_config_key: repetition_config.to_dict() if repetition_config else {}
     }
 
 func _init(param: Params) -> void:
@@ -147,7 +147,7 @@ static func config_from_dict(dict: Dictionary) -> Result:
   if deadline_res.result == null:
     return Result.Error("Taskoid deadline is invalid: " + deadline_res.error)
   var repetition_config_res := RepetitionConfig.from_dict(dict.get(Config.repetition_config_key, {}))
-  if repetition_config_res.result == null:
+  if repetition_config_res.result == null and not repetition_config_res.error.is_empty():
     return Result.Error("Taskoid repetition config is invalid: " + repetition_config_res.error)
   return Result.new(Config.new(name, description, difficulty, parent, completed, has_deadline,
     deadline_res.result, repetition_config_res.result))
