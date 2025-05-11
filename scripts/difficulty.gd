@@ -1,6 +1,6 @@
 class_name Difficulty extends Node
 
-# The assigned values have days as unit
+# The assigned values have minutes as unit
 const Invalid := 0
 const Modest := 10
 const NoteWorthy := 6 * Modest
@@ -72,3 +72,15 @@ static func categorize_difficulty(combined_difficulty: int) -> int:
       return NoteWorthy
     _:
       return Modest
+
+static func highest_task_difficulty() -> int:
+  return Heroic
+
+static func lowest_project_difficulty() -> int:
+  return Heroic
+
+static func is_task_difficulty(difficulty: int) -> bool:
+  return difficulty <= highest_task_difficulty()
+
+static func is_project_difficulty(difficulty: int) -> bool:
+  return difficulty >= lowest_project_difficulty()

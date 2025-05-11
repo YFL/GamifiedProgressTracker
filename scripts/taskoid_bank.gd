@@ -25,6 +25,8 @@ func params_from_config(config: Taskoid.Config) -> Result:
 func create_project(config: Taskoid.Config) -> Result:
   if projects.has(config.name):
     return Result.Error("Project with name " + config.name + " already exists")
+  if config.difficulty < Difficulty.lowest_project_difficulty():
+    return Result.Error("Project difficulty is too low")
   var res := params_from_config(config)
   if res.result == null:
     return res
@@ -37,6 +39,8 @@ func create_project(config: Taskoid.Config) -> Result:
 func create_task(config: Taskoid.Config) -> Result:
   if tasks.has(config.name):
     return Result.Error("Task with name" + config.name + " already exists")
+  if config.difficulty > Difficulty.highest_task_difficulty():
+    return Result.Error("Task difficulty is too high")
   var res := params_from_config(config)
   if res.result == null:
     return res

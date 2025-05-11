@@ -5,8 +5,6 @@ var children: Array[Taskoid] = []
 var children_difficulty: int = Difficulty.Invalid
 
 func _init(params: Taskoid.Params) -> void:
-  if params.difficulty < Difficulty.NoteWorthy:
-    return
   super._init(params)
   if parent != null:
     parent.add_project(self)

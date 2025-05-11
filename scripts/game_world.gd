@@ -8,7 +8,8 @@ signal open_game_world(game_world: GameWorld)
 @onready var exit_button: TextureButton = $ExitButton
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
-const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1)]
+const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1),
+  Vector2i(2, 0)]
 const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const grass_source_id := 0
 const enemy_source_id := 1
@@ -19,12 +20,7 @@ const difficulty_to_enemy_index := {
   Difficulty.NoteWorthy: 1,
   Difficulty.Commendable: 2,
   Difficulty.Glorious: 3,
-  Difficulty.Heroic: 3,
-  Difficulty.Majestic: 3,
-  Difficulty.Legendary: 3,
-  Difficulty.Imperial: 3,
-  Difficulty.Supreme: 3,
-  Difficulty.Transcendent: 3
+  Difficulty.Heroic: 4,
 }
 const repeatable_check_interval := 5.0 # 24 * 60 * 60.0
 
