@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://rvpj7lptn5wc"]
 
-[ext_resource type="Script" path="res://scripts/task_list_item.gd" id="1_f6u45"]
+[ext_resource type="Script" uid="uid://wdt1ttax5eqi" path="res://scripts/task_list_item.gd" id="1_f6u45"]
 
 [node name="TaskListItem" type="Control"]
 custom_minimum_size = Vector2(0, 30)

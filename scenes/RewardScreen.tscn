@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bw8jb3kr0leq8" path="res://textures/RewardScreenBackgroung.png" id="1_snb4y"]
 [ext_resource type="Texture2D" uid="uid://psdxsb6th3yj" path="res://textures/CloseButtonPressed.png" id="2_8om0x"]
 [ext_resource type="Texture2D" uid="uid://cgj5p86aayhw0" path="res://textures/Sprinkles.png" id="2_bsuf4"]
-[ext_resource type="Script" path="res://scripts/reward_screen.gd" id="2_g3bmh"]
+[ext_resource type="Script" uid="uid://bawiab3s2onk1" path="res://scripts/reward_screen.gd" id="2_g3bmh"]
 
 [sub_resource type="SystemFont" id="SystemFont_d7od3"]
 font_names = PackedStringArray("AniMe Matrix - MB_EN")

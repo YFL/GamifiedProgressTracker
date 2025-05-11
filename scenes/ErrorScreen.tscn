@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://dtslh2ldmg25y"]
 
-[ext_resource type="Script" path="res://scripts/error_screen.gd" id="1_i5aqt"]
+[ext_resource type="Script" uid="uid://bwi21th4jyojt" path="res://scripts/error_screen.gd" id="1_i5aqt"]
 [ext_resource type="Texture2D" uid="uid://bw8jb3kr0leq8" path="res://textures/RewardScreenBackgroung.png" id="1_xdfoe"]
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_ybr4j"]
 

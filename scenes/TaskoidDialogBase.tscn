@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://dmfkecm4471su"]
 
 [ext_resource type="PackedScene" uid="uid://bb7k2o1bpnkjr" path="res://scenes/DialogBase.tscn" id="1_1wtfj"]
-[ext_resource type="Script" path="res://scripts/taskoid_dialog_base.gd" id="1_77fqf"]
+[ext_resource type="Script" uid="uid://wnwf707d7t1m" path="res://scripts/taskoid_dialog_base.gd" id="1_77fqf"]
 [ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="3_r3cyr"]
-[ext_resource type="Script" path="res://scripts/date_control.gd" id="4_q1ht1"]
-[ext_resource type="Script" path="res://scripts/parent_option_button.gd" id="5_4imb3"]
+[ext_resource type="Script" uid="uid://cljjr7s3gdrvp" path="res://scripts/date_control.gd" id="4_q1ht1"]
+[ext_resource type="Script" uid="uid://bvi53prr0go7x" path="res://scripts/parent_option_button.gd" id="5_4imb3"]
 
 [node name="TaskoidDialogBase" instance=ExtResource("1_1wtfj")]
 script = ExtResource("1_77fqf")

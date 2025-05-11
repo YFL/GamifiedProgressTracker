@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dundl6rkjm4pt"]
 
-[ext_resource type="PackedScene" uid="uid://dnottbyt4xod3" path="res://scenes/DialogBase.tscn" id="1_ahmdf"]
-[ext_resource type="Script" path="res://scripts/add_reward_dialog.gd" id="2_1nrpb"]
+[ext_resource type="PackedScene" uid="uid://bb7k2o1bpnkjr" path="res://scenes/DialogBase.tscn" id="1_ahmdf"]
+[ext_resource type="Script" uid="uid://c8x2wjftktjt" path="res://scripts/add_reward_dialog.gd" id="2_1nrpb"]
 [ext_resource type="PackedScene" uid="uid://c2hptndeeh8a2" path="res://scenes/DifficultyOptionButton.tscn" id="2_d1uip"]
 
 [node name="AddRewardDialog" instance=ExtResource("1_ahmdf")]

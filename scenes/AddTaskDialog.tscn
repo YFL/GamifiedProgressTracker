@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://crx7fe414gll0"]
 
 [ext_resource type="PackedScene" uid="uid://dmfkecm4471su" path="res://scenes/TaskoidDialogBase.tscn" id="1_1kbr6"]
-[ext_resource type="Script" path="res://scripts/add_task_dialog.gd" id="2_1bb3c"]
+[ext_resource type="Script" uid="uid://bwxsmgt7gc4tt" path="res://scripts/add_task_dialog.gd" id="2_1bb3c"]
 
 [node name="AddTaskDialog" instance=ExtResource("1_1kbr6")]
 script = ExtResource("2_1bb3c")

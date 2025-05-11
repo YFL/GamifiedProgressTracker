@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ocn7ukiasv8a"]
 
-[ext_resource type="Script" path="res://scripts/tasks.gd" id="1_8uk6y"]
+[ext_resource type="Script" uid="uid://bg0dy23x18eek" path="res://scripts/tasks.gd" id="1_8uk6y"]
 
 [node name="Tasks" type="ScrollContainer"]
 offset_right = 191.0

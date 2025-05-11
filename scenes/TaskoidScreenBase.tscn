@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://bm8crogl1dr7w"]
 
-[ext_resource type="Script" path="res://scripts/taskoid_screen_base.gd" id="1_h7be5"]
+[ext_resource type="Script" uid="uid://ibdv421gx00b" path="res://scripts/taskoid_screen_base.gd" id="1_h7be5"]
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_nfyx4"]
-[ext_resource type="Script" path="res://scripts/date_control.gd" id="2_k6cl3"]
+[ext_resource type="Script" uid="uid://cljjr7s3gdrvp" path="res://scripts/date_control.gd" id="2_k6cl3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3yq0x"]
 bg_color = Color(0.6, 0.6, 0.6, 0)

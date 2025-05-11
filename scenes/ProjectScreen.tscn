@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b5a2dmcnrqk5h"]
 
 [ext_resource type="PackedScene" uid="uid://bm8crogl1dr7w" path="res://scenes/TaskoidScreenBase.tscn" id="1_8i8ye"]
-[ext_resource type="Script" path="res://scripts/project_screen.gd" id="1_g2cm7"]
+[ext_resource type="Script" uid="uid://s3thraverajx" path="res://scripts/project_screen.gd" id="1_g2cm7"]
 
 [node name="ProjectScreen" instance=ExtResource("1_8i8ye")]
 script = ExtResource("1_g2cm7")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://co6iajan8fwid"]
 
-[ext_resource type="Script" path="res://scripts/exitable_base.gd" id="1_ip0pi"]
+[ext_resource type="Script" uid="uid://decw1w7omk5xv" path="res://scripts/exitable_base.gd" id="1_ip0pi"]
 [ext_resource type="PackedScene" uid="uid://fmn3suf3xtpq" path="res://scenes/ExitButton.tscn" id="1_kofeb"]
 
 [node name="ExitableBase" type="VBoxContainer"]

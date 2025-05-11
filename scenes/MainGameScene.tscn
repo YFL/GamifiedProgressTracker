@@ -1,10 +1,10 @@
 [gd_scene load_steps=20 format=3 uid="uid://cr08wdj13xxrb"]
 
-[ext_resource type="Script" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
+[ext_resource type="Script" uid="uid://dqvx3723sjpy3" path="res://scripts/main_game_scene.gd" id="1_ta6kl"]
 [ext_resource type="PackedScene" uid="uid://dm5opig17hair" path="res://scenes/GameWorldDisplay.tscn" id="2_ntuym"]
 [ext_resource type="Texture2D" uid="uid://0b0ce8s2ym2f" path="res://textures/AddTaskButtonReleased.png" id="2_ul44v"]
 [ext_resource type="Texture2D" uid="uid://2u7gnl5kcppm" path="res://textures/AddProjectButtonReleased.png" id="3_4mnda"]
-[ext_resource type="Script" path="res://scripts/buttons_panel.gd" id="3_st7qt"]
+[ext_resource type="Script" uid="uid://d3gord6m1d8tk" path="res://scripts/buttons_panel.gd" id="3_st7qt"]
 [ext_resource type="Texture2D" uid="uid://dr0cr5c5yedgg" path="res://textures/AddTaskButtonPressed.png" id="3_w0mbl"]
 [ext_resource type="Texture2D" uid="uid://be12uyeb8wd84" path="res://textures/AddProjectButtonPressed.png" id="4_2fnwq"]
 [ext_resource type="Texture2D" uid="uid://3g884c4pwcnv" path="res://textures/AddRewardButtonReleased.png" id="6_xpefo"]
