@@ -10,7 +10,7 @@ signal open_game_world(game_world: GameWorld)
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1),
   Vector2i(2, 0)]
-const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
+const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0)]
 const grass_source_id := 0
 const enemy_source_id := 1
 const portal_source_id := 2
@@ -22,6 +22,16 @@ const difficulty_to_enemy_index := {
   Difficulty.Glorious: 3,
   Difficulty.Heroic: 4,
 }
+
+const difficulty_to_portal_index := {
+  Difficulty.Heroic: 0,
+  Difficulty.Majestic: 1,
+  Difficulty.Legendary: 2,
+  Difficulty.Imperial: 3,
+  Difficulty.Supreme: 4,
+  Difficulty.Transcendent: 5,
+}
+
 const repeatable_check_interval := 5.0 # 24 * 60 * 60.0
 
 const position_key := "position"
@@ -44,8 +54,8 @@ class DrawConfig extends RefCounted:
     return DrawConfig.new(position, enemy_source_id, enemy_tiles[GameWorld.get_enemy_index(task)])
 
   static func portal_config(project: Project, position: Vector2i) -> DrawConfig:
-    var portal_tile_index :=\
-      portal_tiles[0] if not project.completed else portal_tiles[1]
+    var portal_tile_index: Vector2i =\
+      portal_tiles[difficulty_to_portal_index[project.difficulty]] if not project.completed else portal_tiles[6]
     return DrawConfig.new(position, portal_source_id, portal_tile_index)
 
 var enemies: Dictionary
@@ -251,7 +261,7 @@ func mark_portal_done(project: Project) -> void:
     return
   for position: Vector2i in portals:
     if portals[position].taskoid == project:
-      tilemap.set_cell(position, portal_source_id, portal_tiles[1])
+      tilemap.set_cell(position, portal_source_id, portal_tiles[6])
 
 func find_game_world(project: Project) -> GameWorld:
   if self.project == project:
