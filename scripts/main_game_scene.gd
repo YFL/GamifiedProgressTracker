@@ -28,6 +28,7 @@ func _ready() -> void:
   taskoid_bank.project_added.connect(add_project_dialog._on_project_added)
   taskoid_bank.project_removed.connect(add_project_dialog._on_project_removed)
   taskoid_bank.project_added.connect(taskoid_tree.add_taskoid)
+  taskoid_bank.task_added.connect(taskoid_tree.add_taskoid)
   popup_screen_container.add_child(reward_screen)
   popup_screen_container.add_child(Globals.error_screen)
   add_child(taskoid_tree)

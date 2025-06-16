@@ -49,10 +49,10 @@ func handle_button_click(item: TreeItem, column: int, id: int, mouse_button_inde
     project_screen.hide()
     return
   if taskoid is Task:
-    task_screen.set_task(taskoid as Task)
+    task_screen.set_taskoid(taskoid as Task)
     task_screen.show()
     project_screen.hide()
   else:
-    project_screen.project = taskoid as Project
+    project_screen.set_taskoid(taskoid as Project)
     task_screen.hide()
     project_screen.show()
