@@ -25,6 +25,9 @@ func set_taskoid(taskoid: Taskoid):
     _repetition_config.set_config(taskoid.repetition_config)
     _repetition_config.add_nodes_as_siblings_to(deadline)
   complete_button.disabled = taskoid.completed
+
+func get_taskoid() -> Taskoid:
+  return _taskoid
     
 func _on_exit_button_pressed() -> void:
   hide()

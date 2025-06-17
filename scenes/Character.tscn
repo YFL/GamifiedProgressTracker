@@ -41,7 +41,6 @@ animations = [{
 
 [node name="Character" type="CharacterBody2D"]
 script = ExtResource("1_fwpug")
-speed = null
 
 [node name="Animation" type="AnimatedSprite2D" parent="."]
 position = Vector2(32, 32)

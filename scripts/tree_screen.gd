@@ -42,10 +42,10 @@ func add_taskoid(taskoid: Taskoid) -> void:
 
 func handle_button_click(item: TreeItem, column: int, id: int, mouse_button_index: int) -> void:
   var taskoid: Taskoid = item.get_metadata(0)
-  if task_screen.visible and task_screen.task_name.text == taskoid.name:
+  if task_screen.visible and task_screen.get_taskoid() == taskoid:
     task_screen.hide()
     return
-  if project_screen.visible and project_screen.project == taskoid:
+  if project_screen.visible and project_screen.get_taskoid() == taskoid:
     project_screen.hide()
     return
   if taskoid is Task:

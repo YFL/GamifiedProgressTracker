@@ -49,12 +49,26 @@ sources/2 = SubResource("TileSetAtlasSource_8e23b")
 [node name="GameWorld" type="Node2D"]
 script = ExtResource("1_foe28")
 
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="GameViewport" type="SubViewport" parent="SubViewportContainer"]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="TileMapLayer" type="TileMapLayer" parent="SubViewportContainer/GameViewport"]
 tile_set = SubResource("TileSet_urj8f")
 
-[node name="Character" parent="." instance=ExtResource("4_lemuh")]
+[node name="Character" parent="SubViewportContainer/GameViewport/TileMapLayer" instance=ExtResource("4_lemuh")]
 position = Vector2(647, 655)
 speed = 100
+
+[node name="Camera2D" type="Camera2D" parent="SubViewportContainer/GameViewport"]
+anchor_mode = 0
 
 [node name="ExitButton" parent="." instance=ExtResource("6_ack20")]
 anchors_preset = 1

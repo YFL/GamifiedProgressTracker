@@ -23,7 +23,7 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
 
-[node name="ProjectNameLabel" type="Label" parent="."]
+[node name="NameLabel" type="Label" parent="."]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Name"
