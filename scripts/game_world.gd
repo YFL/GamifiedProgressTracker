@@ -4,7 +4,7 @@ signal open_game_world(game_world: GameWorld)
 
 @onready var tilemap: TileMapLayer = $TileMapLayer
 @onready var tileset: TileSet = tilemap.tile_set
-@onready var character: Character = $Character
+@onready var character: Character = $TileMapLayer/Character
 @onready var exit_button: TextureButton = $ExitButton
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
@@ -97,8 +97,8 @@ static func new_game_world(project: Project, parent: GameWorld = null, position 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
   return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
 
-static func pixel_position_to_tile_position(pixel_position: Vector2) -> Vector2i:
-  return Vector2i(pixel_position.x / tile_size.x, pixel_position.y / tile_size.y)
+static func pixel_position_to_tile_position(tilemap: TileMapLayer, pixel_position: Vector2) -> Vector2i:
+  return Vector2i(-tilemap.position.x / tile_size.x + pixel_position.x / tile_size.x, -tilemap.position.y / tile_size.y + pixel_position.y / tile_size.y)
 
 static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
@@ -145,7 +145,7 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event.is_action_pressed("ui_right_click"):
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
-    var tile_position := pixel_position_to_tile_position(get_local_mouse_position())
+    var tile_position := pixel_position_to_tile_position(tilemap, get_local_mouse_position())
     var is_enemy := enemies.has(tile_position)
     var is_portal := portals.has(tile_position)
     if not is_enemy and not is_portal:
@@ -190,6 +190,16 @@ func _process(delta: float) -> void:
   if time_since_last_repeatable_check >= repeatable_check_interval:
     display_repeatables()
     time_since_last_repeatable_check = 0
+  const disposition := 10
+  if Input.is_action_pressed("ui_left"):
+    tilemap.position.x -= disposition
+  if Input.is_action_pressed("ui_right"):
+    tilemap.position.x += disposition
+  if Input.is_action_pressed("ui_up"):
+    tilemap.position.y -= disposition
+  if Input.is_action_pressed("ui_down"):
+    tilemap.position.y += disposition
+  
 
 func display_repeatables() -> void:
   for position in portals:
@@ -295,7 +305,7 @@ func draw_grass(position: Vector2i) -> void:
   tilemap.set_cell(position, grass_source_id, grass_tiles[grass_tile_index])
 
 func _on_character_arrived(at: Vector2) -> void:
-  var tile_position := pixel_position_to_tile_position(at)
+  var tile_position := pixel_position_to_tile_position(tilemap, at)
   var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
   if portals.has(tile_position):
     open_game_world.emit(children[tile_position])
@@ -318,8 +328,8 @@ func _on_project_done(project: Project) -> void:
 
 func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
   var label := Label.new()
-  add_child(label)
-  move_child(label, -3)
+  tilemap.add_child(label)
+  tilemap.move_child(label, -3)
   label.text = taskoid.name
   label.clip_text = true
   label.size = Vector2(tile_size.x * 3, tile_size.y)

@@ -52,7 +52,7 @@ script = ExtResource("1_foe28")
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_urj8f")
 
-[node name="Character" parent="." instance=ExtResource("4_lemuh")]
+[node name="Character" parent="TileMapLayer" instance=ExtResource("4_lemuh")]
 position = Vector2(647, 655)
 speed = 100
 
@@ -63,5 +63,8 @@ anchor_right = 1.0
 offset_left = 1250.0
 offset_bottom = 30.0
 grow_horizontal = 0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
 
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
