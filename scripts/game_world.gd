@@ -98,8 +98,10 @@ static func new_game_world(project: Project, parent: GameWorld = null, position 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
   return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
 
-static func pixel_position_to_tile_position(tilemap: TileMapLayer, pixel_position: Vector2, zoom: float) -> Vector2i:
-  return Vector2i(-tilemap.position.x / tile_size.x + (pixel_position.x / zoom) / tile_size.x, -tilemap.position.y / tile_size.y + (pixel_position.y / zoom) / tile_size.y)
+static func pixel_position_to_tile_position(tilemap: TileMapLayer, pixel_position: Vector2) -> Vector2i:
+  return Vector2i(
+    -tilemap.position.x / tile_size.x + pixel_position.x / tile_size.x,
+    -tilemap.position.y / tile_size.y + pixel_position.y / tile_size.y)
 
 static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
@@ -153,7 +155,8 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event.is_action_pressed("ui_right_click"):
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
-    var tile_position := pixel_position_to_tile_position(tilemap, get_local_mouse_position(), camera.zoom.x)
+    var tile_position := pixel_position_to_tile_position(tilemap, get_local_mouse_position())
+    print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
     var is_enemy := enemies.has(tile_position)
     var is_portal := portals.has(tile_position)
     if not is_enemy and not is_portal:
@@ -313,7 +316,7 @@ func draw_grass(position: Vector2i) -> void:
   tilemap.set_cell(position, grass_source_id, grass_tiles[grass_tile_index])
 
 func _on_character_arrived(at: Vector2) -> void:
-  var tile_position := pixel_position_to_tile_position(tilemap, at, camera.zoom.x)
+  var tile_position := pixel_position_to_tile_position(tilemap, at)
   var enemy_tile_pos := Vector2i(tile_position.x, tile_position.y - 1)
   if portals.has(tile_position):
     open_game_world.emit(children[tile_position])
