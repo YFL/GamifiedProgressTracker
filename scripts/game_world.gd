@@ -98,10 +98,16 @@ static func new_game_world(project: Project, parent: GameWorld = null, position 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
   return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
 
+static func mouse_position_to_tile_position(tilemap: TileMapLayer, mouse_position: Vector2) -> Vector2i:
+  return Vector2i(
+    -tilemap.position.x / tile_size.x + mouse_position.x / tile_size.x,
+    -tilemap.position.y / tile_size.y + mouse_position.y / tile_size.y)
+
 static func pixel_position_to_tile_position(tilemap: TileMapLayer, pixel_position: Vector2) -> Vector2i:
   return Vector2i(
-    -tilemap.position.x / tile_size.x + pixel_position.x / tile_size.x,
-    -tilemap.position.y / tile_size.y + pixel_position.y / tile_size.y)
+    pixel_position.x / tile_size.x,
+    pixel_position.y / tile_size.y
+  )
 
 static func get_enemy_index(task: Task) -> int:
   return difficulty_to_enemy_index[task.difficulty]
@@ -155,7 +161,7 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event.is_action_pressed("ui_right_click"):
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
-    var tile_position := pixel_position_to_tile_position(tilemap, get_local_mouse_position())
+    var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position())
     print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
     var is_enemy := enemies.has(tile_position)
     var is_portal := portals.has(tile_position)

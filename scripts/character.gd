@@ -8,7 +8,6 @@ signal arrived(target: Vector2)
 
 var target: Vector2
 var notify := false
-var already_notified := false
 var has_target := false
 
 ## We use the notify param to emit the arrived signal which is used
@@ -17,7 +16,6 @@ var has_target := false
 func move_to_target(target: Vector2, notify: bool = false) -> void:
   self.target = target
   self.notify = notify
-  already_notified = false
   has_target = true
 
 func _process(delta: float) -> void:
@@ -28,9 +26,9 @@ func _process(delta: float) -> void:
     has_target = false
     if animation.is_playing():
       animation.stop()
-    if notify and not already_notified:
+    if notify:
       arrived.emit(target)
-      already_notified = true
+      notify = false
     return
   if not animation.is_playing():
     animation.play("walk")
