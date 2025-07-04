@@ -12,12 +12,12 @@ var taskoid_bank := TaskoidBank.new()
 var reward_bank := RewardBank.new()
 var game_world: GameWorld = GameWorldScene.instantiate()
 
-@onready var game_world_display: GameWorldDisplay = $GameWorldDisplay
-@onready var add_task_dialog: AddTaskDialog = $AddTaskDialog
-@onready var add_reward_dialog: AddRewardDialog = $AddRewardDialog
-@onready var add_project_dialog: AddProjectDialog = $AddProjectDialog
-@onready var popup_screen_container: CenterContainer = $PopupScreenContainer
-@onready var button_panel: ButtonPanel = $ButtonsPanel
+@onready var game_world_display: GameWorldDisplay = $SubViewportContainer/GameWorldViewport/GameWorldDisplay
+@onready var add_task_dialog: AddTaskDialog = $SubViewportContainer/HUDViewport/AddTaskDialog
+@onready var add_reward_dialog: AddRewardDialog = $SubViewportContainer/HUDViewport/AddRewardDialog
+@onready var add_project_dialog: AddProjectDialog = $SubViewportContainer/HUDViewport/AddProjectDialog
+@onready var popup_screen_container: CenterContainer = $SubViewportContainer/HUDViewport/PopupScreenContainer
+@onready var button_panel: ButtonPanel = $SubViewportContainer/HUDViewport/ButtonsPanel
 @onready var reward_screen: RewardScreen = preload("res://scenes/RewardScreen.tscn").instantiate()
 @onready var taskoid_tree: TreeScreen = preload("res://scenes/TreeScreen.tscn").instantiate()
 

@@ -25,28 +25,37 @@ bg_color = Color(0.151276, 0.151276, 0.151276, 1)
 [node name="MainGameScene" type="Node2D"]
 script = ExtResource("1_ta6kl")
 
-[node name="GameWorldDisplay" parent="." instance=ExtResource("2_ntuym")]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
 
-[node name="PopupScreenContainer" type="CenterContainer" parent="."]
+[node name="GameWorldViewport" type="SubViewport" parent="SubViewportContainer"]
+size = Vector2i(1280, 720)
+
+[node name="GameWorldDisplay" parent="SubViewportContainer/GameWorldViewport" instance=ExtResource("2_ntuym")]
+
+[node name="HUDViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
+size = Vector2i(1280, 720)
+
+[node name="PopupScreenContainer" type="CenterContainer" parent="SubViewportContainer/HUDViewport"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1280.0
-offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ButtonsPanel" type="PanelContainer" parent="."]
+[node name="ButtonsPanel" type="PanelContainer" parent="SubViewportContainer/HUDViewport"]
 offset_left = -30.0
-offset_bottom = 166.0
+offset_bottom = 208.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_74g6l")
 script = ExtResource("3_st7qt")
 
-[node name="Buttons" type="VBoxContainer" parent="ButtonsPanel"]
+[node name="Buttons" type="VBoxContainer" parent="SubViewportContainer/HUDViewport/ButtonsPanel"]
 layout_mode = 2
 
-[node name="AddProject" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="AddProject" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("3_4mnda")
@@ -54,7 +63,7 @@ texture_pressed = ExtResource("4_2fnwq")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddTask" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="AddTask" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("2_ul44v")
@@ -62,7 +71,7 @@ texture_pressed = ExtResource("3_w0mbl")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddReward" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="AddReward" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("6_xpefo")
@@ -70,7 +79,7 @@ texture_pressed = ExtResource("7_loacn")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="TreeButton" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="TreeButton" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("10_2lfer")
@@ -78,10 +87,10 @@ texture_pressed = ExtResource("11_8yopn")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="HSeparator" type="HSeparator" parent="ButtonsPanel/Buttons"]
+[node name="HSeparator" type="HSeparator" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 layout_mode = 2
 
-[node name="SaveButton" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="SaveButton" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("9_d1ta8")
@@ -89,7 +98,7 @@ texture_pressed = ExtResource("10_34gtb")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="LoadButton" type="TextureButton" parent="ButtonsPanel/Buttons"]
+[node name="LoadButton" type="TextureButton" parent="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 texture_normal = ExtResource("11_skqmj")
@@ -97,32 +106,32 @@ texture_pressed = ExtResource("12_jebwc")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AddProjectDialog" parent="." instance=ExtResource("9_ugrgd")]
+[node name="AddProjectDialog" parent="SubViewportContainer/HUDViewport" instance=ExtResource("9_ugrgd")]
 visible = false
 offset_left = 774.0
 offset_right = 1094.0
 offset_bottom = 394.0
 
-[node name="AddTaskDialog" parent="." instance=ExtResource("17_ejtvg")]
+[node name="AddTaskDialog" parent="SubViewportContainer/HUDViewport" instance=ExtResource("17_ejtvg")]
 visible = false
 offset_left = 774.0
 offset_right = 1094.0
 offset_bottom = 394.0
 
-[node name="AddRewardDialog" parent="." instance=ExtResource("8_rlr0i")]
+[node name="AddRewardDialog" parent="SubViewportContainer/HUDViewport" instance=ExtResource("8_rlr0i")]
 visible = false
 custom_minimum_size = Vector2(320, 240)
 offset_left = 776.0
 offset_top = 298.0
 offset_right = 1096.0
-offset_bottom = 538.0
+offset_bottom = 692.0
 
-[connection signal="pressed" from="ButtonsPanel/Buttons/AddProject" to="." method="_on_add_project_pressed"]
-[connection signal="pressed" from="ButtonsPanel/Buttons/AddTask" to="." method="_on_add_task_pressed"]
-[connection signal="pressed" from="ButtonsPanel/Buttons/AddReward" to="." method="_on_add_reward_pressed"]
-[connection signal="pressed" from="ButtonsPanel/Buttons/TreeButton" to="." method="_on_tree_button_pressed"]
-[connection signal="pressed" from="ButtonsPanel/Buttons/SaveButton" to="." method="_on_save_button_pressed"]
-[connection signal="pressed" from="ButtonsPanel/Buttons/LoadButton" to="." method="_on_load_button_pressed"]
-[connection signal="add_project" from="AddProjectDialog" to="." method="_on_add_project"]
-[connection signal="add_task" from="AddTaskDialog" to="." method="_on_add_task"]
-[connection signal="add_reward" from="AddRewardDialog" to="." method="_on_add_reward"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/AddProject" to="." method="_on_add_project_pressed"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/AddTask" to="." method="_on_add_task_pressed"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/AddReward" to="." method="_on_add_reward_pressed"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/TreeButton" to="." method="_on_tree_button_pressed"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="SubViewportContainer/HUDViewport/ButtonsPanel/Buttons/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="add_project" from="SubViewportContainer/HUDViewport/AddProjectDialog" to="." method="_on_add_project"]
+[connection signal="add_task" from="SubViewportContainer/HUDViewport/AddTaskDialog" to="." method="_on_add_task"]
+[connection signal="add_reward" from="SubViewportContainer/HUDViewport/AddRewardDialog" to="." method="_on_add_reward"]
