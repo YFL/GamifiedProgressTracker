@@ -148,52 +148,77 @@ func _ready() -> void:
     try_to_draw(portal, DrawConfig.portal_config(portal.taskoid, position))
 
 func _unhandled_input(event: InputEvent) -> void:
+  handle_mouse_buttons(get_pressed_mouse_buttons(event))
+  if Input.is_action_pressed("ui_home"):
+    tilemap.position = Vector2.ZERO
+    camera.zoom = Vector2.ONE
+  
+func get_pressed_mouse_buttons(event: InputEvent) -> int:
+  var buttons_pressed := 0
   var mouse_event = event as InputEventMouseButton
-  const zoom_ratio := 1.1
   if mouse_event:
     if mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-      camera.zoom /= zoom_ratio
+      buttons_pressed += MOUSE_BUTTON_WHEEL_DOWN
     if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
-      camera.zoom *= zoom_ratio
-  var mouse_button_pressed := 0
-  if event.is_action_pressed("ui_left_click"):
-    mouse_button_pressed += MOUSE_BUTTON_LEFT
-  elif event.is_action_pressed("ui_right_click"):
-    mouse_button_pressed += MOUSE_BUTTON_RIGHT
-  if mouse_button_pressed:
-    var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position(), camera.zoom.x)
-    print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
-    var is_enemy := enemies.has(tile_position)
-    var is_portal := portals.has(tile_position)
-    if not is_enemy and not is_portal:
-      return
-    var notify := true if mouse_button_pressed & MOUSE_BUTTON_MASK_RIGHT else false
-    character.move_to_target(Vector2(
-      tile_position.x * tile_size.x,
-      (tile_position.y + (1 if is_enemy else 0)) * tile_size.y),
-      notify)
+      buttons_pressed += MOUSE_BUTTON_WHEEL_UP
+    if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+      buttons_pressed += MOUSE_BUTTON_LEFT
+    elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+      buttons_pressed += MOUSE_BUTTON_RIGHT
+  return buttons_pressed
+
+func handle_left_mouse_button(tile_position: Vector2i, is_enemy: bool) -> void:
+  var screen_size := task_screen.size if is_enemy else project_screen.size
+  var screen_position := Vector2i(
+      max(
+        0,
+        min(
+          size.x * tile_size.x - screen_size.x,
+          get_local_mouse_position().x - screen_size.x / 2)),
+      max(
+        0,
+        min(
+          size.y * tile_size.y - screen_size.y,
+          get_local_mouse_position().y - screen_size.y / 2)))
+  if is_enemy:
+    task_screen.position = screen_position
+    task_screen.set_taskoid(enemies[tile_position].taskoid)
+    task_screen.show()
+  else:
+    project_screen.position = screen_position
+    project_screen.set_taskoid(portals[tile_position].taskoid)
+    project_screen.show()
+
+func handle_mouse_wheel(buttons_pressed: int) -> void:
+  const zoom_ratio := 1.1
+  if buttons_pressed & MOUSE_BUTTON_WHEEL_DOWN:
+    print("buttons_pressed: %d\nmouse_button_wheel_down: %d\n buttons_pressed & MOUSE_BUTTON_WHEEL_DOWN: %d" % [buttons_pressed, MOUSE_BUTTON_WHEEL_DOWN, buttons_pressed & MOUSE_BUTTON_WHEEL_DOWN])
+    camera.zoom /= zoom_ratio
+  elif buttons_pressed & MOUSE_BUTTON_WHEEL_UP:
+    camera.zoom *= zoom_ratio
+
+# Returns a Result, which contains true, if the clicked tile was an enemy, false, if it was a portal
+# and an error if the clicked tile was neither
+func handle_character_movement(buttons_pressed: int, tile_position: Vector2i) -> Result:
+  print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
+  var is_enemy := enemies.has(tile_position)
+  var is_portal := portals.has(tile_position)
+  if not is_enemy and not is_portal:
+    return Result.Error("Not an entity")
+  character.move_to_target(Vector2(
+    tile_position.x * tile_size.x,
+    (tile_position.y + (1 if is_enemy else 0)) * tile_size.y),
+    true if buttons_pressed & MOUSE_BUTTON_MASK_RIGHT else false)
+  return Result.new(is_enemy)
+
+func handle_mouse_buttons(buttons_pressed: int) -> void:
+  handle_mouse_wheel(buttons_pressed)
+  var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position(), camera.zoom.x)
+  if buttons_pressed:
     # Left click, show Taskoid Screen
-    if not notify:
-      var screen_size := task_screen.size if is_enemy else project_screen.size
-      var screen_position := Vector2i(
-          max(
-            0,
-            min(
-              size.x * tile_size.x - screen_size.x,
-              get_local_mouse_position().x - screen_size.x / 2)),
-          max(
-            0,
-            min(
-              size.y * tile_size.y - screen_size.y,
-              get_local_mouse_position().y - screen_size.y / 2)))
-      if is_enemy:
-        task_screen.position = screen_position
-        task_screen.set_taskoid(enemies[tile_position].taskoid)
-        task_screen.show()
-      elif is_portal:
-        project_screen.position = screen_position
-        project_screen.set_taskoid(portals[tile_position].taskoid)
-        project_screen.show()
+    var is_enemy_result := handle_character_movement(buttons_pressed, tile_position)
+    if buttons_pressed & MOUSE_BUTTON_LEFT and not is_enemy_result.error.length():
+      handle_left_mouse_button(tile_position, is_enemy_result.result)
 
 func _notification(what: int) -> void:
   if what == NOTIFICATION_PREDELETE:
