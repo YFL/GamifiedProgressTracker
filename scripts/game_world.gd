@@ -2,11 +2,11 @@ class_name GameWorld extends Node2D
 
 signal open_game_world(game_world: GameWorld)
 
-@onready var tilemap: TileMapLayer = $TileMapLayer
+@onready var tilemap: TileMapLayer = $SubViewportContainer/GameViewport/TileMapLayer
 @onready var tileset: TileSet = tilemap.tile_set
-@onready var character: Character = $TileMapLayer/Character
+@onready var character: Character = $SubViewportContainer/GameViewport/TileMapLayer/Character
 @onready var exit_button: TextureButton = $ExitButton
-@onready var camera: Camera2D = $Camera2D
+@onready var camera: Camera2D = $SubViewportContainer/GameViewport/Camera2D
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
 const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1),
@@ -98,10 +98,10 @@ static func new_game_world(project: Project, parent: GameWorld = null, position 
 static func find_game_world_for_taskoid(taskoid: RefCounted, default: GameWorld) -> GameWorld:
   return default if taskoid.parent == null else default.find_game_world(taskoid.parent)
 
-static func mouse_position_to_tile_position(tilemap: TileMapLayer, mouse_position: Vector2) -> Vector2i:
+static func mouse_position_to_tile_position(tilemap: TileMapLayer, mouse_position: Vector2, zoom: float) -> Vector2i:
   return Vector2i(
-    -tilemap.position.x / tile_size.x + mouse_position.x / tile_size.x,
-    -tilemap.position.y / tile_size.y + mouse_position.y / tile_size.y)
+    -tilemap.position.x / tile_size.x + mouse_position.x / (tile_size.x * zoom),
+    -tilemap.position.y / tile_size.y + mouse_position.y / (tile_size.y * zoom))
 
 static func pixel_position_to_tile_position(tilemap: TileMapLayer, pixel_position: Vector2) -> Vector2i:
   return Vector2i(
@@ -161,7 +161,7 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event.is_action_pressed("ui_right_click"):
     mouse_button_pressed += MOUSE_BUTTON_RIGHT
   if mouse_button_pressed:
-    var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position())
+    var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position(), camera.zoom.x)
     print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
     var is_enemy := enemies.has(tile_position)
     var is_portal := portals.has(tile_position)
