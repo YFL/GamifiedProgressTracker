@@ -9,8 +9,8 @@ const Glorious := 3 * Commendable
 const Heroic := 7 * Glorious
 const Majestic := 4 * Heroic + 2 * Glorious
 const Legendary := 12 * Majestic
-const Imperial := 5 * Majestic
-const Supreme := 20 * Majestic
+const Imperial := 5 * Legendary
+const Supreme := 4 * Imperial
 const Transcendent := 4 * Supreme
 
 static var difficulty_names: Dictionary = {
