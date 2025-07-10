@@ -30,10 +30,17 @@ func _process(delta: float) -> void:
       arrived.emit(target)
       notify = false
     return
-  if not animation.is_playing():
-    animation.play("walk")
   var distance := target - position
   var direction := distance.normalized()
   var motion := direction * speed * delta
   motion = motion if motion.length_squared() <= distance.length_squared() else distance
   move_and_collide(motion)
+  if not animation.is_playing():
+    var animations := ["walk_left", "walk_right", "walk_up", "walk_down"]
+    var bigger := direction.x if abs(direction.x) > abs(direction.y) else direction.y
+    var idx: int = 0 if abs(direction.x) > abs(direction.y) else 2
+    var flip := 1 if bigger > 0 else 0
+    idx += flip
+    print("driection: %v bigger: %f, idx: %d, flip: %d animation: %s" % [direction, bigger, idx, flip, animations[idx]])
+    animation.play(animations[idx])
+    animation.flip_h = 1 - flip
