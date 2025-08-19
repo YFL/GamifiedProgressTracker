@@ -9,9 +9,10 @@ signal open_game_world(game_world: GameWorld)
 @onready var camera: Camera2D = $SubViewportContainer/GameViewport/Camera2D
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
-const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1),
-  Vector2i(2, 0)]
-const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0)]
+const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3),
+  Vector2i(0, 4)]
+const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
+  Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0)]
 const grass_source_id := 0
 const enemy_source_id := 1
 const portal_source_id := 2
