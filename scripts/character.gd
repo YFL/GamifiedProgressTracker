@@ -9,11 +9,14 @@ signal arrived(target: Vector2)
 var target: Vector2
 var notify := false
 var has_target := false
+var target_changed := false
 
 ## We use the notify param to emit the arrived signal which is used
 ## as a task completion signal
 ## TODO: redo the notify part to something less hacky
 func move_to_target(target: Vector2, notify: bool = false) -> void:
+  if not target.is_equal_approx(self.target):
+    target_changed = true
   self.target = target
   self.notify = notify
   has_target = true
@@ -30,10 +33,16 @@ func _process(delta: float) -> void:
       arrived.emit(target)
       notify = false
     return
-  if not animation.is_playing():
-    animation.play("walk")
   var distance := target - position
   var direction := distance.normalized()
   var motion := direction * speed * delta
   motion = motion if motion.length_squared() <= distance.length_squared() else distance
   move_and_collide(motion)
+  if target_changed:
+    var animations := ["walk_left", "walk_right", "walk_up", "walk_down"]
+    var bigger := direction.x if abs(direction.x) > abs(direction.y) else direction.y
+    var idx: int = 0 if abs(direction.x) > abs(direction.y) else 2
+    var flip := 1 if bigger > 0 else 0
+    idx += flip
+    animation.play(animations[idx])
+    animation.flip_h = 1 - flip
