@@ -9,9 +9,28 @@ signal open_game_world(game_world: GameWorld)
 @onready var camera: Camera2D = $SubViewportContainer/GameViewport/Camera2D
 
 const grass_tiles := [Vector2i(0, 0), Vector2i(1, 0)]
-const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1),
-  Vector2i(2, 0)]
-const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0)]
+const enemy_tiles := [Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3),
+  Vector2i(0, 4)]
+const portal_tiles := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
+  Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0)]
+const orc_animation: Array[Vector2i] = [Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
+  Vector2i(4, 0)]
+const snake_animation: Array[Vector2i] = [Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1),
+  Vector2i(4, 1)]
+const spider_animation: Array[Vector2i] = [Vector2i(1, 2), Vector2i(2, 2), Vector2i(3, 2),
+  Vector2i(4, 2)]
+const skeleton_animation: Array[Vector2i] = [Vector2i(1, 3), Vector2i(2, 3), Vector2i(3, 3),
+  Vector2i(4, 3)]
+const succubus_animation: Array[Vector2i] = [Vector2i(1, 4), Vector2i(2, 4), Vector2i(3, 4),
+  Vector2i(4, 4)]
+const enemy_animations: Dictionary = {
+  Difficulty.Modest: orc_animation,
+  Difficulty.NoteWorthy: snake_animation,
+  Difficulty.Commendable: spider_animation,
+  Difficulty.Glorious: skeleton_animation,
+  Difficulty.Heroic: succubus_animation
+}
+
 const grass_source_id := 0
 const enemy_source_id := 1
 const portal_source_id := 2
@@ -88,6 +107,8 @@ var size: GameWorldSize:
 var task_screen: TaskoidScreenBase = null
 var project_screen: ProjectScreen = null
 var time_since_last_repeatable_check := repeatable_check_interval
+var enemy_animation: TileAnimation = null
+var current_enemy: Vector2i = Vector2(-1, -1)
 
 static func new_game_world(project: Project, parent: GameWorld = null, position = Vector2i(-1, -1)) -> Result:
   var instance: GameWorld = GameWorldScene.instantiate()
@@ -204,7 +225,9 @@ func handle_mouse_wheel(buttons_pressed: int) -> void:
     camera.zoom *= zoom_ratio
 
 # Returns a Result, which contains true, if the clicked tile was an enemy, false, if it was a portal
-# and an error if the clicked tile was neither
+# and an error if the clicked tile was neither.
+# Also sends the character to the target tile, if it was an enemy or a portal and  the click was a
+# right click.
 func handle_character_movement(buttons_pressed: int, tile_position: Vector2i) -> Result:
   print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
   var is_enemy := enemies.has(tile_position)
@@ -221,10 +244,23 @@ func handle_mouse_buttons(buttons_pressed: int) -> void:
   handle_mouse_wheel(buttons_pressed)
   var tile_position := mouse_position_to_tile_position(tilemap, get_local_mouse_position(), camera.zoom.x)
   if buttons_pressed:
-    # Left click, show Taskoid Screen
     var is_enemy_result := handle_character_movement(buttons_pressed, tile_position)
     if buttons_pressed & mouse_btn_bit_values[MOUSE_BUTTON_LEFT] and not is_enemy_result.error.length():
+      # Left click, show Taskoid Screen
       handle_left_mouse_button(tile_position, is_enemy_result.result)
+      if is_enemy_result.result:
+        enemy_animation = TileAnimation.new(enemy_animations[enemies[tile_position].taskoid.difficulty], 4)
+        if current_enemy != Vector2i(-1, -1):
+          # We reset the enemy that was animated before to it's idle image
+          var entity: Entity = enemies[current_enemy];
+          draw_taskoid(DrawConfig.enemy_config(entity.taskoid, current_enemy))
+        current_enemy = tile_position
+      else:
+        enemy_animation = null
+        current_enemy = Vector2i(-1, -1)
+    elif buttons_pressed & mouse_btn_bit_values[MOUSE_BUTTON_RIGHT]:
+      enemy_animation = null
+      current_enemy = Vector2i(-1, -1)
 
 func _notification(what: int) -> void:
   if what == NOTIFICATION_PREDELETE:
@@ -247,7 +283,7 @@ func _process(delta: float) -> void:
     tilemap.position.y -= disposition
   if Input.is_action_pressed("ui_down"):
     tilemap.position.y += disposition
-  
+  animate_enemy(delta)
 
 func display_repeatables() -> void:
   for position in portals:
@@ -410,3 +446,8 @@ func to_dict() -> Dictionary:
     dict[MainGameScene.tasks_key].merge(child_dict[MainGameScene.tasks_key])
     dict[MainGameScene.projects_key].merge(child_dict[MainGameScene.projects_key])
   return dict
+
+func animate_enemy(delta: float) -> void:
+  if current_enemy == Vector2i(-1, -1) or not enemy_animation:
+    return
+  tilemap.set_cell(current_enemy, enemy_source_id, enemy_animation.animate(delta))
