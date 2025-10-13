@@ -32,6 +32,9 @@ func _process(delta: float) -> void:
     if notify:
       arrived.emit(target)
       notify = false
+    else:
+      animation.play("fight")
+      animation.flip_h = false
     return
   var distance := target - position
   var direction := distance.normalized()

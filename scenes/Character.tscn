@@ -1,7 +1,23 @@
-[gd_scene load_steps=20 format=3 uid="uid://cppatxc4uopwg"]
+[gd_scene load_steps=24 format=3 uid="uid://cppatxc4uopwg"]
 
 [ext_resource type="Script" uid="uid://s723pidjr8oh" path="res://scripts/character.gd" id="1_fwpug"]
 [ext_resource type="Texture2D" uid="uid://b78v54qnwc6p4" path="res://textures/Hero64x64.png" id="1_kcaau"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ftwfq"]
+atlas = ExtResource("1_kcaau")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4yo34"]
+atlas = ExtResource("1_kcaau")
+region = Rect2(64, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_smtlo"]
+atlas = ExtResource("1_kcaau")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_356g5"]
+atlas = ExtResource("1_kcaau")
+region = Rect2(192, 192, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3i3nt"]
 atlas = ExtResource("1_kcaau")
@@ -69,6 +85,23 @@ region = Rect2(192, 128, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_wema0"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ftwfq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4yo34")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_smtlo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_356g5")
+}],
+"loop": true,
+"name": &"fight",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3i3nt")
@@ -144,4 +177,4 @@ script = ExtResource("1_fwpug")
 [node name="Animation" type="AnimatedSprite2D" parent="."]
 position = Vector2(32, 32)
 sprite_frames = SubResource("SpriteFrames_wema0")
-animation = &"walk_left"
+animation = &"fight"
