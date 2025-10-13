@@ -43,13 +43,13 @@ func has_deadline() -> bool:
 	return _has_deadline.button_pressed
 
 func deadline() -> Date:
-	return Date.from_dict(_deadline.date).result
+	return Date.new(_deadline.date)
 
 func repetition_config() -> RepetitionConfig:
 	if not _does_repeat.button_pressed:
 		return null
-	return RepetitionConfig.new(Date.from_dict(_repetition_config.starting_date.date).result,
-		Date.from_dict(_repetition_config.interval.date).result)
+	return RepetitionConfig.new(Date.new(_repetition_config.starting_date.date),
+		Date.new(_repetition_config.interval.date))
 
 func clear() -> void:
 	_parent.clear_added()

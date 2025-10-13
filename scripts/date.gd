@@ -24,9 +24,6 @@ static func _check_dict(dict: Dictionary) -> Result:
     return Result.Error("Day is not a number")
   return Result.new(true)
 
-static func from_dict(dict: Dictionary) -> Result:
-  return Result.new(Date.new(dict))
-
 func _init(date: Dictionary) -> void:
   var res := _check_dict(date)
   if not res.result:

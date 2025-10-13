@@ -8,5 +8,8 @@ func _init(taskoid: Taskoid) -> void:
 func should_be_drawn() -> bool:
   return true
 
+func should_be_advanced() -> bool:
+  return false
+
 func on_draw() -> void:
   pass

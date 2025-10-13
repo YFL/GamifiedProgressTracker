@@ -9,5 +9,8 @@ func _init(taskoid: Taskoid) -> void:
 func should_be_draw() -> bool:
   return _should_be_drawn
 
+func should_be_advanced() -> bool:
+  return false
+
 func on_draw() -> void:
   _should_be_drawn = false

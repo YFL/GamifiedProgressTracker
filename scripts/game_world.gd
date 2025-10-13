@@ -272,6 +272,7 @@ func _notification(what: int) -> void:
 func _process(delta: float) -> void:
   time_since_last_repeatable_check += delta
   if time_since_last_repeatable_check >= repeatable_check_interval:
+    advance_repeatables()
     display_repeatables()
     time_since_last_repeatable_check = 0
   const disposition := 10
@@ -284,6 +285,18 @@ func _process(delta: float) -> void:
   if Input.is_action_pressed("ui_down"):
     tilemap.position.y += disposition
   animate_enemy(delta)
+
+func advance_repeatables() -> void:
+  for position in portals:
+    var portal: Entity = portals[position]
+    if not portal is RevivingEntity:
+      continue
+    if portal.should_be_advanced():
+      portal.taskoid.advance()
+  for position in enemies:
+    var enemy: Entity = enemies[position]
+    if enemy.should_be_advanced():
+      enemy.taskoid.advance()
 
 func display_repeatables() -> void:
   for position in portals:

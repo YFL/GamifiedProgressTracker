@@ -4,7 +4,10 @@ const type_key := "type"
 const starting_date_key := "starting_date_key"
 const interval_key := "interval"
 
-var starting_date: Date
+# This is the date, when the task will have to be visible the next time.
+var next_starting_date: Date
+# This is the date, when the task was made visible; this is stored when saved.
+var current_starting_date: Date
 var interval: Date
 var type: String = "Invalid"
 
@@ -27,8 +30,8 @@ static func from_dict(dict: Dictionary) -> Result:
     return Result.Error("Starting date missing")
   if typeof(starting_date) != TYPE_DICTIONARY:
     return Result.Error("Starting date is not a dictionary")
-  # BEWARE CHANGING TYPE
-  starting_date = Date.from_dict(starting_date)
+  # BEWARE CHANGING TYPE FORM DICT TO DATE
+  starting_date = Date.new(starting_date)
   if not starting_date.result:
     return Result.Error("Starting date invalid: " + starting_date.error)
   var interval = dict.get(interval_key)
@@ -36,8 +39,8 @@ static func from_dict(dict: Dictionary) -> Result:
     return Result.Error("Interval missing")
   if typeof(interval) != TYPE_DICTIONARY:
     return Result.Error("Interval is not a dictionary")
-  # BEWARE CHANGING TYPE
-  interval = Date.from_dict(interval)
+  # BEWARE CHANGING TYPE FORM DICT TO DATE
+  interval = Date.new(interval)
   if not interval.result:
     return Result.Error("Interval invalid: " + interval.error)
   return Result.new(RepetitionConfig.new(
@@ -46,7 +49,13 @@ static func from_dict(dict: Dictionary) -> Result:
     type))
 
 func _init(starting_date: Date, interval: Date, type: String = "Invalid") -> void:
-  self.starting_date = starting_date
+  self.current_starting_date = starting_date
+  self.next_starting_date = Date.new(current_starting_date.to_dict())
+  var dict_from_system = Time.get_date_dict_from_system()
+  var date_from_system_result := Date.new(dict_from_system)
+  var date_from_system: Date = date_from_system_result
+  while date_from_system.gte(next_starting_date):
+    self.next_starting_date.add_interval(interval)
   self.interval = interval
   self.type = type
 
@@ -54,11 +63,12 @@ func can_contain(repetition_config: RepetitionConfig) -> bool:
   return repetition_config.type == type
 
 func advance() -> void:
-  starting_date.add_interval(interval)
+  current_starting_date = Date.new(next_starting_date.to_dict())
+  next_starting_date.add_interval(interval)
 
 func to_dict() -> Dictionary:
   return {
     type_key: type,
-    starting_date_key: starting_date.to_dict(),
+    starting_date_key: current_starting_date.to_dict(),
     interval_key: interval.to_dict()
   }

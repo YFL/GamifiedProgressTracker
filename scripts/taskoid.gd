@@ -83,21 +83,19 @@ func _init(param: Params) -> void:
   self.repetition_config = param.repetition_config
 
 func complete() -> Result:
+  # TODO: this event has to result in "hiding" the entity in the game world
   if not completed:
     completed = true
     done.emit(self)
-    if repetition_config:
-      deadline.add_interval(repetition_config.interval)
     return Result.new(true)
   return Result.new(false, "Taskoid already completed")
 
-func prepare_to_be_repeated() -> void:
+func advance() -> void:
   if completed:
     completed = false
-  else:
-    # Since the deadline is only updated, if the taskoid was completed, we have to update it here
-    deadline.add_interval(repetition_config.interval)
   repetition_config.advance()
+  deadline = Date.new(repetition_config.current_starting_date.to_dict())
+  deadline.add_interval(repetition_config.interval)
 
 func config() -> Config:
   return Config.new(name, description, difficulty, (parent.name if parent != null else ""),
@@ -143,7 +141,7 @@ static func config_from_dict(dict: Dictionary) -> Result:
   if typeof(has_deadline) != TYPE_BOOL:
     return Result.Error("Taskoid has deadline is not a bool")
   const deadline_key = "deadline"
-  var deadline_res = Date.from_dict(dict.get(deadline_key))
+  var deadline_res = Date.new(dict.get(deadline_key))
   if deadline_res.result == null:
     return Result.Error("Taskoid deadline is invalid: " + deadline_res.error)
   var repetition_config_res := RepetitionConfig.from_dict(dict.get(Config.repetition_config_key, {}))
