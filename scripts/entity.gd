@@ -13,3 +13,6 @@ func should_be_advanced() -> bool:
 
 func on_draw() -> void:
   pass
+
+func on_hide() -> void:
+  pass

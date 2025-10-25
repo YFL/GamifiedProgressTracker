@@ -226,13 +226,13 @@ func handle_mouse_wheel(buttons_pressed: int) -> void:
 
 # Returns a Result, which contains true, if the clicked tile was an enemy, false, if it was a portal
 # and an error if the clicked tile was neither.
-# Also sends the character to the target tile, if it was an enemy or a portal and  the click was a
-# right click.
+# Also sends the character to the target tile, if it was an enemy or a portal.
 func handle_character_movement(buttons_pressed: int, tile_position: Vector2i) -> Result:
   print("mouse_position %v tile_position %v" % [get_local_mouse_position(), tile_position])
   var is_enemy := enemies.has(tile_position)
   var is_portal := portals.has(tile_position)
-  if not is_enemy and not is_portal:
+  if (not is_enemy or enemies[tile_position].taskoid.completed)\
+    and (not is_portal or portals[tile_position].taskoid.completed):
     return Result.Error("Not an entity")
   character.move_to_target(Vector2(
     tile_position.x * tile_size.x,
@@ -253,7 +253,7 @@ func handle_mouse_buttons(buttons_pressed: int) -> void:
         if current_enemy != Vector2i(-1, -1):
           # We reset the enemy that was animated before to it's idle image
           var entity: Entity = enemies[current_enemy];
-          draw_taskoid(DrawConfig.enemy_config(entity.taskoid, current_enemy))
+          draw_taskoid(entity.taskoid.name, DrawConfig.enemy_config(entity.taskoid, current_enemy))
         current_enemy = tile_position
       else:
         enemy_animation = null
@@ -313,7 +313,7 @@ func display_repeatables() -> void:
 func try_to_draw(entity: Entity, config: DrawConfig) -> void:
   if not entity.should_be_drawn():
     return
-  draw_taskoid(config)
+  draw_taskoid(entity.taskoid.name, config)
   entity.on_draw()
 
 func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
@@ -328,7 +328,6 @@ func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   enemies[tile_position] = create_entity(task)
   # We try to draw in case a task is added, when this GameWorld is ready
   try_to_draw(enemies[tile_position], DrawConfig.enemy_config(task, tile_position))
-  add_label_for_taskoid(task, tile_position)
   return true
 
 func remove_monster(task: Task) -> bool:
@@ -351,7 +350,6 @@ func add_game_world(child: GameWorld, position = Vector2i(-1, -1)) -> bool:
   children[tile_position] = child
   portals[tile_position] = create_entity(child.project)
   try_to_draw(portals[tile_position], DrawConfig.portal_config(child.project, tile_position))
-  add_label_for_taskoid(child.project, tile_position)
   return true
 
 func remove_game_world(child: GameWorld) -> void:
@@ -390,9 +388,10 @@ func reserve_random_free_tile() -> Vector2i:
   free_tiles.erase(free_tile)
   return free_tile
 
-func draw_taskoid(config: DrawConfig) -> void:
+func draw_taskoid(name: String, config: DrawConfig) -> void:
   if tilemap != null:
     tilemap.set_cell(config.position, config.source_id, config.tile_index)
+    add_label_for_taskoid(name, config.position)
 
 func draw_grass(position: Vector2i) -> void:
   if tilemap == null:
@@ -418,19 +417,31 @@ func _on_exit_button_pressed() -> void:
 
 func _on_task_done(task: Task) -> void:
   # TODO: replace the texture with a dead texture
-  pass
+  for position: Vector2i in enemies:
+    var enemy: Entity = enemies[position]
+    if enemy.taskoid == task:
+      if current_enemy == position:
+        enemy_animation = null
+        current_enemy = Vector2i(-1, -1)
+      draw_grass(position)
+      remove_label_for_taskoid(task, position)
+      enemy.on_hide()
 
 func _on_project_done(project: Project) -> void:
   mark_portal_done(project)
+  for position: Vector2i in portals:
+    var portal: Entity = portals[position]
+    if portal.taskoid == project:
+      portal.on_hide()
 
-func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
+func add_label_for_taskoid(name: String, tile_pos: Vector2i) -> void:
   var label := Label.new()
   # This is needed because the _ready function was not yet called here probably and we still need
   # access to the tilemap.
   var tilemap := self.get_node(^"SubViewportContainer/GameViewport/TileMapLayer")
   tilemap.add_child(label)
   tilemap.move_child(label, -3)
-  label.text = taskoid.name
+  label.text = name
   label.clip_text = true
   label.size = Vector2(tile_size.x * 3, tile_size.y)
   label.position = tile_pos * tile_size
@@ -438,6 +449,20 @@ func add_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
   label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
   label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
   label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
+func remove_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
+  var tilemap := self.get_node(^"SubViewportContainer/GameViewport/TileMapLayer")
+  var tilemap_children := tilemap.get_children()
+  for child in tilemap_children:
+    if child is Label:
+      var label := child as Label
+      if label.text == taskoid.name\
+        # We have to adjust the tile position, because the label takes up 3 tiles, so it's position
+        # is one tile to the left of the clicked tile
+        and label.position == Vector2(tile_pos * tile_size - Vector2i(64, 0)):
+        tilemap.remove_child(child)
+        child.queue_free()
+
 
 func to_dict() -> Dictionary:
   var dict: Dictionary

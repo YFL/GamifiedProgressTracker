@@ -49,12 +49,12 @@ static func from_dict(dict: Dictionary) -> Result:
     type))
 
 func _init(starting_date: Date, interval: Date, type: String = "Invalid") -> void:
-  self.current_starting_date = starting_date
+  self.current_starting_date = Date.new(starting_date.to_dict())
   self.next_starting_date = Date.new(current_starting_date.to_dict())
   var dict_from_system = Time.get_date_dict_from_system()
   var date_from_system_result := Date.new(dict_from_system)
   var date_from_system: Date = date_from_system_result
-  while date_from_system.gte(next_starting_date):
+  while date_from_system.gt(next_starting_date):
     self.next_starting_date.add_interval(interval)
   self.interval = interval
   self.type = type
