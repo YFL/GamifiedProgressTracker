@@ -25,27 +25,25 @@ static func from_dict(dict: Dictionary) -> Result:
     return Result.Error("Type missing")
   if typeof(type) != TYPE_STRING:
     return Result.Error("Type is not a string")
-  var starting_date = dict.get(starting_date_key)
-  if starting_date == null:
+  var starting_date_dict = dict.get(starting_date_key)
+  if starting_date_dict == null:
     return Result.Error("Starting date missing")
-  if typeof(starting_date) != TYPE_DICTIONARY:
+  if typeof(starting_date_dict) != TYPE_DICTIONARY:
     return Result.Error("Starting date is not a dictionary")
-  # BEWARE CHANGING TYPE FORM DICT TO DATE
-  starting_date = Date.new(starting_date)
-  if not starting_date.result:
-    return Result.Error("Starting date invalid: " + starting_date.error)
-  var interval = dict.get(interval_key)
-  if interval == null:
+  var is_starting_date_dict_valid = Date.check_dict(starting_date_dict)
+  if not is_starting_date_dict_valid.result:
+    return Result.Error("Starting date invalid: " + is_starting_date_dict_valid.error)
+  var interval_dict = dict.get(interval_key)
+  if interval_dict == null:
     return Result.Error("Interval missing")
-  if typeof(interval) != TYPE_DICTIONARY:
+  if typeof(interval_dict) != TYPE_DICTIONARY:
     return Result.Error("Interval is not a dictionary")
-  # BEWARE CHANGING TYPE FORM DICT TO DATE
-  interval = Date.new(interval)
-  if not interval.result:
-    return Result.Error("Interval invalid: " + interval.error)
+  var is_interval_dict_valid = Date.check_dict(interval_dict)
+  if not is_interval_dict_valid.result:
+    return Result.Error("Interval invalid: " + is_interval_dict_valid.error)
   return Result.new(RepetitionConfig.new(
-    starting_date.result,
-    interval.result,
+    Date.new(starting_date_dict),
+    Date.new(interval_dict),
     type))
 
 func _init(starting_date: Date, interval: Date, type: String = "Invalid") -> void:

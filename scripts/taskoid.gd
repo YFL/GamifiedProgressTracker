@@ -141,11 +141,13 @@ static func config_from_dict(dict: Dictionary) -> Result:
   if typeof(has_deadline) != TYPE_BOOL:
     return Result.Error("Taskoid has deadline is not a bool")
   const deadline_key = "deadline"
-  var deadline_res = Date.new(dict.get(deadline_key))
+  var deadline_dict: Dictionary = dict.get(deadline_key)
+  var deadline_res = Date.check_dict(deadline_dict)
   if deadline_res.result == null:
     return Result.Error("Taskoid deadline is invalid: " + deadline_res.error)
+  var parsed_deadline := Date.new(deadline_dict)
   var repetition_config_res := RepetitionConfig.from_dict(dict.get(Config.repetition_config_key, {}))
   if repetition_config_res.result == null and not repetition_config_res.error.is_empty():
     return Result.Error("Taskoid repetition config is invalid: " + repetition_config_res.error)
   return Result.new(Config.new(name, description, difficulty, parent, completed, has_deadline,
-    deadline_res.result, repetition_config_res.result))
+    parsed_deadline, repetition_config_res.result))

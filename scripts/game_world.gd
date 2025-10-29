@@ -313,8 +313,8 @@ func display_repeatables() -> void:
 func try_to_draw(entity: Entity, config: DrawConfig) -> void:
   if not entity.should_be_drawn():
     return
-  draw_taskoid(entity.taskoid.name, config)
-  entity.on_draw()
+  if draw_taskoid(entity.taskoid.name, config):
+    entity.on_draw()
 
 func add_monster(task: Task, position = Vector2i(-1, -1)) -> bool:
   var tile_position: Vector2i
@@ -388,10 +388,12 @@ func reserve_random_free_tile() -> Vector2i:
   free_tiles.erase(free_tile)
   return free_tile
 
-func draw_taskoid(name: String, config: DrawConfig) -> void:
+func draw_taskoid(name: String, config: DrawConfig) -> bool:
   if tilemap != null:
     tilemap.set_cell(config.position, config.source_id, config.tile_index)
     add_label_for_taskoid(name, config.position)
+    return true
+  return false
 
 func draw_grass(position: Vector2i) -> void:
   if tilemap == null:
@@ -462,7 +464,6 @@ func remove_label_for_taskoid(taskoid: Taskoid, tile_pos: Vector2i) -> void:
         and label.position == Vector2(tile_pos * tile_size - Vector2i(64, 0)):
         tilemap.remove_child(child)
         child.queue_free()
-
 
 func to_dict() -> Dictionary:
   var dict: Dictionary
