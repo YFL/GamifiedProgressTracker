@@ -21,7 +21,7 @@ func _notification(what: int) -> void:
       interval.queue_free()
 
 func set_config(config: RepetitionConfig) -> void:
-  starting_date.date = config.starting_date.to_dict()
+  starting_date.date = config.current_starting_date.to_dict()
   interval.date = config.interval.to_dict()
 
 func toggle(enabled: bool) -> void:

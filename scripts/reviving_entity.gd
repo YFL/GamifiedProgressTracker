@@ -1,10 +1,22 @@
 class_name RevivingEntity extends Entity
 
+var _has_been_drawn := false
+
 func should_be_drawn() -> bool:
-  var dict_from_system := Time.get_date_dict_from_system()
-  var date_from_system := Date.from_dict(dict_from_system)
-  return date_from_system.result.gte(taskoid.repetition_config.starting_date) and \
-    (taskoid.completed or taskoid.deadline.gte(date_from_system.result))
+  # Should be draw if:
+    # The current date is less then or equal the system date AND
+    # The task is NOT completed AND
+    # The task is NOT already drawn
+  return Date.new(Time.get_date_dict_from_system())\
+    .gte(taskoid.repetition_config.current_starting_date) and \
+    not taskoid.completed and not _has_been_drawn
+
+func should_be_advanced() -> bool:
+  return Date.new(Time.get_date_dict_from_system())\
+    .gte(taskoid.repetition_config.next_starting_date)
 
 func on_draw() -> void:
-  taskoid.prepare_to_be_repeated()
+  _has_been_drawn = true
+
+func on_hide() -> void:
+  _has_been_drawn = false

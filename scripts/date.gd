@@ -6,7 +6,7 @@ const day_key := "day"
 
 var _date: Dictionary
 
-static func _check_dict(dict: Dictionary) -> Result:
+static func check_dict(dict: Dictionary) -> Result:
   var year = dict.get(year_key)
   if year == null:
     return Result.Error("Year is missing")
@@ -24,24 +24,25 @@ static func _check_dict(dict: Dictionary) -> Result:
     return Result.Error("Day is not a number")
   return Result.new(true)
 
-static func from_dict(dict: Dictionary) -> Result:
-  return Result.new(Date.new(dict))
-
 func _init(date: Dictionary) -> void:
-  var res := _check_dict(date)
+  var res := check_dict(date)
   if not res.result:
     push_error("Couldn't create date: " + res.error)
     return
   _date = date
 
 func gt(date: Date) -> bool:
-  if date._date[year_key] < _date[year_key]:
+  if _date[year_key] < date._date[year_key]:
+    return false
+  if _date[year_key] > date._date[year_key]:
     return true
-  if date._date[month_key] < _date[month_key]:
+  if _date[month_key] < date._date[month_key]:
+    return false
+  if _date[month_key] > date._date[month_key]:
     return true
-  if date._date[day_key] < _date[day_key]:
-    return true
-  return false
+  if _date[day_key] < date._date[day_key]:
+    return false
+  return true
 
 func eq(date: Date) -> bool:
   return date._date[year_key] == _date[year_key] and date._date[month_key] == _date[month_key] and \
@@ -58,7 +59,7 @@ func add_interval(interval: Date) -> void:
   var month: int = _date.month + interval._date.month
   if month > 12:
     year += month / 12
-    month = month % 12
+    month = month % 12 + 1
   var day: int = _date.day + interval._date.day
   var days_in_month := {
     1: 31,
@@ -78,6 +79,9 @@ func add_interval(interval: Date) -> void:
   while day > days_in_month[month]:
     day -= days_in_month[month]
     month += 1
+    if month > 12:
+      year += month / 12
+      month = month % 12  + 1
   
   _date = {
     year = year,

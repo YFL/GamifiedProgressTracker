@@ -63,7 +63,7 @@ func complete() -> Result:
       return Result.new(false, child.name + " is not completed yet")
   return super.complete()
 
-func prepare_to_be_repeated() -> void:
-  super.prepare_to_be_repeated()
+func advance() -> void:
+  super.advance()
   for child in children:
-    child.prepare_to_be_repeated()
+    child.advance()
